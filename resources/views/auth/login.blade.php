@@ -2,7 +2,6 @@
 
 @php
     $title = 'Login - Tandi\'s Bakery';
-    // Kita paksa definisikan di sini supaya tidak mungkin Undefined
     $tabs = [
         ['key' => 'admin', 'label' => 'Admin', 'href' => route('auth.login.admin')],
         ['key' => 'karyawan', 'label' => 'Karyawan', 'href' => route('auth.login.karyawan')],
@@ -34,13 +33,50 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="mt-6 space-y-4">
-                    <input class="bakery-input w-full p-3 border rounded-xl" placeholder="Username" />
-                    <input class="bakery-input w-full p-3 border rounded-xl" type="password" placeholder="Password" />
-                    <a href="{{ $role === 'karyawan' ? route('karyawan.dashboard') : route('admin.dashboard') }}" class="block w-full bg-slate-900 text-white text-center py-3 rounded-xl font-bold">
+
+                <form class="mt-6 space-y-4" method="POST" action="{{ route('auth.login.submit') }}">
+                    @csrf
+                    <input type="hidden" name="role" value="{{ $role }}" />
+
+                    <div>
+                        <input
+                            class="bakery-input w-full p-3 border rounded-xl @error('username') ring-2 ring-rose-300 @enderror"
+                            name="username"
+                            value="{{ old('username') }}"
+                            placeholder="Username"
+                            required
+                            autocomplete="username"
+                        />
+                        @error('username')
+                            <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <input
+                            class="bakery-input w-full p-3 border rounded-xl @error('password') ring-2 ring-rose-300 @enderror"
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            required
+                            autocomplete="current-password"
+                        />
+                        @error('password')
+                            <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="block w-full bg-slate-900 text-white text-center py-3 rounded-xl font-bold">
                         Login
-                    </a>
-                </div>
+                    </button>
+                </form>
+
+                @if ($role === 'admin')
+                    <p class="mt-4 text-center text-xs font-semibold text-slate-400">
+                        Basket?
+                        <a href="{{ route('auth.login.basket') }}" class="text-amber-600 hover:underline">Login di sini</a>
+                    </p>
+                @endif
             </div>
         </div>
     </div>

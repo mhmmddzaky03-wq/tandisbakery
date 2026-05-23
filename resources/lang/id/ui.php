@@ -17,4 +17,15 @@ return [
 
     'feature_in_progress' => 'Fitur ini belum diaktifkan',
     'still_on_progress' => 'Tugas Backend ah',
+
+    'close' => 'Tutup',
+    'cancel' => 'Batal',
+    'save' => 'Simpan',
+    'saving' => 'Menyimpan...',
+    'required_hint' => 'Wajib diisi',
+    'fill_required' => 'Lengkapi field bertanda *',
+    'empty_data' => 'Belum ada data.',
+
+    'notifications' => 'Notifikasi',
+    'no_notifications' => 'Tidak ada notifikasi baru.',
 ];

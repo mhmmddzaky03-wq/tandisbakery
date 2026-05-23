@@ -22,6 +22,10 @@ class AuthController extends Controller
             $role = 'admin';
         }
 
+        if ($role === 'basket') {
+            return view('auth.login-basket');
+        }
+
         return view('auth.login', ['role' => $role]);
     }
 
@@ -71,7 +75,11 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('auth.login', ['role' => $role]);
+        return redirect()->route(match ($role) {
+            'karyawan' => 'auth.login.karyawan',
+            'basket' => 'auth.login.basket',
+            default => 'auth.login.admin',
+        });
     }
 
     /**

@@ -15,6 +15,6 @@ class Usertest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertRedirect(route('auth.login.admin'));
     }
 }

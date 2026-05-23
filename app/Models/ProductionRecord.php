@@ -10,6 +10,13 @@ class ProductionRecord extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
+    protected function casts(): array
+    {
+        return [
+            'tanggal' => 'date',
+        ];
+    }
+
     protected $fillable = [
         'id',
         'tanggal',

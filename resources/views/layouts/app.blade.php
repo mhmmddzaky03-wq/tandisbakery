@@ -53,11 +53,12 @@
                             </div>
                         </div>
 
-                        <x-topbar :role="$role ?? 'admin'" />
+                        <x-topbar :role="$role ?? 'admin'" :user="auth()->user()" />
                     </div>
                 </header>
 
                 <main class="mx-auto max-w-[1400px] px-4 sm:px-6 pb-10 w-full max-w-full overflow-x-hidden">
+                    <x-flash />
                     @yield('content')
                 </main>
             </div>

@@ -13,6 +13,13 @@ class JournalTransaction extends Model
         'ref',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'tanggal' => 'date',
+        ];
+    }
+
     public function entries(): HasMany
     {
         return $this->hasMany(JournalEntry::class, 'journal_transaction_id');

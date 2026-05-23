@@ -15,6 +15,15 @@ return [
     'enter_username' => 'Enter username',
     'enter_password' => 'Enter password',
 
-    'feature_in_progress' => 'Fitur ini belum diaktifkan',
-    'still_on_progress' => 'Tugas Backend ah',
+    'feature_in_progress' => 'This feature is not enabled yet',
+    'still_on_progress' => 'Backend work in progress',
+
+    'close' => 'Close',
+    'cancel' => 'Cancel',
+    'save' => 'Save',
+    'saving' => 'Saving...',
+    'required_hint' => 'Required',
+
+    'notifications' => 'Notifications',
+    'no_notifications' => 'No new notifications.',
 ];

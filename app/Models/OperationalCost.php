@@ -17,4 +17,11 @@ class OperationalCost extends Model
         'jumlah',
         'jenis',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal' => 'date',
+        ];
+    }
 }

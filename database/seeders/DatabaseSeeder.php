@@ -12,7 +12,6 @@ use App\Models\ProductionRecord;
 use App\Models\SalesTransaction;
 use App\Models\OperationalCost;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,30 +20,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Seed Users
-        User::create([
-            'name' => 'Haris',
-            'username' => 'admin',
-            'email' => 'admin@tandisbakery.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
-
-        User::create([
-            'name' => 'Karyawan Toko',
-            'username' => 'karyawan',
-            'email' => 'karyawan@tandisbakery.com',
-            'password' => Hash::make('karyawan123'),
-            'role' => 'karyawan',
-        ]);
-
-        User::create([
-            'name' => 'Basket',
-            'username' => 'basket',
-            'email' => 'basket@tandisbakery.com',
-            'password' => Hash::make('basket123'),
-            'role' => 'basket',
-        ]);
+        // 1. Seed Users (plain password — model casts to hashed)
+        foreach ([
+            ['name' => 'Haris', 'username' => 'admin', 'email' => 'admin@tandisbakery.com', 'password' => 'admin123', 'role' => 'admin'],
+            ['name' => 'Karyawan Toko', 'username' => 'karyawan', 'email' => 'karyawan@tandisbakery.com', 'password' => 'karyawan123', 'role' => 'karyawan'],
+            ['name' => 'Basket', 'username' => 'basket', 'email' => 'basket@tandisbakery.com', 'password' => 'basket123', 'role' => 'basket'],
+        ] as $user) {
+            User::updateOrCreate(['username' => $user['username']], $user);
+        }
 
         // 2. Seed Accounts (Chart of Accounts)
         $accounts = [

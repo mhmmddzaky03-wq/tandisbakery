@@ -16,4 +16,11 @@ class SalesTransaction extends Model
         'metode',
         'jumlah',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal' => 'date',
+        ];
+    }
 }

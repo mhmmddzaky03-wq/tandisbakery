@@ -62,6 +62,22 @@
         @apply w-full rounded-xl bg-[#F3F4F6] px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none ring-1 ring-black/5 focus:ring-2 focus:ring-amber-400;
     }
 
+    .bakery-field + .bakery-field {
+        @apply mt-4;
+    }
+
+    .bakery-modal::backdrop {
+        background: rgb(15 23 42 / 0.45);
+    }
+
+    .bakery-modal[open] {
+        @apply fixed inset-0 z-[80] m-auto flex max-h-[100dvh] items-center justify-center p-4;
+    }
+
+    [data-submit-loading]:not(.hidden) {
+        @apply inline-flex;
+    }
+
     .bakery-btn {
         @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition;
         white-space: nowrap;

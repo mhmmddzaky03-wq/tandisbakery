@@ -1,5 +1,6 @@
 @props([
     'role' => 'admin',
+    'user' => null,
 ])
 
 <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -12,6 +13,7 @@
             class="flex-1 min-w-0 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
             placeholder="{{ __('ui.search') }}"
             aria-label="Search"
+            data-global-search
         />
     </div>
 
@@ -39,12 +41,23 @@
         </div>
     </div>
 
-    <button type="button" class="grid h-10 w-10 place-items-center rounded-xl bg-white ring-1 ring-black/10" data-dummy>
-        <svg viewBox="0 0 24 24" class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17H9a4 4 0 0 0 6 0Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" />
-        </svg>
-    </button>
+    <div class="relative" data-dropdown>
+        <button
+            type="button"
+            class="grid h-10 w-10 place-items-center rounded-xl bg-white ring-1 ring-black/10"
+            data-dropdown-button
+            aria-label="Notifikasi"
+        >
+            <svg viewBox="0 0 24 24" class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17H9a4 4 0 0 0 6 0Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" />
+            </svg>
+        </button>
+        <div class="absolute right-0 mt-2 hidden w-[260px] rounded-2xl bg-white p-3 shadow-lg ring-1 ring-black/10" data-dropdown-menu>
+            <div class="text-xs font-bold text-slate-400">{{ __('ui.notifications') ?? 'Notifikasi' }}</div>
+            <p class="mt-2 text-sm font-semibold text-slate-600">{{ __('ui.no_notifications') ?? 'Tidak ada notifikasi baru.' }}</p>
+        </div>
+    </div>
 
     <div class="relative" data-dropdown>
         <button
@@ -59,8 +72,8 @@
                 </svg>
             </div>
             <div class="hidden sm:block text-left leading-tight">
-                <div class="text-sm font-semibold text-slate-800">{{ $role === 'karyawan' ? 'Karyawan Toko' : ($role === 'basket' ? 'Basket' : 'Haris') }}</div>
-                <div class="text-xs font-semibold text-slate-400">{{ $role === 'karyawan' ? 'Karyawan' : ($role === 'basket' ? 'Basket' : 'Administrator') }}</div>
+                <div class="text-sm font-semibold text-slate-800">{{ $user?->name ?? 'User' }}</div>
+                <div class="text-xs font-semibold text-slate-400">{{ ucfirst($role) }}</div>
             </div>
             <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
@@ -71,10 +84,12 @@
             class="absolute right-0 mt-2 hidden w-[220px] rounded-2xl bg-white p-2 shadow-lg ring-1 ring-black/10"
             data-dropdown-menu
         >
-            <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50" href="{{ route('auth.logout') }}">
-                {{ __('ui.logout') }}
-            </a>
+            <form method="POST" action="{{ route('auth.logout') }}">
+                @csrf
+                <button type="submit" class="w-full text-left rounded-xl px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50">
+                    {{ __('ui.logout') }}
+                </button>
+            </form>
         </div>
     </div>
 </div>
-
