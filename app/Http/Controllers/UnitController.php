@@ -15,7 +15,7 @@ class UnitController extends Controller
 
         Unit::create(['nama' => $data['nama_satuan']]);
 
-        return redirect()->back()->with('success', __('ui.flash_unit_created'));
+        return redirect()->back()->with('success', 'Satuan berhasil ditambahkan.');
     }
 
     public function update(Request $request, int $id)
@@ -28,13 +28,13 @@ class UnitController extends Controller
 
         $unit->update(['nama' => $data['nama_satuan']]);
 
-        return redirect()->back()->with('success', __('ui.flash_unit_updated'));
+        return redirect()->back()->with('success', 'Satuan berhasil diperbarui.');
     }
 
     public function destroy(int $id)
     {
         Unit::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('ui.flash_unit_deleted'));
+        return redirect()->back()->with('success', 'Satuan berhasil dihapus.');
     }
 }

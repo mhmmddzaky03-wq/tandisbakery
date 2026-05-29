@@ -5,9 +5,9 @@
 
 @php
     $roleLabel = match ($role) {
-        'admin' => __('ui.role_administrator'),
-        'karyawan' => __('ui.role_employee'),
-        'basket' => __('ui.role_basket'),
+        'admin' => 'Administrator',
+        'karyawan' => 'Karyawan',
+        'basket' => 'Basket',
         default => ucfirst($role),
     };
 @endphp
@@ -20,8 +20,8 @@
         </svg>
         <input
             class="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
-            placeholder="{{ __('ui.search') }}"
-            aria-label="{{ __('ui.search') }}"
+            placeholder="Cari..."
+            aria-label="Cari..."
             data-global-search
         />
     </div>
@@ -32,7 +32,7 @@
                 type="button"
                 class="relative grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-700 ring-1 ring-black/10 transition hover:bg-slate-50"
                 data-dropdown-button
-                aria-label="{{ __('ui.notifications') }}"
+                aria-label="Notifikasi"
             >
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 17H9a4 4 0 0 0 6 0Z" />
@@ -41,8 +41,8 @@
                 <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" aria-hidden="true"></span>
             </button>
             <div class="absolute right-0 z-50 mt-2 hidden w-[260px] rounded-2xl bg-white p-3 shadow-lg ring-1 ring-black/10" data-dropdown-menu>
-                <div class="text-xs font-bold text-slate-400">{{ __('ui.notifications') }}</div>
-                <p class="mt-2 text-sm font-semibold text-slate-600">{{ __('ui.no_notifications') }}</p>
+                <div class="text-xs font-bold text-slate-400">Notifikasi</div>
+                <p class="mt-2 text-sm font-semibold text-slate-600">Tidak ada notifikasi baru.</p>
             </div>
         </div>
 
@@ -105,7 +105,7 @@
             <div class="absolute right-0 z-50 mt-2 hidden w-[220px] rounded-2xl bg-white p-2 shadow-lg ring-1 ring-black/10" data-dropdown-menu>
                 @if (! config('app.auth_enabled'))
                     <div class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-amber-600">
-                        {{ __('ui.switch_role') }}
+                        Ganti role
                     </div>
                     <a href="{{ route('admin.dashboard') }}" class="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($role ?? '') === 'admin' ? 'bg-amber-50 text-amber-800' : '' }}">
                         Admin
@@ -120,7 +120,7 @@
                     <form method="POST" action="{{ route('auth.logout') }}">
                         @csrf
                         <button type="submit" class="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-rose-600 hover:bg-rose-50">
-                            {{ __('ui.logout') }}
+                            Keluar
                         </button>
                     </form>
                 @endif

@@ -268,6 +268,14 @@ function openModal(dlg) {
         dlg.classList.remove('hidden');
     }
 
+    const errorBanner = qs('[data-form-error-banner]', dlg);
+    if (errorBanner) {
+        requestAnimationFrame(() => {
+            errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        return;
+    }
+
     const focusable = dlg.querySelector(
         'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
     );
@@ -323,9 +331,10 @@ document.addEventListener('keydown', (e) => {
 
 qsa('form[data-modal-form]').forEach((form) => {
     form.addEventListener('submit', () => {
-        const btn = qs('[data-submit-btn]', form);
-        const label = qs('[data-submit-label]', form);
-        const loading = qs('[data-submit-loading]', form);
+        const btn = qs('[data-submit-btn]', form)
+            ?? (form.id ? qs(`[data-submit-btn][form="${form.id}"]`) : null);
+        const label = btn ? qs('[data-submit-label]', btn) : null;
+        const loading = btn ? qs('[data-submit-loading]', btn) : null;
         if (!btn) return;
         btn.disabled = true;
         if (label) label.classList.add('hidden');
@@ -544,3 +553,255 @@ qsa('[data-unit-add-toggle]').forEach((btn) => {
         }
     });
 });
+
+qsa('[data-category-add-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const card = btn.closest('[data-category-card]');
+        const formWrap = card ? qs('[data-category-add-form]', card) : null;
+        if (!formWrap) return;
+
+        const isHidden = formWrap.classList.contains('hidden');
+        formWrap.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+
+        if (isHidden) {
+            const input = qs('input[name="nama"]', formWrap);
+            input?.focus();
+        }
+    });
+});
+
+function formatQtyOneDisplay(value) {
+    const n = Math.round(parseFloat(value) * 10) / 10;
+    if (!Number.isFinite(n)) return '0';
+    if (Math.floor(n) === n) {
+        return String(Math.trunc(n));
+    }
+    return n.toFixed(1).replace(/\.0$/, '');
+}
+
+function initProductionMaterialSection(section) {
+    let materials = [];
+    let initialRows = [{ raw_material_id: '', jumlah: '' }];
+    const selectPlaceholder = section.dataset.selectPlaceholder || '—';
+
+    try {
+        materials = JSON.parse(section.dataset.materials || '[]');
+        initialRows = JSON.parse(section.dataset.initialRows || '[[]]');
+    } catch {
+        materials = [];
+    }
+
+    const rowsWrap = qs('[data-production-rows]', section);
+    const template = qs('[data-production-row-template]', section);
+    const addBtn = qs('[data-production-add-row]', section);
+    if (!rowsWrap || !template) return;
+
+    let rowIndex = 0;
+
+    function getMaterial(id) {
+        return materials.find((item) => item.id === id);
+    }
+
+    function buildSelectOptions(select, selectedId) {
+        select.innerHTML = '';
+
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = selectPlaceholder;
+        select.appendChild(empty);
+
+        materials.forEach((material) => {
+            const opt = document.createElement('option');
+            opt.value = material.id;
+            opt.textContent = material.nama;
+            opt.selected = material.id === selectedId;
+            select.appendChild(opt);
+        });
+    }
+
+    function setQtyEnabled(row, enabled, keepValue = '') {
+        const qtyInput = qs('[data-material-qty]', row);
+        if (!qtyInput) return;
+
+        qtyInput.disabled = !enabled;
+        qtyInput.required = enabled;
+
+        if (!enabled) {
+            qtyInput.value = '0';
+            qtyInput.placeholder = '0';
+            return;
+        }
+
+        qtyInput.placeholder = '0';
+        qtyInput.value = keepValue && keepValue !== '0' ? keepValue : '';
+    }
+
+    function syncRow(row) {
+        const select = qs('[data-material-select]', row);
+        const qtyInput = qs('[data-material-qty]', row);
+        const unitEl = qs('[data-material-unit]', row);
+        const stockEl = qs('[data-material-stock]', row);
+        const remainEl = qs('[data-material-remain]', row);
+        if (!select || !qtyInput || !unitEl || !stockEl || !remainEl) return;
+
+        const material = getMaterial(select.value);
+        const insufficientClasses = ['bg-rose-50/80', 'ring-1', 'ring-inset', 'ring-rose-200'];
+
+        setQtyEnabled(row, Boolean(select.value), qtyInput.value);
+
+        if (!material) {
+            unitEl.textContent = '—';
+            stockEl.textContent = '—';
+            remainEl.textContent = '—';
+            remainEl.classList.remove('text-rose-600');
+            remainEl.classList.add('text-emerald-600');
+            insufficientClasses.forEach((cls) => row.classList.remove(cls));
+            return;
+        }
+
+        const qty = parseFloat(qtyInput.value) || 0;
+        unitEl.textContent = material.satuan;
+        stockEl.textContent = `${formatQtyOneDisplay(material.jumlah)} ${material.satuan}`;
+
+        const isInsufficient = qty > material.jumlah;
+        insufficientClasses.forEach((cls) => row.classList.toggle(cls, isInsufficient));
+
+        if (isInsufficient) {
+            remainEl.textContent = `-${formatQtyOneDisplay(qty - material.jumlah)} ${material.satuan}`;
+            remainEl.classList.remove('text-emerald-600');
+            remainEl.classList.add('text-rose-600');
+        } else {
+            remainEl.textContent = `${formatQtyOneDisplay(material.jumlah - qty)} ${material.satuan}`;
+            remainEl.classList.remove('text-rose-600');
+            remainEl.classList.add('text-emerald-600');
+        }
+    }
+
+    function reindexRows() {
+        qsa('[data-production-row]', rowsWrap).forEach((row, idx) => {
+            const select = qs('[data-material-select]', row);
+            const qtyInput = qs('[data-material-qty]', row);
+            if (select) select.name = `materials[${idx}][raw_material_id]`;
+            if (qtyInput) qtyInput.name = `materials[${idx}][jumlah]`;
+        });
+        rowIndex = qsa('[data-production-row]', rowsWrap).length;
+    }
+
+    function updateRemoveButtons() {
+        const rows = qsa('[data-production-row]', rowsWrap);
+        rows.forEach((row) => {
+            const btn = qs('[data-production-remove-row]', row);
+            if (btn) {
+                const isOnly = rows.length <= 1;
+                btn.disabled = isOnly;
+                btn.classList.toggle('opacity-30', isOnly);
+                btn.classList.toggle('pointer-events-none', isOnly);
+            }
+        });
+    }
+
+    function addRow(data = { raw_material_id: '', jumlah: '' }) {
+        const html = template.innerHTML.replaceAll('__INDEX__', String(rowIndex));
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        const row = wrapper.firstElementChild;
+        if (!row) return;
+
+        rowsWrap.appendChild(row);
+
+        const select = qs('[data-material-select]', row);
+        const qtyInput = qs('[data-material-qty]', row);
+        if (select) {
+            buildSelectOptions(select, data.raw_material_id || '');
+            select.addEventListener('change', () => syncRow(row));
+        }
+        if (qtyInput) {
+            const initialQty = data.jumlah || '';
+            qtyInput.addEventListener('input', () => syncRow(row));
+            qtyInput.addEventListener('blur', () => syncRow(row));
+            if (select?.value) {
+                qtyInput.value = initialQty;
+            }
+        }
+
+        qs('[data-production-remove-row]', row)?.addEventListener('click', () => {
+            if (qsa('[data-production-row]', rowsWrap).length <= 1) {
+                showToast('Minimal satu bahan baku', 'warning');
+                return;
+            }
+            row.remove();
+            reindexRows();
+            updateRemoveButtons();
+        });
+
+        rowIndex += 1;
+        syncRow(row);
+        updateRemoveButtons();
+    }
+
+    rowsWrap.innerHTML = '';
+    rowIndex = 0;
+
+    if (initialRows.length === 0) {
+        addRow();
+    } else {
+        initialRows.forEach((row) => addRow(row));
+    }
+
+    addBtn?.addEventListener('click', () => addRow());
+}
+
+qsa('[data-production-materials]').forEach((section) => initProductionMaterialSection(section));
+
+function getCoaGroupMap() {
+    const el = document.getElementById('coa-group-map-data');
+    if (!el) return null;
+
+    try {
+        return JSON.parse(el.textContent);
+    } catch {
+        return null;
+    }
+}
+
+function populateCoaSubGroups(form, groupMap, selectedGrup, selectedSub) {
+    const subSelect = qs('select[name="sub_grup"]', form);
+    if (!subSelect) return;
+
+    const placeholder = form.dataset.coaPlaceholderSub || '— Pilih sub-grup —';
+    const options = groupMap[selectedGrup] || [];
+
+    subSelect.disabled = !selectedGrup;
+    subSelect.innerHTML = `<option value="" disabled ${selectedSub ? '' : 'selected'}>${placeholder}</option>`;
+
+    options.forEach((sub) => {
+        const opt = document.createElement('option');
+        opt.value = sub;
+        opt.textContent = sub;
+        if (sub === selectedSub) opt.selected = true;
+        subSelect.appendChild(opt);
+    });
+}
+
+function bindCoaForms() {
+    const groupMap = getCoaGroupMap();
+    if (!groupMap) return;
+
+    qsa('[data-coa-form]').forEach((form) => {
+        if (form.dataset.coaFormBound === 'true') return;
+
+        form.dataset.coaFormBound = 'true';
+        const grupSelect = qs('select[name="grup"]', form);
+        const subSelect = qs('select[name="sub_grup"]', form);
+        if (!grupSelect || !subSelect) return;
+
+        populateCoaSubGroups(form, groupMap, grupSelect.value, subSelect.value);
+
+        grupSelect.addEventListener('change', () => {
+            populateCoaSubGroups(form, groupMap, grupSelect.value, '');
+        });
+    });
+}
+
+bindCoaForms();

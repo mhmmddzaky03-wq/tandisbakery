@@ -56,7 +56,7 @@ class ProductController extends Controller
             'status'               => $data['status'],
         ]);
 
-        return redirect()->back()->with('success', __('ui.flash_product_created'));
+        return redirect()->back()->with('success', 'Produk berhasil didaftarkan dari data produksi.');
     }
 
     public function update(Request $request, $id)
@@ -84,14 +84,14 @@ class ProductController extends Controller
             'status'               => $data['status'],
         ]);
 
-        return redirect()->back()->with('success', __('ui.flash_product_updated'));
+        return redirect()->back()->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         Product::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('ui.flash_product_deleted'));
+        return redirect()->back()->with('success', 'Produk berhasil dihapus. Riwayat produksi tetap tersimpan.');
     }
 
     private function availableProductionsQuery()

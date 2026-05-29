@@ -4,14 +4,14 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.jurnal';
-    $pageTitle = __('nav.journal_entries');
-    $pageSubtitle = __('page.journal_subtitle');
+    $pageTitle = 'Jurnal Umum';
+    $pageSubtitle = 'Catatan transaksi keuangan Tandi\'s Bakery — Juni 2025';
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="jurnal-baru">
-        {{ __('page.add_entry') }}
+        + Tambah Jurnal
     </button>
 @endpush
 
@@ -22,11 +22,11 @@
             {{ $totalTransaksi }} transaksi • D {{ FormatHelper::rupiah($totalDebit) }} / K {{ FormatHelper::rupiah($totalKredit) }}
         </p>
         <form method="GET" class="mb-5 grid gap-3 sm:grid-cols-4">
-            <input class="bakery-input sm:col-span-2" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('page.search_by_ref_account') }}" />
+            <input class="bakery-input sm:col-span-2" name="search" value="{{ $search ?? '' }}" placeholder="Cari berdasarkan ref, akun, uraian, tanggal..." />
             <input class="bakery-input" type="date" name="from" value="{{ $from ?? '' }}" aria-label="Dari tanggal" />
             <div class="flex gap-2">
                 <input class="bakery-input flex-1" type="date" name="to" value="{{ $to ?? '' }}" aria-label="Sampai tanggal" />
-                <button type="submit" class="bakery-btn-primary shrink-0">{{ __('page.filter_date') }}</button>
+                <button type="submit" class="bakery-btn-primary shrink-0">Filter Tanggal</button>
             </div>
         </form>
         @forelse ($journals as $journal)

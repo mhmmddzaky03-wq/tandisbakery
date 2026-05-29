@@ -62,14 +62,14 @@ class RawMaterialController extends Controller
                 now()->toDateString(),
                 (float) $jumlah,
                 $harga,
-                __('page.initial_stock_note'),
+                'Stok awal',
             );
         } else {
             $material->harga = $harga;
             $material->saveQuietly();
         }
 
-        return redirect()->back()->with('success', __('ui.flash_stock_created', ['name' => $material->nama]));
+        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil ditambahkan.');
     }
 
     public function update(Request $request, string $id)
@@ -89,7 +89,7 @@ class RawMaterialController extends Controller
 
         $material->update($data);
 
-        return redirect()->back()->with('success', __('ui.flash_stock_updated', ['name' => $material->nama]));
+        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil diperbarui.');
     }
 
     public function restock(Request $request, string $id, RawMaterialRestockService $restockService)
@@ -115,7 +115,7 @@ class RawMaterialController extends Controller
             $data['restock_catatan'] ?? null,
         );
 
-        return redirect()->back()->with('success', __('ui.flash_stock_restocked', ['name' => $material->nama]));
+        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil direstock.');
     }
 
     public function destroy(string $id)
@@ -124,7 +124,7 @@ class RawMaterialController extends Controller
         $nama = $material->nama;
         $material->delete();
 
-        return redirect()->back()->with('success', __('ui.flash_stock_deleted', ['name' => $nama]));
+        return redirect()->back()->with('success',' Bahan baku '.$nama.' berhasil dihapus.');
     }
 
     private function normalizeJumlahInput(Request $request): void

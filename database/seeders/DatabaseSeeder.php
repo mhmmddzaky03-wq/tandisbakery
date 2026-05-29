@@ -10,7 +10,6 @@ use App\Models\JournalTransaction;
 use App\Models\JournalEntry;
 use App\Models\ProductionRecord;
 use App\Models\SalesTransaction;
-use App\Models\OperationalCost;
 use App\Models\Unit;
 use Illuminate\Database\Seeder;
 
@@ -30,40 +29,13 @@ class DatabaseSeeder extends Seeder
             User::updateOrCreate(['username' => $user['username']], $user);
         }
 
-        // 2. Seed Accounts (Chart of Accounts)
-        $accounts = [
-            ['kode' => '1-110', 'nama' => "Cash in Tandi's Bank", 'posisi' => 'Debit', 'grup' => 'Current Asset'],
-            ['kode' => '1-130', 'nama' => 'Direct Materials', 'posisi' => 'Debit', 'grup' => 'Current Asset'],
-            ['kode' => '1-140', 'nama' => 'Work in Process', 'posisi' => 'Debit', 'grup' => 'Current Asset'],
-            ['kode' => '1-150', 'nama' => 'Finished Goods', 'posisi' => 'Debit', 'grup' => 'Current Asset'],
-            ['kode' => '1-160', 'nama' => 'Factory Supplies', 'posisi' => 'Debit', 'grup' => 'Current Asset'],
-            ['kode' => '1-210', 'nama' => 'Factory Equipment', 'posisi' => 'Debit', 'grup' => 'Non-Current Asset'],
-            ['kode' => '1-211', 'nama' => 'Accum. Depreciation - Equipment', 'posisi' => 'Credit', 'grup' => 'Non-Current Asset'],
-            ['kode' => '1-220', 'nama' => 'Vehicle', 'posisi' => 'Debit', 'grup' => 'Non-Current Asset'],
-            ['kode' => '1-221', 'nama' => 'Accum. Depreciation - Vehicle', 'posisi' => 'Credit', 'grup' => 'Non-Current Asset'],
-            ['kode' => '2-110', 'nama' => 'Accounts Payable', 'posisi' => 'Credit', 'grup' => 'Liabilities'],
-            ['kode' => '2-120', 'nama' => 'Tax Payable', 'posisi' => 'Credit', 'grup' => 'Liabilities'],
-            ['kode' => '2-140', 'nama' => 'IPHONE Payable', 'posisi' => 'Credit', 'grup' => 'Liabilities'],
-            ['kode' => '3-110', 'nama' => "Owner's Capital", 'posisi' => 'Credit', 'grup' => 'Equity'],
-            ['kode' => '3-120', 'nama' => 'Retained Earnings', 'posisi' => 'Credit', 'grup' => 'Equity'],
-            ['kode' => '4-110', 'nama' => 'Sales', 'posisi' => 'Credit', 'grup' => 'Revenue'],
-            ['kode' => '4-120', 'nama' => 'Sales Discount', 'posisi' => 'Debit', 'grup' => 'Revenue'],
-            ['kode' => '4-130', 'nama' => 'Sales Return', 'posisi' => 'Debit', 'grup' => 'Revenue'],
-            ['kode' => '5-110', 'nama' => 'Cost of Goods Sold', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-120', 'nama' => 'Admin & Sales Salary Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-130', 'nama' => 'Security Salary Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-140', 'nama' => 'Vehicle Depreciation Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-150', 'nama' => 'Salary Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-160', 'nama' => 'Insurance Cost (BPJS)', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-170', 'nama' => 'Income Tax Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-            ['kode' => '5-180', 'nama' => 'Other Expense', 'posisi' => 'Debit', 'grup' => 'Expenses'],
-        ];
+        // 2. Seed Chart of Accounts (COA perusahaan)
+        $this->call(AccountSeeder::class);
 
-        foreach ($accounts as $acc) {
-            Account::create($acc);
-        }
+        $this->call(ExpenseCategorySeeder::class);
+        $this->call(OperationalCostSeeder::class);
 
-        // 3. Seed Production Records (products are registered from production)
+        // 4. Seed Production Records (products are registered from production)
         $productions = [
             ['id' => 'PRD001', 'tanggal' => '2026-04-15', 'product_name' => 'Roti Tawar', 'jumlah' => 50, 'satuan' => 'loyang', 'status' => 'Berhasil', 'notes' => '-'],
             ['id' => 'PRD002', 'tanggal' => '2026-04-15', 'product_name' => 'Croissant', 'jumlah' => 100, 'satuan' => 'pcs', 'status' => 'Berhasil', 'notes' => '-'],
@@ -109,18 +81,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. Seed Operational Costs
-        $costs = [
-            ['id' => 'BO001', 'tanggal' => '2025-06-01', 'kat' => 'Kemasan', 'desk' => 'Pasar Tradisional - Bahan kemasan dan kebutuhan operasional', 'jumlah' => 420000, 'jenis' => 'Variable'],
-            ['id' => 'BO002', 'tanggal' => '2025-06-30', 'kat' => 'Air', 'desk' => 'Refill Cleo - Air minum untuk operasional', 'jumlah' => 167000, 'jenis' => 'Variable'],
-            ['id' => 'BO008', 'tanggal' => '2025-06-10', 'kat' => 'Lainnya', 'desk' => 'Cimbniaga Cicilan - Bayar HP Iphone (cicilan)', 'jumlah' => 2041500, 'jenis' => 'Fixed'],
-            ['id' => 'BO014', 'tanggal' => '2025-06-30', 'kat' => 'Lainnya', 'desk' => 'Online - Pembelian kebutuhan online', 'jumlah' => 1000000, 'jenis' => 'Variable'],
-        ];
-
-        foreach ($costs as $c) {
-            OperationalCost::create($c);
-        }
-
         // 8. Seed Opening Balances & Historical Accounting Entries (Balanced)
         // Owner's Capital is adjusted to 277,054,484 to balance the opening ledger exactly.
         $tx = JournalTransaction::create([
@@ -137,9 +97,9 @@ class DatabaseSeeder extends Seeder
             ['account_kode' => '1-160', 'debit' => 15000, 'credit' => 0],
             ['account_kode' => '1-210', 'debit' => 52967850, 'credit' => 0],
             ['account_kode' => '1-211', 'debit' => 0, 'credit' => 27500000],
-            ['account_kode' => '1-220', 'debit' => 245000000, 'credit' => 0],
-            ['account_kode' => '1-221', 'debit' => 0, 'credit' => 2041667],
-            ['account_kode' => '2-120', 'debit' => 0, 'credit' => 125000],
+            ['account_kode' => '1-230', 'debit' => 245000000, 'credit' => 0],
+            ['account_kode' => '1-231', 'debit' => 0, 'credit' => 2041667],
+            ['account_kode' => '2-160', 'debit' => 0, 'credit' => 125000],
             ['account_kode' => '2-140', 'debit' => 0, 'credit' => 2401000],
             ['account_kode' => '3-110', 'debit' => 0, 'credit' => 277054484],
             ['account_kode' => '3-120', 'debit' => 0, 'credit' => 29158652],

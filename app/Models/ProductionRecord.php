@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ProductionRecord extends Model
@@ -19,6 +20,7 @@ class ProductionRecord extends Model
     {
         return [
             'tanggal' => 'date',
+            'total_material_cost' => 'integer',
         ];
     }
 
@@ -30,6 +32,8 @@ class ProductionRecord extends Model
         'satuan',
         'status',
         'notes',
+        'total_material_cost',
+        'journal_transaction_id',
     ];
 
     public static function generateNextId(): string
@@ -43,5 +47,10 @@ class ProductionRecord extends Model
     public function product(): HasOne
     {
         return $this->hasOne(Product::class, 'production_record_id');
+    }
+
+    public function materialUsages(): HasMany
+    {
+        return $this->hasMany(ProductionMaterialUsage::class, 'production_record_id');
     }
 }

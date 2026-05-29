@@ -37,6 +37,7 @@
             name="{{ $name }}"
             @required($required)
             @if ($autofocus) autofocus @endif
+            @if ($disabled) disabled @endif
             class="bakery-input {{ $error ? '!ring-2 !ring-rose-400' : '' }}"
         >
             {{ $slot }}

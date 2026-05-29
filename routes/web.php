@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\OperationalCostController;
 use App\Http\Controllers\ProductController;
@@ -73,6 +74,10 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
     Route::post('/biaya-operasional', [OperationalCostController::class, 'store'])->name('admin.operasional.store');
     Route::put('/biaya-operasional/{id}', [OperationalCostController::class, 'update'])->name('admin.operasional.update');
     Route::delete('/biaya-operasional/{id}', [OperationalCostController::class, 'destroy'])->name('admin.operasional.destroy');
+
+    Route::post('/kategori-biaya', [ExpenseCategoryController::class, 'store'])->name('admin.kategori_biaya.store');
+    Route::put('/kategori-biaya/{id}', [ExpenseCategoryController::class, 'update'])->name('admin.kategori_biaya.update');
+    Route::delete('/kategori-biaya/{id}', [ExpenseCategoryController::class, 'destroy'])->name('admin.kategori_biaya.destroy');
 
     Route::get('/data-produk', [ProductController::class, 'index'])->name('admin.produk');
     Route::post('/data-produk', [ProductController::class, 'store'])->name('admin.produk.store');

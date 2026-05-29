@@ -4,12 +4,12 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.gl';
-    $pageTitle = __('nav.general_ledger');
-    $pageSubtitle = __('page.gl_subtitle');
+    $pageTitle = 'General Ledger';
+    $pageSubtitle = 'Buku besar akun - Detail transaksi per akun';
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
 @endpush
 
 @section('content')

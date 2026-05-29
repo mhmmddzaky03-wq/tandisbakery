@@ -1,227 +1,509 @@
 @php
     use App\Support\FormatHelper;
 
-    $filterUrl = static function (?string $jenis): string {
-        $query = request()->except('jenis');
-        if ($jenis !== null && $jenis !== '') {
-            $query['jenis'] = $jenis;
+    $monthValue = $month->format('Y-m');
+    $periodLabel = $month->translatedFormat('F Y');
+
+    $pageUrl = static function (array $overrides = []) use ($monthValue, $filter): string {
+        $query = array_filter([
+            'month' => $monthValue,
+            'tab' => $overrides['tab'] ?? request('tab', 'transaksi'),
+            'jenis' => $overrides['jenis'] ?? $filter ?? null,
+        ], fn ($v) => $v !== null && $v !== '');
+
+        if (array_key_exists('jenis', $overrides) && $overrides['jenis'] === null) {
+            unset($query['jenis']);
         }
 
-        return request()->url().($query ? '?'.http_build_query($query) : '');
+        return request()->url().'?'.http_build_query($query);
     };
 
     $jenisLabel = static fn (string $jenis): string => $jenis === 'Fixed'
-        ? __('page.jenis_fixed')
-        : __('page.jenis_variable');
+        ? 'Tetap'
+        : 'Variabel';
+
+    $fixedCategories = $categories->get('Fixed', collect());
+    $variableCategories = $categories->get('Variable', collect());
+
+    $categoryOptions = static function ($selectedId = null) use ($fixedCategories, $variableCategories, $jenisLabel): void {
+        foreach ([['Fixed', $fixedCategories], ['Variable', $variableCategories]] as [$jenis, $list]) {
+            if ($list->isEmpty()) {
+                continue;
+            }
+            echo '<optgroup label="'.e($jenisLabel($jenis)).'">';
+            foreach ($list as $cat) {
+                $sel = (string) old('expense_category_id', $selectedId) === (string) $cat->id ? ' selected' : '';
+                echo '<option value="'.e($cat->id).'"'.$sel.'>'.e($cat->nama).'</option>';
+            }
+            echo '</optgroup>';
+        }
+    };
 @endphp
 <div>
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <form method="GET" action="{{ request()->url() }}" class="flex flex-wrap items-end gap-3">
+            @if ($tab === 'rekap')
+                <input type="hidden" name="tab" value="rekap">
+            @endif
+            @if (! empty($filter))
+                <input type="hidden" name="jenis" value="{{ $filter }}">
+            @endif
+            <div class="bakery-field min-w-[180px]">
+                <label for="filter-month" class="mb-1.5 block text-xs font-bold text-slate-600">Periode</label>
+                <input
+                    id="filter-month"
+                    type="month"
+                    name="month"
+                    value="{{ $monthValue }}"
+                    class="bakery-input"
+                    onchange="this.form.submit()"
+                />
+            </div>
+        </form>
+
+        <div class="inline-flex rounded-xl bg-slate-100 p-1">
+            <a
+                href="{{ $pageUrl(['tab' => 'transaksi']) }}"
+                class="rounded-lg px-4 py-2 text-sm font-bold transition {{ $tab === 'transaksi' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}"
+            >
+                Transaksi
+            </a>
+            <a
+                href="{{ $pageUrl(['tab' => 'rekap']) }}"
+                class="rounded-lg px-4 py-2 text-sm font-bold transition {{ $tab === 'rekap' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}"
+            >
+                Rekap Bulan
+            </a>
+        </div>
+    </div>
+
+    <p class="mt-2 text-sm font-semibold text-slate-500">Menampilkan data {{ $periodLabel }}</p>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         @foreach ($stats as $s)
-            @php $toneMap = ['violet' => 'violet', 'blue' => 'blue', 'green' => 'blue', 'amber' => 'amber', 'rose' => 'rose', 'slate' => 'amber']; @endphp
+            @php $toneMap = ['violet' => 'violet', 'blue' => 'blue', 'amber' => 'amber']; @endphp
             <x-kpi-card :title="$s['label']" :value="$s['value']" :tone="$toneMap[$s['tone']] ?? 'amber'" :icon="$s['icon'] ?? null" />
         @endforeach
     </div>
 
-    <div class="mt-6 bakery-card" data-table-search>
-        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">{{ __('page.cost_list_title') }}</div>
-            <x-table-search
-                :placeholder="__('page.search_cost')"
-                :value="''"
-            />
+    @if ($tab === 'rekap' && $summary)
+        <div class="mt-6 grid gap-6 lg:grid-cols-2">
+            <div class="bakery-card">
+                <div class="bakery-card-header border-b border-slate-100 pb-3">
+                    <div class="text-base font-extrabold text-sky-700">Biaya Tetap (Fixed Cost)</div>
+                </div>
+                <div class="bakery-card-body pt-2">
+                    @if (count($summary['fixed']['rows']) > 0)
+                        <ul class="divide-y divide-slate-100">
+                            @foreach ($summary['fixed']['rows'] as $row)
+                                <li class="flex items-center justify-between gap-4 py-3 text-sm">
+                                    <span class="font-semibold text-slate-700">{{ $row['label'] }}</span>
+                                    <span class="shrink-0 font-extrabold text-rose-600">{{ FormatHelper::rupiah($row['amount']) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="py-6 text-center text-sm text-slate-500">Tidak ada pengeluaran pada periode ini.</p>
+                    @endif
+                    <div class="mt-2 flex items-center justify-between border-t border-slate-200 pt-3">
+                        <span class="text-sm font-extrabold text-slate-800">TOTAL</span>
+                        <span class="text-base font-extrabold text-sky-700">{{ FormatHelper::rupiah($summary['fixed']['total']) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bakery-card">
+                <div class="bakery-card-header border-b border-slate-100 pb-3">
+                    <div class="text-base font-extrabold text-amber-700">Biaya Variabel (Variable Cost)</div>
+                </div>
+                <div class="bakery-card-body pt-2">
+                    @if (count($summary['variable']['rows']) > 0)
+                        <ul class="divide-y divide-slate-100">
+                            @foreach ($summary['variable']['rows'] as $row)
+                                <li class="flex items-center justify-between gap-4 py-3 text-sm">
+                                    <span class="font-semibold text-slate-700">
+                                        {{ $row['label'] }}
+                                        @if (! empty($row['from_restock']))
+                                            <span class="ml-1 inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">dari stok</span>
+                                        @endif
+                                    </span>
+                                    <span class="shrink-0 font-extrabold text-rose-600">{{ FormatHelper::rupiah($row['amount']) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="py-6 text-center text-sm text-slate-500">Tidak ada pengeluaran pada periode ini.</p>
+                    @endif
+                    <div class="mt-2 flex items-center justify-between border-t border-slate-200 pt-3">
+                        <span class="text-sm font-extrabold text-slate-800">TOTAL</span>
+                        <span class="text-base font-extrabold text-amber-700">{{ FormatHelper::rupiah($summary['variable']['total']) }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="bakery-card-body bakery-table-wrap pt-2">
-            <table class="bakery-table">
-                <thead>
-                    <tr>
-                        <th class="w-[90px]">{{ __('page.id') }}</th>
-                        <th class="w-[120px]">{{ __('page.date') }}</th>
-                        <th class="w-[120px]">{{ __('page.category') }}</th>
-                        <th class="w-[150px]">{{ __('page.description') }}</th>
-                        <th class="w-[140px]">{{ __('page.amount') }}</th>
-                        <th class="w-[130px]">
-                            <div class="relative inline-flex items-center gap-1.5" data-dropdown>
-                                <span>{{ __('page.cost_type') }}</span>
-                                <button
-                                    type="button"
-                                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-amber-600 {{ ! empty($filter) ? 'bg-amber-50 text-amber-600' : '' }}"
-                                    data-dropdown-button
-                                    aria-label="{{ __('page.filter_by_type') }}"
-                                    title="{{ __('page.filter_by_type') }}"
-                                >
-                                    <x-icons.filter class="h-3.5 w-3.5" />
-                                </button>
-                                <div
-                                    class="absolute left-0 top-full z-50 mt-2 hidden min-w-[148px] rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-black/10"
-                                    data-dropdown-menu
-                                >
-                                    <a
-                                        href="{{ $filterUrl(null) }}"
-                                        class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ empty($filter) ? 'bg-amber-50 text-amber-800' : '' }}"
-                                    >
-                                        {{ __('page.all') }}
-                                    </a>
-                                    <a
-                                        href="{{ $filterUrl('Fixed') }}"
-                                        class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($filter ?? '') === 'Fixed' ? 'bg-amber-50 text-amber-800' : '' }}"
-                                    >
-                                        {{ __('page.jenis_fixed') }}
-                                    </a>
-                                    <a
-                                        href="{{ $filterUrl('Variable') }}"
-                                        class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($filter ?? '') === 'Variable' ? 'bg-amber-50 text-amber-800' : '' }}"
-                                    >
-                                        {{ __('page.jenis_variable') }}
-                                    </a>
-                                </div>
-                            </div>
-                        </th>
-                        @if ($canEdit ?? true)
-                            <th class="w-[90px] text-center">{{ __('page.action') }}</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody data-table-search-body>
-                    @forelse ($costs as $c)
-                        <tr
-                            data-searchable-row
-                            data-search="{{ strtolower($c->id.' '.$c->kat.' '.$c->desk.' '.$c->jenis.' '.$jenisLabel($c->jenis)) }}"
+        <div class="mt-4 bakery-card">
+            <div class="bakery-card-body flex flex-wrap items-center justify-between gap-3 py-4">
+                <span class="text-sm font-extrabold text-slate-800">Total Pengeluaran Bulan Ini</span>
+                <span class="text-xl font-extrabold text-violet-700">{{ FormatHelper::rupiah($summary['grand_total']) }}</span>
+            </div>
+        </div>
+
+        <p class="mt-3 text-xs font-semibold text-slate-400">Belanja bahan baku dihitung otomatis dari menu Restock Stok. Input bahan produksi di sana, bukan di sini.</p>
+    @else
+        <div class="mt-6 bakery-card" data-table-search>
+            <div class="bakery-card-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div class="text-lg font-extrabold text-slate-900">Daftar Biaya Operasional</div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative inline-flex items-center" data-dropdown>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-amber-200 hover:text-amber-700 {{ ! empty($filter) ? 'border-amber-200 bg-amber-50 text-amber-800' : '' }}"
+                            data-dropdown-button
                         >
-                            <td class="font-bold text-slate-800">{{ $c->id }}</td>
-                            <td>{{ FormatHelper::dateId($c->tanggal) }}</td>
-                            <td>{{ $c->kat }}</td>
-                            <td>
-                                <button
-                                    type="button"
-                                    class="inline-flex w-[9.5rem] cursor-pointer items-center justify-between gap-2 rounded-full border-0 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-800"
-                                    data-modal-open="detail-cost-{{ $c->id }}"
-                                    title="{{ __('page.view_detail') }}"
-                                    aria-label="{{ __('page.view_detail') }}"
-                                >
-                                    <span class="truncate">{{ \Illuminate\Support\Str::limit($c->desk, 22) }}</span>
-                                    <x-icons.info-circle class="h-3.5 w-3.5 shrink-0 opacity-80" />
-                                </button>
-                            </td>
-                            <td class="font-extrabold text-rose-600">{{ FormatHelper::rupiah($c->jumlah) }}</td>
-                            <td>
-                                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $c->jenis === 'Fixed' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-700' }}">
-                                    {{ $jenisLabel($c->jenis) }}
-                                </span>
-                            </td>
+                            <x-icons.filter class="h-3.5 w-3.5" />
+                            {{ ! empty($filter) ? $jenisLabel($filter) : 'Semua jenis' }}
+                        </button>
+                        <div
+                            class="absolute right-0 top-full z-50 mt-2 hidden min-w-[148px] rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-black/10"
+                            data-dropdown-menu
+                        >
+                            <a href="{{ $pageUrl(['jenis' => null]) }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ empty($filter) ? 'bg-amber-50 text-amber-800' : '' }}">Semua</a>
+                            <a href="{{ $pageUrl(['jenis' => 'Fixed']) }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($filter ?? '') === 'Fixed' ? 'bg-amber-50 text-amber-800' : '' }}">Tetap</a>
+                            <a href="{{ $pageUrl(['jenis' => 'Variable']) }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($filter ?? '') === 'Variable' ? 'bg-amber-50 text-amber-800' : '' }}">Variabel</a>
+                        </div>
+                    </div>
+                    <x-table-search placeholder="Cari biaya..." :value="''" />
+                </div>
+            </div>
+
+            <div class="bakery-card-body bakery-table-wrap pt-2">
+                <table class="bakery-table">
+                    <thead>
+                        <tr>
+                            <th class="w-[120px]">Tanggal</th>
+                            <th class="w-[160px]">Kategori</th>
+                            <th class="w-[100px]">Deskripsi</th>
+                            <th class="w-[140px]">Jumlah</th>
+                            <th class="w-[110px]">Jenis</th>
                             @if ($canEdit ?? true)
-                                <td>
-                                    <div class="flex items-center justify-center gap-1">
+                                <th class="w-[90px] text-center">Aksi</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody data-table-search-body>
+                        @forelse ($costs as $c)
+                            <tr
+                                data-searchable-row
+                                data-search="{{ strtolower($c->kat.' '.($c->desk ?? '').' '.$c->jenis.' '.$jenisLabel($c->jenis)) }}"
+                            >
+                                <td>{{ FormatHelper::dateId($c->tanggal) }}</td>
+                                <td class="font-semibold text-slate-800">{{ $c->kat }}</td>
+                                <td class="max-w-[100px]">
+                                    <div class="flex items-center gap-1">
+                                        <span class="min-w-0 flex-1 truncate text-xs text-slate-500" title="{{ $c->desk }}">{{ $c->desk ?: '—' }}</span>
                                         <button
                                             type="button"
-                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
-                                            data-modal-open="edit-cost-{{ $c->id }}"
-                                            title="{{ __('ui.edit') }}"
-                                            aria-label="{{ __('ui.edit') }}"
+                                            class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-sky-600"
+                                            data-modal-open="detail-cost-{{ $c->id }}"
+                                            title="Lihat detail"
+                                            aria-label="Lihat detail"
                                         >
-                                            <x-icons.pencil />
-                                        </button>
-                                        <form id="delete-cost-{{ $c->id }}" method="POST" action="{{ route($destroyRoute, $c->id) }}" class="inline">
-                                            @csrf @method('DELETE')
-                                        </form>
-                                        <button
-                                            type="button"
-                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
-                                            onclick="if (window.confirm(@js(__('ui.confirm_delete_cost')))) document.getElementById('delete-cost-{{ $c->id }}').submit()"
-                                            title="{{ __('ui.delete') }}"
-                                            aria-label="{{ __('ui.delete') }}"
-                                        >
-                                            <x-icons.trash />
+                                            <x-icons.info-circle class="h-3.5 w-3.5" />
                                         </button>
                                     </div>
                                 </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr data-table-empty>
-                            <td colspan="{{ ($canEdit ?? true) ? 7 : 6 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                                {{ __('page.cost_empty') }}
+                                <td class="font-extrabold text-rose-600">{{ FormatHelper::rupiah($c->jumlah) }}</td>
+                                <td>
+                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $c->jenis === 'Fixed' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-700' }}">
+                                        {{ $jenisLabel($c->jenis) }}
+                                    </span>
+                                </td>
+                                @if ($canEdit ?? true)
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1">
+                                            <button
+                                                type="button"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
+                                                data-modal-open="edit-cost-{{ $c->id }}"
+                                                title="Edit"
+                                                aria-label="Edit"
+                                            >
+                                                <x-icons.pencil />
+                                            </button>
+                                            <form id="delete-cost-{{ $c->id }}" method="POST" action="{{ route($destroyRoute, $c->id) }}" class="inline">
+                                                @csrf @method('DELETE')
+                                            </form>
+                                            <button
+                                                type="button"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                                                onclick="if (window.confirm('Hapus biaya operasional ini?')) document.getElementById('delete-cost-{{ $c->id }}').submit()"
+                                                title="Hapus"
+                                                aria-label="Hapus"
+                                            >
+                                                <x-icons.trash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
+                            </tr>
+                        @empty
+                            <tr data-table-empty>
+                                <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
+                                    Belum ada biaya operasional pada periode ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                        <tr data-table-no-results class="hidden">
+                            <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
+                                Tidak ada data yang cocok dengan pencarian.
                             </td>
                         </tr>
-                    @endforelse
-                    <tr data-table-no-results class="hidden">
-                        <td colspan="{{ ($canEdit ?? true) ? 7 : 6 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                            {{ __('ui.no_search_results') }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    @foreach ($costs as $c)
-        <x-modal id="detail-cost-{{ $c->id }}" size="sm" :title="__('page.cost_detail')" :subtitle="$c->id">
-            <dl class="text-sm">
-                <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.date') }}</dt>
-                    <dd class="font-semibold text-slate-800">{{ FormatHelper::dateId($c->tanggal) }}</dd>
-                </div>
-                <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.category') }}</dt>
-                    <dd class="text-right font-semibold text-slate-800">{{ $c->kat }}</dd>
-                </div>
-                <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.amount') }}</dt>
-                    <dd class="font-semibold text-rose-600">{{ FormatHelper::rupiah($c->jumlah) }}</dd>
-                </div>
-                <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.cost_type') }}</dt>
-                    <dd>
-                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-bold {{ $c->jenis === 'Fixed' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-700' }}">
-                            {{ $jenisLabel($c->jenis) }}
-                        </span>
-                    </dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-2.5">
-                    <dt class="shrink-0 text-slate-400">{{ __('page.description') }}</dt>
-                    <dd class="max-w-[60%] text-right text-slate-700">{{ $c->desk ?: '—' }}</dd>
-                </div>
-            </dl>
-            <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
-                <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>{{ __('ui.close') }}</button>
+                    </tbody>
+                </table>
             </div>
-        </x-modal>
-    @endforeach
+        </div>
 
-    @if ($canEdit ?? true)
+        @if ($canManageCategories ?? false)
+            <div class="bakery-card mt-6" data-category-card>
+                <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <div class="text-lg font-extrabold text-slate-900">Daftar Kategori Biaya</div>
+                        <p class="mt-0.5 text-xs font-semibold text-slate-400">Kelola kategori untuk dropdown input biaya operasional</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
+                        data-category-add-toggle
+                        title="Tambah Kategori"
+                        aria-label="Tambah Kategori"
+                        aria-expanded="{{ $errors->has('nama') && ! $errors->has('tanggal') ? 'true' : 'false' }}"
+                    >
+                        <x-icons.plus class="h-5 w-5" />
+                    </button>
+                </div>
+                <div class="bakery-card-body pt-2">
+                    <div
+                        data-category-add-form
+                        class="{{ $errors->has('nama') && ! $errors->has('tanggal') ? '' : 'hidden' }} mb-4 border-b border-slate-100 pb-4"
+                    >
+                        <form method="POST" action="{{ route($categoryStoreRoute) }}" class="grid gap-3 sm:grid-cols-3">
+                            @csrf
+                            <div>
+                                <input
+                                    type="text"
+                                    name="nama"
+                                    value="{{ old('nama') }}"
+                                    class="bakery-input w-full @error('nama') ring-2 ring-rose-300 @enderror"
+                                    placeholder="Contoh: Sewa Toko"
+                                    required
+                                />
+                                @error('nama')
+                                    <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <select name="jenis" class="bakery-input w-full @error('jenis') ring-2 ring-rose-300 @enderror" required>
+                                    <option value="">Pilih jenis</option>
+                                    <option value="Fixed" @selected(old('jenis') === 'Fixed')>Tetap</option>
+                                    <option value="Variable" @selected(old('jenis') === 'Variable')>Variabel</option>
+                                </select>
+                                @error('jenis')
+                                    <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="flex items-start">
+                                <button type="submit" class="bakery-btn-primary w-full whitespace-nowrap sm:w-auto">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bakery-table-wrap">
+                        <table class="bakery-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama Kategori</th>
+                                    <th class="w-[110px]">Jenis</th>
+                                    <th class="w-[100px]">Status</th>
+                                    <th class="w-[90px] text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($allCategories as $cat)
+                                    <tr class="{{ ! $cat->is_active ? 'opacity-60' : '' }}">
+                                        <td class="font-semibold text-slate-800">{{ $cat->nama }}</td>
+                                        <td>
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $cat->jenis === 'Fixed' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-700' }}">
+                                                {{ $jenisLabel($cat->jenis) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if ($cat->is_active)
+                                                <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Aktif</span>
+                                            @else
+                                                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">Nonaktif</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center justify-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
+                                                    data-modal-open="edit-kategori-{{ $cat->id }}"
+                                                    title="Edit"
+                                                    aria-label="Edit"
+                                                >
+                                                    <x-icons.pencil />
+                                                </button>
+                                                <form id="delete-kategori-{{ $cat->id }}" method="POST" action="{{ route($categoryDestroyRoute, $cat->id) }}" class="inline">
+                                                    @csrf @method('DELETE')
+                                                </form>
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                                                    data-delete-confirm
+                                                    data-delete-form="delete-kategori-{{ $cat->id }}"
+                                                    data-confirm-message="Hapus kategori biaya ini?"
+                                                    onclick="handleConfirmDelete(this)"
+                                                    title="Hapus"
+                                                    aria-label="Hapus"
+                                                >
+                                                    <x-icons.trash />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-12 text-center text-sm text-slate-500">
+                                            Belum ada kategori biaya.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @foreach ($allCategories as $cat)
+                <x-modal id="edit-kategori-{{ $cat->id }}" title="Ubah Kategori Biaya" :subtitle="$cat->nama">
+                    <form method="POST" action="{{ route($categoryUpdateRoute, $cat->id) }}" class="space-y-4" data-modal-form>
+                        @csrf @method('PUT')
+                        <x-form-field label="Nama Kategori" name="nama" :value="old('nama', $cat->nama)" required />
+                        <x-form-field label="Jenis" name="jenis" type="select" required>
+                            <option value="Fixed" @selected(old('jenis', $cat->jenis) === 'Fixed')>Tetap</option>
+                            <option value="Variable" @selected(old('jenis', $cat->jenis) === 'Variable')>Variabel</option>
+                        </x-form-field>
+                        <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                            <input
+                                type="checkbox"
+                                name="is_active"
+                                value="1"
+                                class="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                @checked(old('is_active', $cat->is_active))
+                            />
+                            <span class="text-sm font-semibold text-slate-700">Kategori aktif (tampil di dropdown)</span>
+                        </label>
+                        @if ($cat->operational_costs_count > 0)
+                            <p class="text-xs font-semibold text-slate-400">Digunakan di {{ $cat->operational_costs_count }} transaksi. Nonaktifkan jika tidak dipakai lagi.</p>
+                        @endif
+                        <x-form-actions />
+                    </form>
+                </x-modal>
+            @endforeach
+        @endif
+
         @foreach ($costs as $c)
-            <x-modal id="edit-cost-{{ $c->id }}" :title="__('page.edit_cost')" :subtitle="$c->id">
-                <form method="POST" action="{{ route($updateRoute, $c->id) }}" class="space-y-4" data-modal-form>
-                    @csrf @method('PUT')
-                    <x-form-field :label="__('page.id')" name="id_display" type="text" :value="$c->id" disabled />
-                    <x-form-field :label="__('page.date')" name="tanggal" type="date" :value="old('tanggal', $c->tanggal->format('Y-m-d'))" required autofocus />
-                    <x-form-field :label="__('page.category')" name="kat" :value="old('kat', $c->kat)" required :helper="__('page.cost_category_helper')" />
-                    <x-form-field :label="__('page.description')" name="desk" type="textarea" :value="old('desk', $c->desk)" required />
-                    <x-form-field :label="__('page.amount_rp')" name="jumlah" type="number" :value="old('jumlah', $c->jumlah)" min="0" required />
-                    <x-form-field :label="__('page.cost_type')" name="jenis" type="select" required>
-                        <option value="Variable" @selected(old('jenis', $c->jenis) === 'Variable')>{{ __('page.jenis_variable') }}</option>
-                        <option value="Fixed" @selected(old('jenis', $c->jenis) === 'Fixed')>{{ __('page.jenis_fixed') }}</option>
+            <x-modal id="detail-cost-{{ $c->id }}" size="sm" title="Detail Biaya Operasional" :subtitle="$c->id">
+                <dl class="text-sm">
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
+                        <dt class="text-slate-400">Tanggal</dt>
+                        <dd class="font-semibold text-slate-800">{{ FormatHelper::dateId($c->tanggal) }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
+                        <dt class="text-slate-400">Kategori</dt>
+                        <dd class="max-w-[60%] text-right font-semibold text-slate-800">{{ $c->kat }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
+                        <dt class="text-slate-400">Jenis</dt>
+                        <dd>
+                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $c->jenis === 'Fixed' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-700' }}">
+                                {{ $jenisLabel($c->jenis) }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
+                        <dt class="text-slate-400">Jumlah</dt>
+                        <dd class="font-extrabold text-rose-600">{{ FormatHelper::rupiah($c->jumlah) }}</dd>
+                    </div>
+                    <div class="flex items-start justify-between gap-4 py-2.5">
+                        <dt class="shrink-0 text-slate-400">Deskripsi</dt>
+                        <dd class="max-w-[65%] text-right text-sm font-semibold text-slate-800">{{ $c->desk ?: '—' }}</dd>
+                    </div>
+                    @if ($c->journalTransaction?->ref)
+                        <div class="flex items-center justify-between gap-4 border-t border-slate-100 py-2.5">
+                            <dt class="text-slate-400">Ref. Jurnal</dt>
+                            <dd class="font-semibold text-slate-800">{{ $c->journalTransaction->ref }}</dd>
+                        </div>
+                    @endif
+                </dl>
+                <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
+                    <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>Tutup</button>
+                </div>
+            </x-modal>
+        @endforeach
+
+        @if ($canEdit ?? true)
+            @foreach ($costs as $c)
+                <x-modal id="edit-cost-{{ $c->id }}" title="Ubah Biaya Operasional" :subtitle="$c->kat">
+                    <form method="POST" action="{{ route($updateRoute, $c->id) }}" class="space-y-4" data-modal-form>
+                        @csrf @method('PUT')
+                        <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', $c->tanggal->format('Y-m-d'))" required autofocus />
+                        <x-form-field label="Kategori" name="expense_category_id" type="select" required>
+                            @php $categoryOptions($c->expense_category_id); @endphp
+                        </x-form-field>
+                        <x-form-field label="Nominal (Rp)" name="jumlah" type="number" :value="old('jumlah', $c->jumlah)" min="1" required />
+                        <x-form-field
+                            label="Deskripsi"
+                            name="desk"
+                            type="textarea"
+                            :value="old('desk', $c->desk)"
+                            placeholder="Opsional — no meter, nama karyawan, supplier, dll."
+                            helper="Kosongkan jika kategori sudah cukup jelas."
+                        />
+                        <x-form-actions />
+                    </form>
+                </x-modal>
+            @endforeach
+        @endif
+
+        @if ($canAdd ?? true)
+            <x-modal
+                id="cost-baru"
+                title="Tambah Biaya Operasional"
+                subtitle="Catat pengeluaran tetap dan variabel per bulan"
+                :auto-open="$errors->has('tanggal') || $errors->has('expense_category_id') || $errors->has('jumlah')"
+            >
+                <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form>
+                    @csrf
+                    <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', date('Y-m-d'))" required autofocus />
+                    <x-form-field label="Kategori" name="expense_category_id" type="select" required>
+                        <option value="">— Pilih kategori —</option>
+                        @php $categoryOptions(); @endphp
                     </x-form-field>
+                    <x-form-field label="Nominal (Rp)" name="jumlah" type="number" :value="old('jumlah')" min="1" required />
+                    <x-form-field
+                        label="Deskripsi"
+                        name="desk"
+                        type="textarea"
+                        :value="old('desk')"
+                        placeholder="Opsional — no meter, nama karyawan, supplier, dll."
+                        helper="Kosongkan jika kategori sudah cukup jelas."
+                    />
                     <x-form-actions />
                 </form>
             </x-modal>
-        @endforeach
-    @endif
-
-    @if ($canAdd ?? true)
-        <x-modal id="cost-baru" :title="__('page.add_cost_modal')" :subtitle="__('page.cost_list_subtitle')" :auto-open="$errors->has('tanggal') || $errors->has('kat')">
-            <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form>
-                @csrf
-                <x-form-field :label="__('page.date')" name="tanggal" type="date" :value="old('tanggal', date('Y-m-d'))" required autofocus />
-                <x-form-field :label="__('page.category')" name="kat" :value="old('kat')" required :placeholder="__('page.cost_category_placeholder')" />
-                <x-form-field :label="__('page.description')" name="desk" type="textarea" :value="old('desk')" required :placeholder="__('page.cost_description_placeholder')" />
-                <x-form-field :label="__('page.amount_rp')" name="jumlah" type="number" :value="old('jumlah')" min="0" required />
-                <x-form-field :label="__('page.cost_type')" name="jenis" type="select" required>
-                    <option value="Variable" @selected(old('jenis', 'Variable') === 'Variable')>{{ __('page.jenis_variable') }}</option>
-                    <option value="Fixed" @selected(old('jenis') === 'Fixed')">{{ __('page.jenis_fixed') }}</option>
-                </x-form-field>
-                <x-form-actions />
-            </form>
-        </x-modal>
+        @endif
     @endif
 </div>

@@ -156,7 +156,7 @@ class AccountingService
 
     public function incomeStatement(?string $from = null, ?string $to = null): array
     {
-        $revenue = $this->sumByGroup('Revenue', $from, $to);
+        $revenue = $this->sumByGroup('Revenues', $from, $to);
         $expenses = $this->sumByGroup('Expenses', $from, $to);
         $cogs = $this->accountBalance('5-110');
 
@@ -171,7 +171,7 @@ class AccountingService
             ->sum('jumlah');
 
         $grossRevenue = max($revenue, (int) $salesFromTrx);
-        $totalExpenses = $expenses + (int) $operational;
+        $totalExpenses = $expenses;
 
         return [
             'sales' => $grossRevenue,
@@ -186,27 +186,43 @@ class AccountingService
 
     public function balanceSheet(): array
     {
-        $groups = ['Current Asset', 'Non-Current Asset', 'Liabilities', 'Equity', 'Revenue', 'Expenses'];
+        $sections = [
+            'Current Asset' => $this->accountsBySubGrup('Current Asset'),
+            'Non-Current Asset' => $this->accountsBySubGrup('Non-Current Asset'),
+            'Current Liability' => $this->accountsBySubGrup('Current Liability'),
+            'Paid-In-Capital' => $this->accountsBySubGrup('Paid-In-Capital'),
+            'Retained Earnings' => $this->accountsBySubGrup('Retained Earnings'),
+        ];
 
-        $sections = [];
-        foreach ($groups as $group) {
-            $accounts = Account::where('grup', $group)->orderBy('kode')->get();
-            $sections[$group] = $accounts->map(fn ($a) => [
-                'account' => $a,
-                'saldo' => $this->accountBalance($a->kode),
-            ]);
-        }
+        $totalAssets = (int) Account::where('grup', 'Asset')
+            ->get()
+            ->sum(fn (Account $account) => $this->accountBalance($account->kode));
 
-        $assets = collect($sections['Current Asset'] ?? [])->merge($sections['Non-Current Asset'] ?? [])->sum('saldo');
-        $liabilities = collect($sections['Liabilities'] ?? [])->sum('saldo');
-        $equity = collect($sections['Equity'] ?? [])->sum('saldo');
+        $totalLiabilities = (int) Account::where('grup', 'Liability')
+            ->get()
+            ->sum(fn (Account $account) => $this->accountBalance($account->kode));
+
+        $totalEquity = (int) Account::where('grup', 'Equity')
+            ->get()
+            ->sum(fn (Account $account) => $this->accountBalance($account->kode));
 
         return [
-            'sections' => $sections,
-            'total_assets' => $assets,
-            'total_liabilities' => $liabilities,
-            'total_equity' => $equity,
+            'sections' => collect($sections)->filter(fn ($accounts) => $accounts->isNotEmpty()),
+            'total_assets' => $totalAssets,
+            'total_liabilities' => $totalLiabilities,
+            'total_equity' => $totalEquity,
         ];
+    }
+
+    private function accountsBySubGrup(string $subGrup): Collection
+    {
+        return Account::where('sub_grup', $subGrup)
+            ->orderBy('kode')
+            ->get()
+            ->map(fn (Account $account) => [
+                'account' => $account,
+                'saldo' => $this->accountBalance($account->kode),
+            ]);
     }
 
     private function sumByGroup(string $grup, ?string $from, ?string $to): int
@@ -226,7 +242,7 @@ class AccountingService
             });
         }
 
-        if ($grup === 'Revenue') {
+        if ($grup === 'Revenues') {
             return (int) $query->sum('credit') - (int) $query->sum('debit');
         }
 

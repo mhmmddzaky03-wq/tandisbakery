@@ -3,17 +3,20 @@
 @php
     $role = 'admin';
     $active = 'admin.operasional';
-    $pageTitle = __('nav.operational_costs');
-    $pageSubtitle = __('page.cost_list_subtitle');
-    $title = __('nav.operational_costs').' - Admin';
+    $pageTitle = 'Biaya Operasional';
+    $pageSubtitle = 'Catat pengeluaran tetap dan variabel per bulan';
+    $title = 'Biaya Operasional'.' - Admin';
     $storeRoute = 'admin.operasional.store';
     $updateRoute = 'admin.operasional.update';
     $destroyRoute = 'admin.operasional.destroy';
+    $categoryStoreRoute = 'admin.kategori_biaya.store';
+    $categoryUpdateRoute = 'admin.kategori_biaya.update';
+    $categoryDestroyRoute = 'admin.kategori_biaya.destroy';
 @endphp
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="cost-baru">
-        {{ __('page.add_cost') }}
+        + Tambah Biaya
     </button>
 @endpush
 

@@ -3,32 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalesTransaction;
+use App\Support\FormatHelper;
 use Illuminate\Http\Request;
 
 class SalesTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $query = SalesTransaction::query();
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                    ->orWhere('metode', 'like', "%{$search}%");
-            });
-        }
-
-        $transactions = $query->orderByDesc('tanggal')->get();
+        $transactions = SalesTransaction::query()
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->get();
 
         $today = now()->toDateString();
-        $todaySales = SalesTransaction::whereDate('tanggal', $today)->sum('total');
-        $todayCount = SalesTransaction::whereDate('tanggal', $today)->sum('jumlah');
+        $todaySales = (int) SalesTransaction::whereDate('tanggal', $today)->sum('total');
+        $todayCount = (int) SalesTransaction::whereDate('tanggal', $today)->sum('jumlah');
+
+        $ic = static fn (string $paths): string => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$paths.'</svg>';
+
+        $stats = [
+            [
+                'label' => 'Total Penjualan Hari Ini',
+                'value' => FormatHelper::rupiah($todaySales),
+                'tone' => 'green',
+                'icon' => $ic('<path d="M4 7h16M4 11h16M8 15h4M6 19h12"/>'),
+            ],
+            [
+                'label' => 'Transaksi Hari Ini',
+                'value' => (string) $todayCount,
+                'tone' => 'blue',
+                'icon' => $ic('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+            ],
+            [
+                'label' => 'Total Data',
+                'value' => (string) $transactions->count(),
+                'tone' => 'amber',
+                'icon' => $ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>'),
+            ],
+        ];
 
         $role = auth()->user()->role;
         $viewName = $role === 'admin' ? 'admin.penjualan' : 'karyawan.penjualan';
 
-        return view($viewName, compact('transactions', 'search', 'todaySales', 'todayCount'));
+        return view($viewName, compact('transactions', 'stats', 'todaySales', 'todayCount'));
     }
 
     public function store(Request $request)
@@ -40,11 +57,11 @@ class SalesTransactionController extends Controller
             'jumlah' => ['required', 'integer', 'min:1'],
         ]);
 
-        $data['id'] = $this->nextId(SalesTransaction::class, 'TRX');
+        $data['id'] = $this->nextId(SalesTransaction::class, 'TRS');
 
         SalesTransaction::create($data);
 
-        return redirect()->back()->with('success', __('ui.flash_sales_created'));
+        return redirect()->back()->with('success', 'Transaksi penjualan berhasil disimpan.');
     }
 
     public function update(Request $request, string $id)
@@ -60,14 +77,14 @@ class SalesTransactionController extends Controller
 
         $transaction->update($data);
 
-        return redirect()->back()->with('success', __('ui.flash_sales_updated'));
+        return redirect()->back()->with('success', 'Transaksi penjualan berhasil diperbarui.');
     }
 
     public function destroy(string $id)
     {
         SalesTransaction::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('ui.flash_sales_deleted'));
+        return redirect()->back()->with('success', 'Transaksi penjualan berhasil dihapus.');
     }
 
     private function nextId(string $model, string $prefix): string

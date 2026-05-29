@@ -4,12 +4,12 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.tb';
-    $pageTitle = __('nav.trial_balance');
-    $pageSubtitle = __('page.tb_subtitle');
+    $pageTitle = 'Trial Balance';
+    $pageSubtitle = 'Neraca Saldo';
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
 @endpush
 
 @section('content')
@@ -27,7 +27,7 @@
                     </tr>
                 @endforeach
                 <tr class="bg-amber-50 font-extrabold">
-                    <td colspan="2">{{ __('page.total') }}</td>
+                    <td colspan="2">TOTAL</td>
                     <td>{{ FormatHelper::rupiah($totalDebit) }}</td>
                     <td>{{ FormatHelper::rupiah($totalKredit) }}</td>
                 </tr>

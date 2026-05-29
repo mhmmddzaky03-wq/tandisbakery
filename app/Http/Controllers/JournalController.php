@@ -57,7 +57,7 @@ class JournalController extends Controller
         $totalCredit = collect($data['lines'])->sum('credit');
 
         if ($totalDebit !== $totalCredit || $totalDebit === 0) {
-            return back()->withErrors(['lines' => __('Total debit dan kredit harus sama dan lebih dari nol.')])->withInput();
+            return back()->withErrors(['lines' => 'Total debit dan kredit harus sama dan lebih dari nol.'])->withInput();
         }
 
         $data = FormatHelper::applyTitleCase($data, ['deskripsi']);
@@ -79,13 +79,13 @@ class JournalController extends Controller
             }
         });
 
-        return redirect()->back()->with('success', __('ui.flash_journal_created'));
+        return redirect()->back()->with('success', 'Jurnal berhasil ditambahkan.');
     }
 
     public function destroy(int $id)
     {
         JournalTransaction::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('ui.flash_journal_deleted'));
+        return redirect()->back()->with('success', 'Jurnal berhasil dihapus.');
     }
 }

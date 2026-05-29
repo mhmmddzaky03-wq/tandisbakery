@@ -20,6 +20,7 @@ class Account extends Model
         'nama',
         'posisi',
         'grup',
+        'sub_grup',
     ];
 
     public function journalEntries(): HasMany

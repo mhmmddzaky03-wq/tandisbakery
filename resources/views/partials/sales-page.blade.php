@@ -1,65 +1,145 @@
-@php use App\Support\FormatHelper; @endphp
+@php
+    use App\Support\FormatHelper;
+
+    $metodeLabel = static fn (string $metode): string => match ($metode) {
+        'Cash' => 'Tunai',
+        'Transfer' => 'Transfer',
+        'Mix' => 'Campuran',
+        default => $metode,
+    };
+
+    $metodeClass = static fn (string $metode): string => match ($metode) {
+        'Cash' => 'bg-emerald-50 text-emerald-700',
+        'Transfer' => 'bg-sky-50 text-sky-600',
+        default => 'bg-amber-50 text-amber-700',
+    };
+@endphp
 <div>
-    <div class="bakery-card">
-        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">{{ __('page.sales_list_title') }}</div>
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        @foreach ($stats as $s)
+            @php $toneMap = ['green' => 'green', 'blue' => 'blue', 'amber' => 'amber', 'violet' => 'violet']; @endphp
+            <x-kpi-card :title="$s['label']" :value="$s['value']" :tone="$toneMap[$s['tone']] ?? 'amber'" :icon="$s['icon'] ?? null" />
+        @endforeach
+    </div>
+
+    <div class="mt-6 bakery-card" data-table-search>
+        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div class="text-lg font-extrabold text-slate-900">Data Transaksi Penjualan</div>
+            <x-table-search placeholder="Cari Transaksi" :value="''" />
         </div>
-        <div class="bakery-card-body">
-            <div class="mb-5 grid gap-4 lg:grid-cols-3">
-                <div class="rounded-2xl bg-slate-50 p-4"><div class="text-xs text-slate-400">{{ __('page.today_sales') }}</div><div class="mt-1 text-2xl font-extrabold text-emerald-600">{{ FormatHelper::rupiah($todaySales) }}</div></div>
-                <div class="rounded-2xl bg-slate-50 p-4"><div class="text-xs text-slate-400">{{ __('page.today_transactions') }}</div><div class="mt-1 text-2xl font-extrabold text-sky-600">{{ $todayCount }}</div></div>
-                <div class="rounded-2xl bg-slate-50 p-4"><div class="text-xs text-slate-400">Total data</div><div class="mt-1 text-2xl font-extrabold text-amber-600">{{ $transactions->count() }}</div></div>
-            </div>
-            <form method="GET" class="mb-4 flex gap-2"><input class="bakery-input flex-1" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('page.search_trx') }}" /><button class="bakery-btn-ghost">Cari</button></form>
-            <div class="bakery-table-wrap">
-                <table class="bakery-table">
-                    <thead><tr><th>ID</th><th>Tanggal</th><th>Total</th><th>Metode</th><th>Jumlah trx</th><th>Aksi</th></tr></thead>
-                    <tbody>
-                        @foreach ($transactions as $t)
-                            <tr>
-                                <td>{{ $t->id }}</td>
-                                <td>{{ FormatHelper::dateId($t->tanggal) }}</td>
-                                <td class="font-extrabold text-emerald-600">{{ FormatHelper::rupiah($t->total) }}</td>
-                                <td>{{ $t->metode }}</td>
-                                <td>{{ $t->jumlah }}</td>
-                                <td><button type="button" class="bakery-btn-ghost text-xs" data-modal-open="edit-sales-{{ $t->id }}">Edit</button></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+
+        <div class="bakery-card-body bakery-table-wrap pt-2">
+            <table class="bakery-table">
+                <thead>
+                    <tr>
+                        <th class="w-[110px]">Transaksi</th>
+                        <th class="w-[120px]">Tanggal</th>
+                        <th class="w-[150px]">Total Penjualan</th>
+                        <th class="w-[120px]">Metode Pembayaran</th>
+                        <th class="w-[100px]">Jumlah Transaksi</th>
+                        @if ($canEdit ?? true)
+                            <th class="w-[90px] text-center">Aksi</th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody data-table-search-body>
+                    @forelse ($transactions as $t)
+                        <tr
+                            data-searchable-row
+                            data-search="{{ strtolower($t->id.' '.FormatHelper::dateId($t->tanggal).' '.$t->total.' '.$t->metode.' '.$metodeLabel($t->metode).' '.$t->jumlah) }}"
+                        >
+                            <td class="font-bold text-slate-800">{{ $t->id }}</td>
+                            <td>{{ FormatHelper::dateId($t->tanggal) }}</td>
+                            <td class="font-extrabold text-emerald-600">{{ FormatHelper::rupiah($t->total) }}</td>
+                            <td>
+                                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $metodeClass($t->metode) }}">
+                                    {{ $metodeLabel($t->metode) }}
+                                </span>
+                            </td>
+                            <td class="font-semibold text-slate-700">{{ number_format($t->jumlah, 0, ',', '.') }}</td>
+                            @if ($canEdit ?? true)
+                                <td>
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
+                                            data-modal-open="edit-sales-{{ $t->id }}"
+                                            title="Edit"
+                                            aria-label="Edit"
+                                        >
+                                            <x-icons.pencil />
+                                        </button>
+                                        <form id="delete-sales-{{ $t->id }}" method="POST" action="{{ route($destroyRoute, $t->id) }}" class="inline">
+                                            @csrf @method('DELETE')
+                                        </form>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                                            onclick="if (window.confirm('Hapus transaksi penjualan ini?')) document.getElementById('delete-sales-{{ $t->id }}').submit()"
+                                            title="Hapus"
+                                            aria-label="Hapus"
+                                        >
+                                            <x-icons.trash />
+                                        </button>
+                                    </div>
+                                </td>
+                            @endif
+                        </tr>
+                    @empty
+                        <tr data-table-empty>
+                            <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
+                                Belum ada transaksi penjualan.
+                            </td>
+                        </tr>
+                    @endforelse
+                    <tr data-table-no-results class="hidden">
+                        <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
+                            Tidak ada data yang cocok dengan pencarian.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    @foreach ($transactions as $t)
-        <x-modal id="edit-sales-{{ $t->id }}" title="Ubah Transaksi" :subtitle="$t->id">
-            <form method="POST" action="{{ route($updateRoute, $t->id) }}" data-modal-form>
-                @csrf @method('PUT')
-                <x-form-field label="Tanggal" name="tanggal" type="date" :value="$t->tanggal->format('Y-m-d')" required autofocus />
-                <x-form-field label="Total penjualan (Rp)" name="total" type="number" :value="$t->total" min="0" required helper="Total uang masuk pada hari ini" />
-                <x-form-field label="Metode pembayaran" name="metode" type="select" required>
-                    <option value="Cash" @selected($t->metode === 'Cash')>Cash</option>
-                    <option value="Transfer" @selected($t->metode === 'Transfer')>Transfer</option>
-                    <option value="Mix" @selected($t->metode === 'Mix')>Mix (Campuran)</option>
+    @if ($canEdit ?? true)
+        @foreach ($transactions as $t)
+            <x-modal id="edit-sales-{{ $t->id }}" title="Ubah Transaksi Penjualan" :subtitle="$t->id">
+                <form method="POST" action="{{ route($updateRoute, $t->id) }}" class="space-y-4" data-modal-form>
+                    @csrf @method('PUT')
+                    <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', $t->tanggal->format('Y-m-d'))" required autofocus />
+                    <x-form-field label="Total Penjualan (Rp)" name="total" type="number" :value="old('total', $t->total)" min="0" required helper="Total uang masuk pada hari tersebut" />
+                    <x-form-field label="Metode Pembayaran" name="metode" type="select" required>
+                        <option value="Cash" @selected(old('metode', $t->metode) === 'Cash')>Tunai</option>
+                        <option value="Transfer" @selected(old('metode', $t->metode) === 'Transfer')>Transfer</option>
+                        <option value="Mix" @selected(old('metode', $t->metode) === 'Mix')>Campuran</option>
+                    </x-form-field>
+                    <x-form-field label="Jumlah Transaksi" name="jumlah" type="number" :value="old('jumlah', $t->jumlah)" min="1" required helper="Berapa kali transaksi pada hari tersebut" />
+                    <x-form-actions />
+                </form>
+            </x-modal>
+        @endforeach
+    @endif
+
+    @if ($canAdd ?? true)
+        <x-modal
+            id="sales-baru"
+            title="Tambah Transaksi Penjualan"
+            subtitle="Rekap penjualan harian"
+            :auto-open="$errors->has('tanggal') || $errors->has('total') || $errors->has('metode') || $errors->has('jumlah')"
+        >
+            <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form>
+                @csrf
+                <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', date('Y-m-d'))" required autofocus />
+                <x-form-field label="Total Penjualan (Rp)" name="total" type="number" :value="old('total')" min="0" required helper="Total uang masuk pada hari tersebut" />
+                <x-form-field label="Metode Pembayaran" name="metode" type="select" required>
+                    <option value="Cash" @selected(old('metode') === 'Cash')>Tunai</option>
+                    <option value="Transfer" @selected(old('metode') === 'Transfer')>Transfer</option>
+                    <option value="Mix" @selected(old('metode', 'Mix') === 'Mix')>Campuran</option>
                 </x-form-field>
-                <x-form-field label="Jumlah struk/transaksi" name="jumlah" type="number" :value="$t->jumlah" min="1" required helper="Berapa kali transaksi pada hari tersebut" />
+                <x-form-field label="Jumlah Transaksi" name="jumlah" type="number" :value="old('jumlah', 1)" min="1" required helper="Berapa kali transaksi pada hari tersebut" />
                 <x-form-actions />
             </form>
         </x-modal>
-    @endforeach
-
-    <x-modal id="sales-baru" title="Tambah Rekap Penjualan" subtitle="Ringkasan penjualan harian" :auto-open="$errors->has('tanggal') || $errors->has('total')">
-        <form method="POST" action="{{ route($storeRoute) }}" data-modal-form>
-            @csrf
-            <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', date('Y-m-d'))" required autofocus />
-            <x-form-field label="Total penjualan (Rp)" name="total" type="number" :value="old('total')" min="0" required />
-            <x-form-field label="Metode pembayaran" name="metode" type="select" required>
-                <option value="Cash" @selected(old('metode') === 'Cash')>Cash</option>
-                <option value="Transfer" @selected(old('metode') === 'Transfer')>Transfer</option>
-                <option value="Mix" @selected(old('metode', 'Mix') === 'Mix')>Mix (Campuran)</option>
-            </x-form-field>
-            <x-form-field label="Jumlah struk/transaksi" name="jumlah" type="number" :value="old('jumlah', 1)" min="1" required />
-            <x-form-actions />
-        </form>
-    </x-modal>
+    @endif
 </div>

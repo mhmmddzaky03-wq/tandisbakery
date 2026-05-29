@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @php
-    $title = __('nav.input_inventory').' - Karyawan';
+    $title = 'Input Data Persediaan'.' - Karyawan';
     $role = 'karyawan';
     $active = 'karyawan.persediaan';
-    $pageTitle = __('nav.input_inventory');
-    $pageSubtitle = __('page.stock_list_subtitle');
+    $pageTitle = 'Input Data Persediaan';
+    $pageSubtitle = 'Kelola stok bahan baku untuk produksi';
     $storeRoute = 'karyawan.persediaan.store';
     $updateRoute = 'karyawan.persediaan.update';
     $restockRoute = 'karyawan.persediaan.restock';
@@ -16,7 +16,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="stok-baru">
-        {{ __('page.add_stock') }}
+        + Tambah Stok Baru
     </button>
 @endpush
 

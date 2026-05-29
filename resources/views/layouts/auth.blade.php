@@ -8,8 +8,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net" />
         <link href="https://fonts.bunny.net/css?family=poppins:300,400,500,600,700" rel="stylesheet" />
 
-        <meta name="dummy-toast" content="{{ __('ui.feature_in_progress') }}" />
-        <meta name="dummy-toast-sub" content="{{ __('ui.still_on_progress') }}" />
+        <meta name="dummy-toast" content="Fitur ini belum diaktifkan" />
+        <meta name="dummy-toast-sub" content="Tugas Backend ah" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

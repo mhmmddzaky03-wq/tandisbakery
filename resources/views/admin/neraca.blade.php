@@ -4,12 +4,12 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.neraca';
-    $pageTitle = __('nav.balance_sheet');
-    $pageSubtitle = __('page.bs_subtitle');
+    $pageTitle = 'Neraca Keuangan';
+    $pageSubtitle = 'Neraca Keuangan Tandi\'s Bakery';
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
 @endpush
 
 @section('content')

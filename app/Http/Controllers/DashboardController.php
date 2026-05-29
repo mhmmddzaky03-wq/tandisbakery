@@ -8,13 +8,16 @@ use App\Models\ProductionRecord;
 use App\Models\RawMaterial;
 use App\Models\SalesTransaction;
 use App\Services\AccountingService;
+use App\Services\OperationalCostService;
 use App\Support\FormatHelper;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __construct(private AccountingService $accounting)
-    {
+    public function __construct(
+        private AccountingService $accounting,
+        private OperationalCostService $operationalCosts,
+    ) {
     }
 
     public function admin()
@@ -31,6 +34,7 @@ class DashboardController extends Controller
         $monthEnd = now()->endOfMonth()->toDateString();
 
         $operationalMonth = (int) OperationalCost::whereBetween('tanggal', [$monthStart, $monthEnd])->sum('jumlah');
+        $periodTotals = $this->operationalCosts->periodTotals($monthStart, $monthEnd);
         $salesMonth = (int) SalesTransaction::whereBetween('tanggal', [$monthStart, $monthEnd])->sum('total');
         $salesLast30 = (int) SalesTransaction::where('tanggal', '>=', now()->subDays(30)->toDateString())->sum('total');
 
@@ -42,8 +46,8 @@ class DashboardController extends Controller
             ->map(fn ($group) => (int) $group->sum('total'))
             ->take(8);
 
-        $fixedCosts = (int) OperationalCost::where('jenis', 'Fixed')->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('jumlah');
-        $variableCosts = (int) OperationalCost::where('jenis', 'Variable')->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('jumlah');
+        $fixedCosts = $periodTotals['fixed'];
+        $variableCosts = $periodTotals['variable'] + $periodTotals['restock'];
 
         $activityLogs = ActivityLog::query()->latest()->take(10)->get();
 
@@ -56,7 +60,7 @@ class DashboardController extends Controller
             'salesMonth' => $salesMonth,
             'salesLast30' => $salesLast30,
             'netProfit' => $income['net_profit'],
-            'totalCosts' => $operationalMonth + $income['expenses'],
+            'totalCosts' => $income['expenses'],
             'productions' => $productions,
             'salesTrend' => $salesTrend,
             'fixedCosts' => $fixedCosts,

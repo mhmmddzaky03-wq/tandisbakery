@@ -56,13 +56,13 @@ class AuthController extends Controller
 
         if (!$user) {
             return back()->withErrors([
-                'username' => __('Username tidak ditemukan.'),
+                'username' => 'Username tidak ditemukan.',
             ])->withInput($request->only('username', 'role'));
         }
 
         if ($user->role !== $credentials['role']) {
             return back()->withErrors([
-                'username' => __('Role pengguna tidak cocok dengan login yang dipilih.'),
+                'username' => 'Role pengguna tidak cocok dengan login yang dipilih.',
             ])->withInput($request->only('username', 'role'));
         }
 
@@ -72,7 +72,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'password' => __('Password salah.'),
+            'password' => 'Password salah.',
         ])->withInput($request->only('username', 'role'));
     }
 

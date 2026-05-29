@@ -3,9 +3,9 @@
 @php
     $role = 'karyawan';
     $active = 'karyawan.penjualan';
-    $pageTitle = __('nav.input_sales');
-    $pageSubtitle = __('page.sales_list_subtitle');
-    $title = __('nav.input_sales').' - Karyawan';
+    $pageTitle = 'Input Data Penjualan';
+    $pageSubtitle = 'Input dan kelola rekap transaksi penjualan harian';
+    $title = 'Input Data Penjualan'.' - Karyawan';
     $storeRoute = 'karyawan.penjualan.store';
     $updateRoute = 'karyawan.penjualan.update';
     $destroyRoute = 'karyawan.penjualan.destroy';
@@ -13,7 +13,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="sales-baru">
-        {{ __('page.add_transaction') }}
+        + Tambah Transaksi
     </button>
 @endpush
 

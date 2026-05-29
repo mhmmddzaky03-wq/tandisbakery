@@ -4,9 +4,9 @@
 <div>
     <div class="bakery-card" data-table-search>
         <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">{{ __('page.stock_list_title') }}</div>
+            <div class="text-lg font-extrabold text-slate-900">Daftar Stok Bahan Baku</div>
             <x-table-search
-                :placeholder="__('page.search_stock')"
+                placeholder="Cari bahan baku..."
                 :value="$search ?? ''"
             />
         </div>
@@ -14,23 +14,32 @@
             <table class="bakery-table">
                 <thead>
                     <tr>
-                        <th class="w-[90px]">{{ __('page.id') }}</th>
-                        <th>{{ __('page.name') }}</th>
-                        <th class="w-[120px]">{{ __('page.quantity') }}</th>
-                        <th class="w-[160px]">{{ __('page.status') }}</th>
-                        <th class="w-[120px] text-center">{{ __('page.action') }}</th>
+                        <th class="w-[90px]">ID</th>
+                        <th>Nama</th>
+                        <th class="w-[120px]">Jumlah</th>
+                        <th class="w-[160px]">Status</th>
+                        <th class="w-[120px] text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody data-table-search-body>
                     @forelse ($materials as $m)
                         @php
-                            $aman = (float) $m->jumlah > (float) $m->min;
+                            $jumlahStok = (float) $m->jumlah;
+                            $minStok = (float) $m->min;
+                            $habis = $jumlahStok <= 0;
+                            $aman = ! $habis && $jumlahStok > $minStok;
+                            $statusLabel = $habis
+                                ? 'Stok Habis'
+                                : ($aman ? 'Stok Aman' : 'Perlu Diisi');
+                            $statusClass = $habis
+                                ? 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                                : ($aman ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100');
                             $satuan = $m->satuan ?? 'kg';
                             $totalNilai = (int) round((float) $m->jumlah * (int) $m->harga);
                         @endphp
                         <tr
                             data-searchable-row
-                            data-search="{{ strtolower($m->id.' '.$m->nama.' '.$satuan.' '.($aman ? __('page.stock_status_safe') : __('page.stock_status_low'))) }}"
+                            data-search="{{ strtolower($m->id.' '.$m->nama.' '.$satuan.' '.$statusLabel) }}"
                         >
                             <td class="font-bold text-slate-800">{{ $m->id }}</td>
                             <td class="max-w-md truncate">{{ $m->nama }}</td>
@@ -38,23 +47,26 @@
                             <td>
                                 <button
                                     type="button"
-                                    class="inline-flex w-[9.5rem] cursor-pointer items-center justify-between gap-2 rounded-full border-0 px-3 py-1.5 text-xs font-bold transition hover:opacity-90 {{ $aman ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' }}"
+                                    class="inline-flex w-[9.5rem] cursor-pointer items-center justify-between gap-2 rounded-full border-0 px-3 py-1.5 text-xs font-bold transition hover:opacity-90 {{ $statusClass }}"
                                     data-modal-open="detail-stok-{{ $m->id }}"
-                                    title="{{ __('page.view_detail') }}"
-                                    aria-label="{{ __('page.view_detail') }}: {{ $aman ? __('page.stock_status_safe') : __('page.stock_status_low') }}"
+                                    title="Lihat detail"
+                                    aria-label="Lihat detail: {{ $statusLabel }}"
                                 >
                                     <span class="inline-flex min-w-0 items-center gap-1.5 truncate">
-                                        @if ($aman)
+                                        @if ($habis)
+                                            <x-icons.stock-empty />
+                                            Stok Habis
+                                        @elseif ($aman)
                                             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                                             </svg>
-                                            {{ __('page.stock_status_safe') }}
+                                            Stok Aman
                                         @else
                                             <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12c2-2 4-4 7-4s5 2 7 4M3 6c2-2 4-4 7-4s5 2 7 4M3 18c2-2 4-4 7-4s5 2 7 4" />
                                             </svg>
-                                            {{ __('page.stock_status_low') }}
+                                            Perlu Diisi
                                         @endif
                                     </span>
                                     <x-icons.info-circle class="h-3.5 w-3.5 shrink-0 opacity-80" />
@@ -66,8 +78,8 @@
                                         type="button"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-600"
                                         data-modal-open="restock-stok-{{ $m->id }}"
-                                        title="{{ __('ui.restock') }}"
-                                        aria-label="{{ __('ui.restock') }}"
+                                        title="Restock"
+                                        aria-label="Restock"
                                     >
                                         <x-icons.restock />
                                     </button>
@@ -75,8 +87,8 @@
                                         type="button"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
                                         data-modal-open="edit-stok-{{ $m->id }}"
-                                        title="{{ __('ui.edit') }}"
-                                        aria-label="{{ __('ui.edit') }}"
+                                        title="Edit"
+                                        aria-label="Edit"
                                     >
                                         <x-icons.pencil />
                                     </button>
@@ -88,10 +100,10 @@
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
                                         data-delete-confirm
                                         data-delete-form="delete-stok-{{ $m->id }}"
-                                        data-confirm-message="{{ __('ui.confirm_delete_stock') }}"
+                                        data-confirm-message="Hapus bahan baku ini?"
                                         onclick="handleConfirmDelete(this)"
-                                        title="{{ __('ui.delete') }}"
-                                        aria-label="{{ __('ui.delete') }}"
+                                        title="Hapus"
+                                        aria-label="Hapus"
                                     >
                                         <x-icons.trash />
                                     </button>
@@ -101,13 +113,13 @@
                     @empty
                         <tr data-table-empty>
                             <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
-                                {{ __('page.no_restock_needed') }}
+                                Tidak ada bahan baku yang perlu diisi ulang
                             </td>
                         </tr>
                     @endforelse
                     <tr data-table-no-results class="hidden">
                         <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
-                            {{ __('ui.no_search_results') }}
+                            Tidak ada data yang cocok dengan pencarian.
                         </td>
                     </tr>
                 </tbody>
@@ -117,13 +129,13 @@
 
     <div class="bakery-card mt-6" data-unit-card>
         <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">{{ __('page.unit_list_title') }}</div>
+            <div class="text-lg font-extrabold text-slate-900">Daftar Satuan</div>
             <button
                 type="button"
                 class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
                 data-unit-add-toggle
-                title="{{ __('page.add_unit') }}"
-                aria-label="{{ __('page.add_unit') }}"
+                title="Tambah satuan"
+                aria-label="Tambah satuan"
                 aria-expanded="{{ $errors->has('nama_satuan') ? 'true' : 'false' }}"
             >
                 <x-icons.plus class="h-5 w-5" />
@@ -142,7 +154,7 @@
                             name="nama_satuan"
                             value="{{ old('nama_satuan') }}"
                             class="bakery-input w-full @error('nama_satuan') ring-2 ring-rose-300 @enderror"
-                            placeholder="{{ __('page.unit_name_placeholder') }}"
+                            placeholder="Contoh: kg, pcs, liter"
                             required
                             autofocus
                         />
@@ -150,15 +162,15 @@
                             <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="bakery-btn-primary shrink-0 whitespace-nowrap">{{ __('ui.save') }}</button>
+                    <button type="submit" class="bakery-btn-primary shrink-0 whitespace-nowrap">Simpan</button>
                 </form>
             </div>
             <div class="bakery-table-wrap">
                 <table class="bakery-table">
                     <thead>
                         <tr>
-                            <th>{{ __('page.unit_name') }}</th>
-                            <th class="w-[90px] text-center">{{ __('page.action') }}</th>
+                            <th>Nama Satuan</th>
+                            <th class="w-[90px] text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -175,10 +187,10 @@
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
                                             data-delete-confirm
                                             data-delete-form="delete-satuan-{{ $unit->id }}"
-                                            data-confirm-message="{{ __('ui.confirm_delete_unit') }}"
+                                            data-confirm-message="Hapus satuan ini?"
                                             onclick="handleConfirmDelete(this)"
-                                            title="{{ __('ui.delete') }}"
-                                            aria-label="{{ __('ui.delete') }}"
+                                            title="Hapus"
+                                            aria-label="Hapus"
                                         >
                                             <x-icons.trash />
                                         </button>
@@ -188,7 +200,7 @@
                         @empty
                             <tr>
                                 <td colspan="2" class="px-4 py-12 text-center text-sm text-slate-500">
-                                    {{ __('page.unit_empty') }}
+                                    Belum ada satuan terdaftar.
                                 </td>
                             </tr>
                         @endforelse
@@ -200,58 +212,67 @@
 
     @foreach ($materials as $m)
         @php
-            $aman = (float) $m->jumlah > (float) $m->min;
+            $jumlahStok = (float) $m->jumlah;
+            $minStok = (float) $m->min;
+            $habis = $jumlahStok <= 0;
+            $aman = ! $habis && $jumlahStok > $minStok;
+            $statusLabel = $habis
+                ? 'Stok Habis'
+                : ($aman ? 'Stok Aman' : 'Perlu Diisi');
+            $statusBadgeClass = $habis
+                ? 'bg-rose-50 text-rose-600'
+                : ($aman ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-700');
             $satuan = $m->satuan ?? 'kg';
             $totalNilai = (int) round((float) $m->jumlah * (int) $m->harga);
         @endphp
-        <x-modal id="detail-stok-{{ $m->id }}" size="md" :title="__('page.stock_detail')" :subtitle="$m->id">
+        <x-modal id="detail-stok-{{ $m->id }}" size="md" title="Detail Stok Bahan Baku" :subtitle="$m->id">
             <dl class="text-sm">
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.name') }}</dt>
+                    <dt class="text-slate-400">Nama</dt>
                     <dd class="max-w-[60%] text-right font-semibold text-slate-800">{{ $m->nama }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.quantity') }}</dt>
+                    <dt class="text-slate-400">Jumlah</dt>
                     <dd class="font-semibold text-slate-800">{{ FormatHelper::formatQtyOne($m->jumlah) }} {{ $satuan }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.min_threshold') }}</dt>
+                    <dt class="text-slate-400">Batas Aman</dt>
                     <dd class="font-semibold text-slate-800">{{ FormatHelper::formatQtyOne($m->min) }} {{ $satuan }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.unit_price_weighted_avg') }}</dt>
+                    <dt class="text-slate-400">Harga (rata-rata tertimbang)</dt>
                     <dd class="font-semibold text-slate-800">{{ FormatHelper::rupiah($m->harga) }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.total_value') }}</dt>
+                    <dt class="text-slate-400">Total Nilai</dt>
                     <dd class="font-semibold text-amber-600">{{ FormatHelper::rupiah($totalNilai) }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.status') }}</dt>
+                    <dt class="text-slate-400">Status</dt>
                     <dd>
-                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-bold {{ $aman ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-700' }}">
-                            {{ $aman ? __('page.stock_status_safe') : __('page.stock_status_low') }}
+                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-bold {{ $statusBadgeClass }}">
+                            {{ $statusLabel }}
                         </span>
                     </dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 py-2.5">
-                    <dt class="text-slate-400">{{ __('page.last_update') }}</dt>
+                    <dt class="text-slate-400">Terakhir Update</dt>
                     <dd class="font-semibold text-slate-800">
                         {{ $m->updated_at ? FormatHelper::dateId($m->updated_at) : '—' }}
                     </dd>
                 </div>
             </dl>
             <div class="mt-4 border-t border-slate-100 pt-4">
-                <div class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('page.restock_history') }}</div>
+                <div class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Riwayat Restock</div>
                 @if ($m->restocks->isNotEmpty())
                     <div class="max-h-48 overflow-y-auto rounded-lg border border-slate-100">
                         <table class="w-full text-xs">
                             <thead class="sticky top-0 bg-slate-50 text-left text-slate-500">
                                 <tr>
-                                    <th class="px-3 py-2 font-bold">{{ __('page.restock_date') }}</th>
-                                    <th class="px-3 py-2 font-bold">{{ __('page.quantity') }}</th>
-                                    <th class="px-3 py-2 font-bold">{{ __('page.restock_price') }}</th>
-                                    <th class="px-3 py-2 font-bold">{{ __('page.purchase_total') }}</th>
+                                    <th class="px-3 py-2 font-bold">Tanggal Pembelian</th>
+                                    <th class="px-3 py-2 font-bold">Jumlah</th>
+                                    <th class="px-3 py-2 font-bold">Harga Satuan</th>
+                                    <th class="px-3 py-2 font-bold">Total Pembelian</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -267,11 +288,11 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-sm text-slate-500">{{ __('page.restock_empty') }}</p>
+                    <p class="text-sm text-slate-500">Belum ada riwayat restock.</p>
                 @endif
             </div>
             <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
-                <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>{{ __('ui.close') }}</button>
+                <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>Tutup</button>
             </div>
         </x-modal>
     @endforeach
@@ -285,7 +306,7 @@
         @endphp
         <x-modal
             id="edit-stok-{{ $m->id }}"
-            :title="__('page.edit_stock_modal_title')"
+            title="Ubah Bahan Baku"
             :subtitle="$m->nama"
             :scrollable="false"
             :auto-open="$isEditTarget && ($errors->has('nama') || $errors->has('satuan') || $errors->has('min'))"
@@ -293,11 +314,11 @@
             <form method="POST" action="{{ route($updateRoute, $m->id) }}" class="space-y-4" data-modal-form data-stock-form>
                 @csrf @method('PUT')
                 <input type="hidden" name="_edit_id" value="{{ $m->id }}" />
-                <x-form-field :label="__('page.material_name')" name="nama" :value="old('nama', $m->nama)" required autofocus />
-                <p class="text-xs text-slate-500">{{ __('page.edit_stock_metadata_hint') }}</p>
+                <x-form-field label="Nama Bahan" name="nama" :value="old('nama', $m->nama)" required autofocus />
+                <p class="text-xs text-slate-500">Jumlah dan harga diperbarui melalui restock, bukan dari form ubah.</p>
                 <div class="min-w-0">
                     <label for="field-satuan-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.unit') }}
+                        Satuan
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <select
@@ -306,7 +327,7 @@
                         required
                         class="bakery-input h-11 w-full {{ $errors->has('satuan') && $isEditTarget ? '!ring-2 !ring-rose-400' : '' }}"
                     >
-                        <option value="" disabled @selected($selectedSatuan === '')>{{ __('page.select_unit') }}</option>
+                        <option value="" disabled @selected($selectedSatuan === '')>Pilih Satuan</option>
                         @if ($selectedSatuan && ! $unitNames->contains($selectedSatuan))
                             <option value="{{ $selectedSatuan }}" @selected(true)>{{ $selectedSatuan }}</option>
                         @endif
@@ -320,7 +341,7 @@
                 </div>
                 <div class="bakery-field">
                     <label for="field-min-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.min_threshold') }}
+                        Batas Aman
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <div class="flex items-center gap-2">
@@ -360,7 +381,7 @@
         @endphp
         <x-modal
             id="restock-stok-{{ $m->id }}"
-            :title="__('page.restock_modal_title')"
+            title="Restock Bahan Baku"
             :scrollable="false"
             :auto-open="$isRestockTarget && ($errors->has('restock_tanggal') || $errors->has('restock_jumlah') || $errors->has('restock_harga') || $errors->has('restock_catatan'))"
         >
@@ -371,14 +392,14 @@
                     <div class="flex items-center justify-between gap-4">
                         <span class="min-w-0 truncate font-bold text-slate-800">{{ $m->nama }}</span>
                         <div class="flex shrink-0 items-center gap-2">
-                            <span class="text-slate-500">{{ __('page.current_stock') }}</span>
+                            <span class="text-slate-500">Stok Saat Ini</span>
                             <span class="font-bold text-slate-800">{{ FormatHelper::formatQtyOne($m->jumlah) }} {{ $satuan }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="bakery-field">
                     <label for="field-restock-tanggal-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.restock_date') }}
+                        Tanggal Pembelian
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -396,7 +417,7 @@
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
                     <div class="min-w-0 flex-1">
                         <label for="field-restock-jumlah-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                            {{ __('page.restock_quantity') }}
+                            Jumlah Restock
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         <div class="flex items-center gap-2">
@@ -419,7 +440,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <label for="field-restock-harga-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                            {{ __('page.price_per') }} {{ $satuan }}
+                            Harga per {{ $satuan }}
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         <input
@@ -438,13 +459,13 @@
                 </div>
                 <div class="bakery-field">
                     <label for="field-restock-catatan-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.restock_notes') }}
+                        Catatan
                     </label>
                     <textarea
                         id="field-restock-catatan-{{ $m->id }}"
                         name="restock_catatan"
                         rows="2"
-                        placeholder="{{ __('page.restock_notes_placeholder') }}"
+                        placeholder="Opsional — nomor faktur, supplier, dll."
                         class="bakery-input w-full {{ $errors->has('restock_catatan') && $isRestockTarget ? '!ring-2 !ring-rose-400' : '' }}"
                     >{{ $restockCatatan }}</textarea>
                     @if ($errors->has('restock_catatan') && $isRestockTarget)
@@ -461,18 +482,18 @@
     @endphp
     <x-modal
         id="stok-baru"
-        :title="__('page.add_stock_modal_title')"
-        :subtitle="__('page.add_stock_modal_subtitle')"
+        title="Tambah Bahan Baku"
+        subtitle="Catat bahan baku baru untuk produksi"
         :scrollable="false"
         :auto-open="! old('_edit_id') && ! old('_restock_id') && ($errors->has('nama') || $errors->has('jumlah') || $errors->has('satuan') || $errors->has('min') || $errors->has('harga'))"
     >
         <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form data-stock-form>
             @csrf
-            <x-form-field :label="__('page.material_name')" name="nama" :value="old('nama')" required autofocus />
+            <x-form-field label="Nama Bahan" name="nama" :value="old('nama')" required autofocus />
             <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div class="min-w-0 flex-1">
                     <label for="field-jumlah-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.quantity') }}
+                        Jumlah
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -492,7 +513,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <label for="field-satuan-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        {{ __('page.unit') }}
+                        Satuan
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <select
@@ -501,7 +522,7 @@
                         required
                         class="bakery-input h-11 w-full {{ $errors->has('satuan') ? '!ring-2 !ring-rose-400' : '' }}"
                     >
-                        <option value="" disabled @selected($createSatuan === '')>{{ __('page.select_unit') }}</option>
+                        <option value="" disabled @selected($createSatuan === '')>Pilih Satuan</option>
                         @foreach ($units as $unit)
                             <option value="{{ $unit->nama }}" @selected($createSatuan === $unit->nama)>{{ $unit->nama }}</option>
                         @endforeach
@@ -513,7 +534,7 @@
             </div>
             <div class="bakery-field">
                 <label for="field-min-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    {{ __('page.min_threshold') }}
+                    Batas Aman
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <div class="flex items-center gap-2">
@@ -539,7 +560,7 @@
             </div>
             <div class="bakery-field">
                 <label for="field-harga-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    {{ __('page.price_per') }}
+                    Harga per
                     <span data-stock-unit-suffix>{{ $createSatuan ?: '—' }}</span>
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>

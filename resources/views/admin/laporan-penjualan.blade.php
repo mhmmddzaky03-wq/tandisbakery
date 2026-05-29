@@ -4,12 +4,12 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.laporan_penjualan';
-    $pageTitle = __('nav.sales_report');
-    $pageSubtitle = __('page.sales_report_subtitle');
+    $pageTitle = 'Laporan Penjualan';
+    $pageSubtitle = 'Periode 1 Juni 2025 s/d 30 Juni 2025';
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
 @endpush
 
 @section('content')
