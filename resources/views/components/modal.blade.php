@@ -4,10 +4,13 @@
     'subtitle' => null,
     'size' => 'md',
     'autoOpen' => false,
+    'scrollable' => true,
 ])
 
-@php
+@php 
+    $isDetail = $size === 'detail';
     $widthClass = match ($size) {
+        'detail' => 'bakery-modal-detail max-w-[92vw]',
         'sm' => 'max-w-md',
         'lg' => 'max-w-2xl',
         default => 'max-w-lg',
@@ -16,11 +19,16 @@
 
 <dialog
     data-modal="{{ $id }}"
+    @if ($isDetail) data-modal-detail @endif
     @if ($autoOpen) data-auto-open="true" @endif
-    class="bakery-modal {{ $widthClass }} w-[calc(100%-2rem)] rounded-2xl border-0 bg-transparent p-0 shadow-none backdrop:bg-black/40"
+    class="bakery-modal {{ $widthClass }} {{ $isDetail ? '' : 'w-[calc(100%-2rem)]' }} rounded-2xl border-0 bg-transparent p-0 shadow-none backdrop:bg-black/40"
     aria-labelledby="modal-title-{{ $id }}"
 >
-    <div class="bakery-card flex max-h-[min(90vh,680px)] flex-col overflow-hidden !rounded-2xl shadow-xl ring-1 ring-black/10">
+    <div @class([
+        'bakery-card flex flex-col !rounded-2xl shadow-xl ring-1 ring-black/10',
+        'overflow-visible' => $isDetail || ! $scrollable,
+        'overflow-hidden max-h-[min(90vh,680px)]' => ! $isDetail && $scrollable,
+    ])>
         <div class="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
             <div class="min-w-0 flex-1">
                 <h2 id="modal-title-{{ $id }}" class="text-base font-extrabold text-slate-900">{{ $title }}</h2>
@@ -39,7 +47,12 @@
                 </svg>
             </button>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+        <div @class([
+            'px-5 py-4',
+            'detail-modal-body' => $isDetail,
+            'min-h-0 flex-1 overflow-y-auto overscroll-contain' => ! $isDetail && $scrollable,
+            'overflow-visible' => ! $isDetail && ! $scrollable,
+        ])>
             {{ $slot }}
         </div>
     </div>

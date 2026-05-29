@@ -9,18 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 class SetLocale
 {
     /**
-     * Set locale from session (no DB, no auth required).
+     * Bahasa Indonesia saja (multibahasa dinonaktifkan untuk development).
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $supported = ['id', 'en'];
-        $locale = $request->session()->get('locale', 'id');
-
-        if (! in_array($locale, $supported, true)) {
-            $locale = 'id';
-        }
-
-        app()->setLocale($locale);
+        app()->setLocale('id');
 
         return $next($request);
     }

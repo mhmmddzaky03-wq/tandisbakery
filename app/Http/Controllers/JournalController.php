@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\JournalTransaction;
 use App\Services\AccountingService;
+use App\Support\FormatHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -59,6 +60,8 @@ class JournalController extends Controller
             return back()->withErrors(['lines' => __('Total debit dan kredit harus sama dan lebih dari nol.')])->withInput();
         }
 
+        $data = FormatHelper::applyTitleCase($data, ['deskripsi']);
+
         DB::transaction(function () use ($data) {
             $tx = JournalTransaction::create([
                 'tanggal' => $data['tanggal'],
@@ -76,13 +79,13 @@ class JournalController extends Controller
             }
         });
 
-        return redirect()->back()->with('success', __('Jurnal berhasil ditambahkan.'));
+        return redirect()->back()->with('success', __('ui.flash_journal_created'));
     }
 
     public function destroy(int $id)
     {
         JournalTransaction::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('Jurnal berhasil dihapus.'));
+        return redirect()->back()->with('success', __('ui.flash_journal_deleted'));
     }
 }

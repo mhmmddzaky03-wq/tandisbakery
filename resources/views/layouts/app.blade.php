@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,33 +32,35 @@
                 </div>
             </aside>
 
-            <div class="lg:pl-[280px] w-full max-w-full overflow-x-hidden">
-                <header class="sticky top-0 z-30 bg-[color:var(--color-bakery-bg)]/80 backdrop-blur">
-                    <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <button
-                                type="button"
-                                class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white ring-1 ring-black/10 lg:hidden"
-                                data-sidebar-toggle
-                                aria-label="Buka menu"
-                            >
-                                <svg viewBox="0 0 24 24" class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
-
-                            <div class="hidden sm:block">
-                                <div class="text-xs font-semibold text-slate-400">{{ $subtitle ?? '' }}</div>
-                                <div class="text-lg font-semibold text-slate-800">{{ $pageTitle ?? '' }}</div>
-                            </div>
-                        </div>
+            <div class="flex min-h-screen flex-col lg:pl-[280px]">
+                <header class="sticky top-0 z-30 border-b border-slate-100 bg-white shadow-sm">
+                    <div class="flex items-center gap-3 px-4 py-3 sm:px-6 lg:py-3.5">
+                        <button
+                            type="button"
+                            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-700 ring-1 ring-black/10 lg:hidden"
+                            data-sidebar-toggle
+                            aria-label="Buka menu"
+                        >
+                            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
 
                         <x-topbar :role="$role ?? 'admin'" :user="auth()->user()" />
                     </div>
                 </header>
 
-                <main class="mx-auto max-w-[1400px] px-4 sm:px-6 pb-10 w-full max-w-full overflow-x-hidden">
+                <main class="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
                     <x-flash />
+
+                    @if (! empty($pageTitle) && ! ($hidePageHeader ?? false))
+                        <x-page-header :title="$pageTitle" :subtitle="$pageSubtitle ?? null">
+                            <x-slot:actions>
+                                @stack('page-actions')
+                            </x-slot:actions>
+                        </x-page-header>
+                    @endif
+
                     @yield('content')
                 </main>
             </div>
@@ -67,4 +69,3 @@
         <div id="toast-root" class="pointer-events-none fixed right-6 top-6 z-[100] flex w-[360px] max-w-[92vw] flex-col gap-2"></div>
     </body>
 </html>
-

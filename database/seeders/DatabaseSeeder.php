@@ -11,6 +11,7 @@ use App\Models\JournalEntry;
 use App\Models\ProductionRecord;
 use App\Models\SalesTransaction;
 use App\Models\OperationalCost;
+use App\Models\Unit;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -62,43 +63,41 @@ class DatabaseSeeder extends Seeder
             Account::create($acc);
         }
 
-        // 3. Seed Products
-        $products = [
-            ['id' => 'P001', 'nama' => 'Roti Tawar', 'satuan' => 'loyang', 'harga' => 25000, 'status' => 'Aktif'],
-            ['id' => 'P002', 'nama' => 'Croissant', 'satuan' => 'pcs', 'harga' => 12000, 'status' => 'Aktif'],
-            ['id' => 'P003', 'nama' => 'Kue Ulang Tahun', 'satuan' => 'pcs', 'harga' => 350000, 'status' => 'Aktif'],
-        ];
-
-        foreach ($products as $prod) {
-            Product::create($prod);
-        }
-
-        // 4. Seed Raw Materials
-        $materials = [
-            ['id' => 'SBB001', 'nama' => 'Wincheez Custom (B) 8 x 2 kg', 'jumlah' => 48, 'min' => 16, 'harga' => 54323],
-            ['id' => 'SBB002', 'nama' => 'Telur Ayam', 'jumlah' => 68.246, 'min' => 30, 'harga' => 28000],
-            ['id' => 'SBB003', 'nama' => 'Endura Smoke Beef M 1kg', 'jumlah' => 2, 'min' => 1, 'harga' => 101410],
-            ['id' => 'SBB006', 'nama' => 'UHT Milk Full Cream Sleeve 1kg', 'jumlah' => 1, 'min' => 1, 'harga' => 176904],
-            ['id' => 'SBB010', 'nama' => 'Kismis Hitam 1kg USA Premium', 'jumlah' => 1, 'min' => 1, 'harga' => 50000],
-        ];
-
-        foreach ($materials as $mat) {
-            RawMaterial::create($mat);
-        }
-
-        // 5. Seed Production Records
+        // 3. Seed Production Records (products are registered from production)
         $productions = [
-            ['id' => 'PRD001', 'tanggal' => '2026-04-15', 'product_id' => 'P001', 'product_name' => 'Roti Tawar', 'jumlah' => 50, 'satuan' => 'loyang', 'status' => 'Berhasil', 'notes' => '-'],
-            ['id' => 'PRD002', 'tanggal' => '2026-04-15', 'product_id' => 'P002', 'product_name' => 'Croissant', 'jumlah' => 100, 'satuan' => 'pcs', 'status' => 'Berhasil', 'notes' => '-'],
-            ['id' => 'PRD003', 'tanggal' => '2026-04-14', 'product_id' => 'P003', 'product_name' => 'Kue Ulang Tahun', 'jumlah' => 5, 'satuan' => 'pcs', 'status' => 'Berhasil', 'notes' => '-'],
-            ['id' => 'PRD004', 'tanggal' => '2026-04-14', 'product_id' => null, 'product_name' => 'Donat', 'jumlah' => 0, 'satuan' => 'pcs', 'status' => 'Gagal', 'notes' => 'Adonan tidak mengembang sempurna'],
+            ['id' => 'PRD001', 'tanggal' => '2026-04-15', 'product_name' => 'Roti Tawar', 'jumlah' => 50, 'satuan' => 'loyang', 'status' => 'Berhasil', 'notes' => '-'],
+            ['id' => 'PRD002', 'tanggal' => '2026-04-15', 'product_name' => 'Croissant', 'jumlah' => 100, 'satuan' => 'pcs', 'status' => 'Berhasil', 'notes' => '-'],
+            ['id' => 'PRD003', 'tanggal' => '2026-04-14', 'product_name' => 'Kue Ulang Tahun', 'jumlah' => 5, 'satuan' => 'pcs', 'status' => 'Berhasil', 'notes' => '-'],
+            ['id' => 'PRD004', 'tanggal' => '2026-04-14', 'product_name' => 'Donat', 'jumlah' => 0, 'satuan' => 'pcs', 'status' => 'Gagal', 'notes' => 'Adonan tidak mengembang sempurna'],
         ];
 
         foreach ($productions as $p) {
             ProductionRecord::create($p);
         }
 
-        // 6. Seed Sales Transactions (Rekap)
+        Product::create(['id' => 'P001', 'production_record_id' => 'PRD001', 'nama' => 'Roti Tawar', 'satuan' => 'loyang', 'harga' => 25000, 'status' => 'Aktif']);
+        Product::create(['id' => 'P002', 'production_record_id' => 'PRD002', 'nama' => 'Croissant', 'satuan' => 'pcs', 'harga' => 12000, 'status' => 'Aktif']);
+        Product::create(['id' => 'P003', 'production_record_id' => 'PRD003', 'nama' => 'Kue Ulang Tahun', 'satuan' => 'pcs', 'harga' => 350000, 'status' => 'Aktif']);
+
+        // 4. Seed Raw Materials
+        $materials = [
+            ['id' => 'SBB001', 'nama' => 'Wincheez Custom (B) 8 x 2 kg', 'jumlah' => 48, 'satuan' => 'kg', 'min' => 16, 'harga' => 54323],
+            ['id' => 'SBB002', 'nama' => 'Telur Ayam', 'jumlah' => 100, 'satuan' => 'pcs', 'min' => 50, 'harga' => 28000],
+            ['id' => 'SBB003', 'nama' => 'Endura Smoke Beef M 1kg', 'jumlah' => 2, 'satuan' => 'kg', 'min' => 1, 'harga' => 101410],
+            ['id' => 'SBB006', 'nama' => 'UHT Milk Full Cream Sleeve 1kg', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 176904],
+            ['id' => 'SBB010', 'nama' => 'Kismis Hitam 1kg USA Premium', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 50000],
+            ['id' => 'SBB011', 'nama' => 'Pastel Besar', 'jumlah' => 200, 'satuan' => 'liter', 'min' => 80, 'harga' => 15000],
+        ];
+
+        foreach ($materials as $mat) {
+            RawMaterial::create($mat);
+        }
+
+        foreach (['kg', 'pcs', 'liter', 'loyang'] as $unitName) {
+            Unit::firstOrCreate(['nama' => $unitName]);
+        }
+
+        // 5. Seed Sales Transactions (Rekap)
         for ($i = 1; $i <= 10; $i++) {
             $totalSales = 1800000 + ($i * 135000);
             SalesTransaction::create([

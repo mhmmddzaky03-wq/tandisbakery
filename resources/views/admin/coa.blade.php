@@ -1,38 +1,45 @@
 @extends('layouts.app')
+
 @php
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.coa';
     $pageTitle = __('nav.coa');
-    $subtitle = __('nav.accounting');
+    $pageSubtitle = __('page.coa_subtitle');
     $title = 'COA - Admin';
 @endphp
+
+@push('page-actions')
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="coa-baru">
+        {{ __('page.add_coa') }}
+    </button>
+@endpush
+
 @section('content')
-<div class="pt-6 bakery-card">
-    <div class="bakery-card-header">
-        <div class="text-lg font-extrabold">{{ __('nav.coa') }}</div>
-        <div class="flex gap-2">
-            <button type="button" class="bakery-btn-ghost" data-print>Cetak</button>
-            <button type="button" class="bakery-btn-primary" data-modal-open="coa-baru">+ Akun</button>
-        </div>
-    </div>
+<div class="bakery-card">
     <div class="bakery-card-body">
-        <form method="GET" class="mb-4 flex gap-2"><input class="bakery-input flex-1" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('page.search_account') }}" /><button class="bakery-btn-ghost">Cari</button></form>
-        <table class="bakery-table">
-            <thead><tr><th>Kode</th><th>Nama</th><th>Posisi</th><th>Grup</th><th>Saldo</th><th>Aksi</th></tr></thead>
-            <tbody>
-                @foreach ($accounts as $row)
-                    <tr>
-                        <td class="font-bold">{{ $row['account']->kode }}</td>
-                        <td>{{ $row['account']->nama }}</td>
-                        <td>{{ $row['account']->posisi }}</td>
-                        <td>{{ $row['account']->grup }}</td>
-                        <td class="font-extrabold">{{ FormatHelper::rupiah($row['saldo']) }}</td>
-                        <td><button type="button" class="bakery-btn-ghost text-xs" data-modal-open="edit-coa-{{ $row['account']->kode }}">Edit</button></td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <form method="GET" class="mb-4 flex gap-2">
+            <input class="bakery-input flex-1" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('page.search_account') }}" />
+            <button type="submit" class="bakery-btn-ghost shrink-0">{{ __('ui.search') }}</button>
+        </form>
+        <div class="bakery-table-wrap">
+            <table class="bakery-table">
+                <thead><tr><th>Kode</th><th>Nama</th><th>Posisi</th><th>Grup</th><th>Saldo</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    @foreach ($accounts as $row)
+                        <tr>
+                            <td class="font-bold">{{ $row['account']->kode }}</td>
+                            <td>{{ $row['account']->nama }}</td>
+                            <td>{{ $row['account']->posisi }}</td>
+                            <td>{{ $row['account']->grup }}</td>
+                            <td class="font-extrabold">{{ FormatHelper::rupiah($row['saldo']) }}</td>
+                            <td><button type="button" class="bakery-btn-ghost text-xs" data-modal-open="edit-coa-{{ $row['account']->kode }}">{{ __('ui.edit') }}</button></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

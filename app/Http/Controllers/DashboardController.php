@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\OperationalCost;
 use App\Models\ProductionRecord;
 use App\Models\RawMaterial;
@@ -44,6 +45,8 @@ class DashboardController extends Controller
         $fixedCosts = (int) OperationalCost::where('jenis', 'Fixed')->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('jumlah');
         $variableCosts = (int) OperationalCost::where('jenis', 'Variable')->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('jumlah');
 
+        $activityLogs = ActivityLog::query()->latest()->take(10)->get();
+
         return view('admin.dashboard', [
             'stockCount' => $materials->count(),
             'lowStockCount' => $lowStock->count(),
@@ -58,6 +61,7 @@ class DashboardController extends Controller
             'salesTrend' => $salesTrend,
             'fixedCosts' => $fixedCosts,
             'variableCosts' => $variableCosts,
+            'activityLogs' => $activityLogs,
             'format' => FormatHelper::class,
         ]);
     }

@@ -2,43 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductionRecord;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $query = Product::query();
+        $query  = Product::query()->with('productionRecord');
 
         if ($search) {
-            $query->where('id', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%")
-                  ->orWhere('satuan', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%")
+                    ->orWhere('satuan', 'like', "%{$search}%")
+                    ->orWhereHas('productionRecord', fn ($r) => $r->where('id', 'like', "%{$search}%"));
+            });
         }
 
-        $products = $query->orderBy('id', 'asc')->get();
-        
-        $role = auth()->user()->role;
+        $products              = $query->orderBy('id', 'asc')->get();
+        $availableProductions  = $this->availableProductionsQuery()->get();
+
+        $role     = auth()->user()->role;
         $viewName = $role === 'admin' ? 'admin.produk' : 'karyawan.produk';
-        
-        return view($viewName, compact('products', 'search'));
+
+        return view($viewName, compact('products', 'availableProductions', 'search'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'id' => ['required', 'string', 'unique:products,id'],
-            'nama' => ['required', 'string', 'max:255'],
-            'satuan' => ['required', 'string', 'max:50'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'production_record_id' => [
+                'required',
+                'string',
+                Rule::exists('production_records', 'id')->where('status', 'Berhasil'),
+                Rule::unique('products', 'production_record_id'),
+            ],
+            'harga'  => ['required', 'integer', 'min:0'],
             'status' => ['required', 'string', 'in:Aktif,Non-Aktif'],
         ]);
 
-        Product::create($data);
+        $production = ProductionRecord::findOrFail($data['production_record_id']);
 
-        return redirect()->back()->with('success', 'Produk berhasil ditambahkan.');
+        Product::create([
+            'id'                   => Product::generateNextId(),
+            'production_record_id' => $production->id,
+            'nama'                 => $production->product_name,
+            'satuan'               => $production->satuan,
+            'harga'                => $data['harga'],
+            'status'               => $data['status'],
+        ]);
+
+        return redirect()->back()->with('success', __('ui.flash_product_created'));
     }
 
     public function update(Request $request, $id)
@@ -46,22 +64,57 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $data = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'satuan' => ['required', 'string', 'max:50'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'production_record_id' => [
+                'required',
+                'string',
+                Rule::exists('production_records', 'id')->where('status', 'Berhasil'),
+                Rule::unique('products', 'production_record_id')->ignore($product->id, 'id'),
+            ],
+            'harga'  => ['required', 'integer', 'min:0'],
             'status' => ['required', 'string', 'in:Aktif,Non-Aktif'],
         ]);
 
-        $product->update($data);
+        $production = ProductionRecord::findOrFail($data['production_record_id']);
 
-        return redirect()->back()->with('success', 'Produk berhasil diperbarui.');
+        $product->update([
+            'production_record_id' => $production->id,
+            'nama'                 => $production->product_name,
+            'satuan'               => $production->satuan,
+            'harga'                => $data['harga'],
+            'status'               => $data['status'],
+        ]);
+
+        return redirect()->back()->with('success', __('ui.flash_product_updated'));
     }
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
+        Product::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', 'Produk berhasil dihapus.');
+        return redirect()->back()->with('success', __('ui.flash_product_deleted'));
+    }
+
+    private function availableProductionsQuery()
+    {
+        return ProductionRecord::query()
+            ->where('status', 'Berhasil')
+            ->whereDoesntHave('product')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id');
+    }
+
+    public static function productionsForProduct(?Product $product = null)
+    {
+        return ProductionRecord::query()
+            ->where('status', 'Berhasil')
+            ->where(function ($q) use ($product) {
+                $q->whereDoesntHave('product');
+                if ($product?->production_record_id) {
+                    $q->orWhere('id', $product->production_record_id);
+                }
+            })
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->get();
     }
 }

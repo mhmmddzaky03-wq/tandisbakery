@@ -10,22 +10,30 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesTransactionController;
+use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('auth.login.admin'));
+$access = static function (string $role): array {
+    return config('app.auth_enabled')
+        ? ['auth', "role:{$role}"]
+        : ["role:{$role}"];
+};
 
-Route::get('/login', fn () => redirect()->route('auth.login.admin'))->name('login');
-
-Route::get('/lang/{locale}', function (string $locale) {
-    $supported = ['id', 'en'];
-    if (! in_array($locale, $supported, true)) {
-        $locale = 'id';
+Route::get('/', function () {
+    if (! config('app.auth_enabled')) {
+        return redirect()->route('admin.dashboard');
     }
 
-    session(['locale' => $locale]);
+    return redirect()->route('auth.login.admin');
+});
 
-    return redirect()->back();
-})->name('lang.switch');
+Route::get('/login', function () {
+    if (! config('app.auth_enabled')) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('auth.login.admin');
+})->name('login');
 
 Route::prefix('login')->group(function () {
     Route::get('/admin', fn () => app(AuthController::class)->showLogin('admin'))->name('auth.login.admin');
@@ -34,15 +42,22 @@ Route::prefix('login')->group(function () {
     Route::post('/', [AuthController::class, 'login'])->name('auth.login.submit');
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('auth.logout');
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware(config('app.auth_enabled') ? 'auth' : [])
+    ->name('auth.logout');
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware($access('admin'))->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
 
     Route::get('/stok-bahan-baku', [RawMaterialController::class, 'index'])->name('admin.stok');
     Route::post('/stok-bahan-baku', [RawMaterialController::class, 'store'])->name('admin.stok.store');
     Route::put('/stok-bahan-baku/{id}', [RawMaterialController::class, 'update'])->name('admin.stok.update');
+    Route::post('/stok-bahan-baku/{id}/restock', [RawMaterialController::class, 'restock'])->name('admin.stok.restock');
     Route::delete('/stok-bahan-baku/{id}', [RawMaterialController::class, 'destroy'])->name('admin.stok.destroy');
+
+    Route::post('/satuan', [UnitController::class, 'store'])->name('admin.satuan.store');
+    Route::put('/satuan/{id}', [UnitController::class, 'update'])->name('admin.satuan.update');
+    Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])->name('admin.satuan.destroy');
 
     Route::get('/data-produksi', [ProductionController::class, 'index'])->name('admin.produksi');
     Route::post('/data-produksi', [ProductionController::class, 'store'])->name('admin.produksi.store');
@@ -85,7 +100,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     });
 });
 
-Route::middleware(['auth', 'role:karyawan'])->prefix('karyawan')->group(function () {
+Route::middleware($access('karyawan'))->prefix('karyawan')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'karyawan'])->name('karyawan.dashboard');
 
     Route::get('/input-produksi', [ProductionController::class, 'index'])->name('karyawan.produksi');
@@ -99,7 +114,12 @@ Route::middleware(['auth', 'role:karyawan'])->prefix('karyawan')->group(function
     Route::get('/input-persediaan', [RawMaterialController::class, 'index'])->name('karyawan.persediaan');
     Route::post('/input-persediaan', [RawMaterialController::class, 'store'])->name('karyawan.persediaan.store');
     Route::put('/input-persediaan/{id}', [RawMaterialController::class, 'update'])->name('karyawan.persediaan.update');
+    Route::post('/input-persediaan/{id}/restock', [RawMaterialController::class, 'restock'])->name('karyawan.persediaan.restock');
     Route::delete('/input-persediaan/{id}', [RawMaterialController::class, 'destroy'])->name('karyawan.persediaan.destroy');
+
+    Route::post('/satuan', [UnitController::class, 'store'])->name('karyawan.satuan.store');
+    Route::put('/satuan/{id}', [UnitController::class, 'update'])->name('karyawan.satuan.update');
+    Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])->name('karyawan.satuan.destroy');
 
     Route::get('/input-operasional', [OperationalCostController::class, 'index'])->name('karyawan.operasional');
     Route::post('/input-operasional', [OperationalCostController::class, 'store'])->name('karyawan.operasional.store');
@@ -107,11 +127,8 @@ Route::middleware(['auth', 'role:karyawan'])->prefix('karyawan')->group(function
     Route::delete('/input-operasional/{id}', [OperationalCostController::class, 'destroy'])->name('karyawan.operasional.destroy');
 
     Route::get('/data-produk', [ProductController::class, 'index'])->name('karyawan.produk');
-    Route::post('/data-produk', [ProductController::class, 'store'])->name('karyawan.produk.store');
-    Route::put('/data-produk/{id}', [ProductController::class, 'update'])->name('karyawan.produk.update');
-    Route::delete('/data-produk/{id}', [ProductController::class, 'destroy'])->name('karyawan.produk.destroy');
 });
 
-Route::middleware(['auth', 'role:basket'])->prefix('basket')->group(function () {
+Route::middleware($access('basket'))->prefix('basket')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'basket'])->name('basket.dashboard');
 });

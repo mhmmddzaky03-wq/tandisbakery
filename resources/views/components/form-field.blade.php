@@ -10,6 +10,8 @@
     'max' => null,
     'step' => null,
     'autofocus' => false,
+    'disabled' => false,
+    'readonly' => false,
     'options' => [],
 ])
 
@@ -17,6 +19,8 @@
     $error = $errors->first($name);
     $inputId = 'field-' . preg_replace('/[^a-z0-9_-]/i', '-', $name);
     $oldValue = old($name, $value);
+    $titleCaseFields = ['nama', 'product_name', 'kat', 'desk', 'deskripsi'];
+    $useTitleCase = in_array($name, $titleCaseFields, true);
 @endphp
 
 <div {{ $attributes->merge(['class' => 'bakery-field']) }}>
@@ -45,6 +49,7 @@
             placeholder="{{ $placeholder }}"
             @required($required)
             @if ($autofocus) autofocus @endif
+            @if ($useTitleCase) data-title-case @endif
             class="bakery-input min-h-[88px] resize-y {{ $error ? '!ring-2 !ring-rose-400' : '' }}"
         >{{ $oldValue }}</textarea>
     @else
@@ -59,6 +64,9 @@
             @if ($max !== null) max="{{ $max }}" @endif
             @if ($step !== null) step="{{ $step }}" @endif
             @if ($autofocus) autofocus @endif
+            @if ($disabled) disabled @endif
+            @if ($readonly) readonly @endif
+            @if ($useTitleCase && $type === 'text') data-title-case @endif
             {{ $attributes->except('class')->merge(['class' => 'bakery-input '.($error ? '!ring-2 !ring-rose-400' : '')]) }}
         />
     @endif

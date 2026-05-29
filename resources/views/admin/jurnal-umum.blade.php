@@ -1,22 +1,33 @@
 @extends('layouts.app')
-@php use App\Support\FormatHelper; $role='admin'; $active='admin.jurnal'; $pageTitle=__('nav.journal_entries'); $subtitle=__('nav.accounting'); @endphp
+
+@php
+    use App\Support\FormatHelper;
+    $role = 'admin';
+    $active = 'admin.jurnal';
+    $pageTitle = __('nav.journal_entries');
+    $pageSubtitle = __('page.journal_subtitle');
+@endphp
+
+@push('page-actions')
+    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>{{ __('page.print') }}</button>
+    <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="jurnal-baru">
+        {{ __('page.add_entry') }}
+    </button>
+@endpush
+
 @section('content')
-<div class="pt-6 bakery-card">
-    <div class="bakery-card-header">
-        <div>
-            <div class="text-lg font-extrabold">{{ __('nav.journal_entries') }}</div>
-            <div class="text-sm text-slate-400">{{ $totalTransaksi }} transaksi • D {{ FormatHelper::rupiah($totalDebit) }} / K {{ FormatHelper::rupiah($totalKredit) }}</div>
-        </div>
-        <div class="flex gap-2">
-            <button type="button" class="bakery-btn-ghost" data-print>Cetak</button>
-            <button type="button" class="bakery-btn-primary" data-modal-open="jurnal-baru">{{ __('page.add_entry') }}</button>
-        </div>
-    </div>
+<div class="bakery-card">
     <div class="bakery-card-body">
+        <p class="mb-4 text-sm font-semibold text-slate-500">
+            {{ $totalTransaksi }} transaksi • D {{ FormatHelper::rupiah($totalDebit) }} / K {{ FormatHelper::rupiah($totalKredit) }}
+        </p>
         <form method="GET" class="mb-5 grid gap-3 sm:grid-cols-4">
             <input class="bakery-input sm:col-span-2" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('page.search_by_ref_account') }}" />
             <input class="bakery-input" type="date" name="from" value="{{ $from ?? '' }}" aria-label="Dari tanggal" />
-            <div class="flex gap-2"><input class="bakery-input flex-1" type="date" name="to" value="{{ $to ?? '' }}" aria-label="Sampai tanggal" /><button class="bakery-btn-primary shrink-0">Filter</button></div>
+            <div class="flex gap-2">
+                <input class="bakery-input flex-1" type="date" name="to" value="{{ $to ?? '' }}" aria-label="Sampai tanggal" />
+                <button type="submit" class="bakery-btn-primary shrink-0">{{ __('page.filter_date') }}</button>
+            </div>
         </form>
         @forelse ($journals as $journal)
             <div class="mb-4 overflow-hidden rounded-2xl ring-1 ring-slate-100">

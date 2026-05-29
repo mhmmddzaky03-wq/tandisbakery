@@ -11,39 +11,43 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Products Table
-        Schema::create('products', function (Blueprint $table) {
-            $table->string('id')->primary(); // e.g. P001
-            $table->string('nama');
-            $table->string('satuan');
-            $table->integer('harga');
-            $table->string('status')->default('Aktif'); // Aktif / Non-Aktif
-            $table->timestamps();
-        });
-
-        // 2. Raw Materials Table
-        Schema::create('raw_materials', function (Blueprint $table) {
-            $table->string('id')->primary(); // e.g. SBB001
-            $table->string('nama');
-            $table->decimal('jumlah', 12, 4)->default(0);
-            $table->decimal('min', 12, 4)->default(0);
-            $table->integer('harga');
-            $table->timestamps();
-        });
-
-        // 3. Production Records Table
+        // 1. Production Records Table (source of truth — logged first)
         Schema::create('production_records', function (Blueprint $table) {
             $table->string('id')->primary(); // e.g. PRD001
             $table->date('tanggal');
-            $table->string('product_id')->nullable();
             $table->string('product_name');
             $table->integer('jumlah');
             $table->string('satuan');
             $table->string('status'); // Berhasil / Gagal
             $table->string('notes')->nullable();
             $table->timestamps();
+        });
 
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
+        // 2. Products Table (registered from production history)
+        Schema::create('products', function (Blueprint $table) {
+            $table->string('id')->primary(); // e.g. P001
+            $table->string('production_record_id')->nullable()->unique();
+            $table->string('nama');
+            $table->string('satuan');
+            $table->integer('harga');
+            $table->string('status')->default('Aktif'); // Aktif / Non-Aktif
+            $table->timestamps();
+
+            $table->foreign('production_record_id')
+                ->references('id')
+                ->on('production_records')
+                ->nullOnDelete();
+        });
+
+        // 3. Raw Materials Table
+        Schema::create('raw_materials', function (Blueprint $table) {
+            $table->string('id')->primary(); // e.g. SBB001
+            $table->string('nama');
+            $table->decimal('jumlah', 12, 4)->default(0);
+            $table->string('satuan', 20)->default('kg');
+            $table->decimal('min', 12, 4)->default(0);
+            $table->integer('harga');
+            $table->timestamps();
         });
 
         // 4. Sales Transactions Table
@@ -109,8 +113,8 @@ return new class extends Migration
         Schema::dropIfExists('accounts');
         Schema::dropIfExists('operational_costs');
         Schema::dropIfExists('sales_transactions');
+        Schema::dropIfExists('products');
         Schema::dropIfExists('production_records');
         Schema::dropIfExists('raw_materials');
-        Schema::dropIfExists('products');
     }
 };

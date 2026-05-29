@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Authentication (login) enabled
+    |--------------------------------------------------------------------------
+    |
+    | Set AUTH_ENABLED=false during development to skip login screens and
+    | auto-sign-in the seeded user for each area (admin / karyawan / basket).
+    | Set to true before production deploy.
+    |
+    */
+
+    'auth_enabled' => filter_var(env('AUTH_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
@@ -78,9 +91,9 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'id'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'id'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

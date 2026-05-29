@@ -49,7 +49,7 @@
     }
 
     .bakery-card-header {
-        @apply flex items-center justify-between gap-3 px-4 sm:px-5 pt-5 flex-wrap;
+        @apply flex flex-nowrap items-center justify-between gap-3 px-4 sm:px-5 pt-5;
         max-width: 100%;
     }
 

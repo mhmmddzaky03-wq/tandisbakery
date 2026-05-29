@@ -5,13 +5,13 @@
     $role = 'karyawan';
     $active = 'karyawan.dashboard';
     $pageTitle = __('nav.dashboard');
-    $subtitle = __('nav.main_menu');
+    $pageSubtitle = __('page.dashboard_subtitle');
 
     $ic = fn ($d) => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="'.$d.'" /></svg>';
 @endphp
 
 @section('content')
-    <div class="pt-6">
+    <div>
         <div class="grid gap-4 lg:grid-cols-3">
             <x-kpi-card title="{{ __('page.total_production') }}" value="0" sub="No input yet" trend="+0.0%" tone="blue" :icon="$ic('M6 21h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1l-1-2H8L7 7H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z')" />
             <x-kpi-card title="{{ __('page.today_sales') }}" value="Rp 0" sub="No transactions yet" trend="+0.0%" tone="green" :icon="$ic('M4 7h16M4 11h16M8 15h4M6 19h12')" />

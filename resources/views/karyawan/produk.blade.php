@@ -1,14 +1,12 @@
 @extends('layouts.app')
 
 @php
-    $title = __('nav.product_data') . ' - Karyawan';
+    $title = __('nav.product_data').' - Karyawan';
     $role = 'karyawan';
     $active = 'karyawan.produk';
     $pageTitle = __('nav.product_data');
-    $subtitle = __('nav.main_menu');
-    $storeRoute = 'karyawan.produk.store';
-    $updateRoute = 'karyawan.produk.update';
-    $destroyRoute = 'karyawan.produk.destroy';
+    $pageSubtitle = __('page.product_list_subtitle');
+    $canEdit = false;
 @endphp
 
 @section('content')

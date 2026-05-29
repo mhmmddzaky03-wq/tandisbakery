@@ -13,6 +13,14 @@ class AuthController extends Controller
      */
     public function showLogin(string $role = 'admin')
     {
+        if (! config('app.auth_enabled')) {
+            return redirect()->route(match ($role) {
+                'karyawan' => 'karyawan.dashboard',
+                'basket' => 'basket.dashboard',
+                default => 'admin.dashboard',
+            });
+        }
+
         if (Auth::check()) {
             return $this->redirectUser(Auth::user());
         }
@@ -34,6 +42,10 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        if (! config('app.auth_enabled')) {
+            return redirect()->route('admin.dashboard');
+        }
+
         $credentials = $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
@@ -69,6 +81,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        if (! config('app.auth_enabled')) {
+            return redirect()->route('admin.dashboard');
+        }
+
         $role = Auth::check() ? Auth::user()->role : 'admin';
         Auth::logout();
 

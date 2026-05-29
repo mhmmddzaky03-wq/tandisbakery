@@ -44,7 +44,7 @@ class SalesTransactionController extends Controller
 
         SalesTransaction::create($data);
 
-        return redirect()->back()->with('success', __('Transaksi penjualan berhasil disimpan.'));
+        return redirect()->back()->with('success', __('ui.flash_sales_created'));
     }
 
     public function update(Request $request, string $id)
@@ -60,14 +60,14 @@ class SalesTransactionController extends Controller
 
         $transaction->update($data);
 
-        return redirect()->back()->with('success', __('Transaksi penjualan berhasil diperbarui.'));
+        return redirect()->back()->with('success', __('ui.flash_sales_updated'));
     }
 
     public function destroy(string $id)
     {
         SalesTransaction::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', __('Transaksi penjualan berhasil dihapus.'));
+        return redirect()->back()->with('success', __('ui.flash_sales_deleted'));
     }
 
     private function nextId(string $model, string $prefix): string

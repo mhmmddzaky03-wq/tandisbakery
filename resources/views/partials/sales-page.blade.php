@@ -1,9 +1,8 @@
 @php use App\Support\FormatHelper; @endphp
-<div class="pt-6">
+<div>
     <div class="bakery-card">
-        <div class="bakery-card-header">
-            <div class="text-lg font-extrabold">{{ __('page.sales_list_title') }}</div>
-            <button type="button" class="bakery-btn-primary" data-modal-open="sales-baru">{{ __('page.add_transaction') }}</button>
+        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div class="text-lg font-extrabold text-slate-900">{{ __('page.sales_list_title') }}</div>
         </div>
         <div class="bakery-card-body">
             <div class="mb-5 grid gap-4 lg:grid-cols-3">

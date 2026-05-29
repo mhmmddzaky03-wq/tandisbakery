@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
@@ -13,6 +15,17 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
+        if (! config('app.auth_enabled')) {
+            $role = $roles[0] ?? 'admin';
+            $user = User::where('role', $role)->first();
+            if (! $user) {
+                abort(503, "User role \"{$role}\" tidak ditemukan. Jalankan: php artisan db:seed");
+            }
+            Auth::login($user);
+
+            return $next($request);
+        }
+
         if (! auth()->check()) {
             return redirect()->guest(route('auth.login.admin'));
         }

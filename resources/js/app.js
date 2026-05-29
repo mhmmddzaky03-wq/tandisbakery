@@ -1,3 +1,40 @@
+function handleProductionDelete(btn) {
+    if (!btn) return;
+
+    const isLinked = btn.getAttribute('data-has-product') === '1';
+    if (isLinked) {
+        const message = btn.getAttribute('data-linked-message') || 'Data tidak dapat dihapus. Sudah terdaftar sebagai produk.';
+        showToast(message, 'danger');
+        return;
+    }
+
+    const formId = btn.getAttribute('data-delete-form');
+    const form = formId ? document.getElementById(formId) : null;
+    if (!form) return;
+
+    const confirmMsg = btn.getAttribute('data-confirm-message') || 'Hapus data produksi ini?';
+    if (window.confirm(confirmMsg)) {
+        form.submit();
+    }
+}
+
+window.handleProductionDelete = handleProductionDelete;
+
+function handleConfirmDelete(btn) {
+    if (!btn) return;
+
+    const formId = btn.getAttribute('data-delete-form');
+    const form = formId ? document.getElementById(formId) : null;
+    if (!form) return;
+
+    const confirmMsg = btn.getAttribute('data-confirm-message') || 'Hapus data ini?';
+    if (window.confirm(confirmMsg)) {
+        form.submit();
+    }
+}
+
+window.handleConfirmDelete = handleConfirmDelete;
+
 function qs(sel, root = document) {
     return root.querySelector(sel);
 }
@@ -5,6 +42,183 @@ function qs(sel, root = document) {
 function qsa(sel, root = document) {
     return Array.from(root.querySelectorAll(sel));
 }
+
+function toTitleCase(value) {
+    if (!value) return value;
+
+    return value
+        .toLowerCase()
+        .replace(/(?:^|\s|[-/])\S/g, (match) => match.toUpperCase());
+}
+
+function applyTitleCaseInput(input) {
+    if (!input || input.readOnly || input.disabled) return;
+
+    const formatted = toTitleCase(input.value.trim());
+    if (formatted !== input.value) {
+        input.value = formatted;
+    }
+}
+
+function bindTitleCaseInputs(root = document) {
+    qsa('[data-title-case]', root).forEach((input) => {
+        if (input.dataset.titleCaseBound === 'true') return;
+
+        input.dataset.titleCaseBound = 'true';
+        input.addEventListener('blur', () => applyTitleCaseInput(input));
+        input.addEventListener('change', () => applyTitleCaseInput(input));
+    });
+}
+
+function sanitizeIntegerValue(raw) {
+    let value = String(raw ?? '').trim().replace(',', '.');
+    const dotIndex = value.indexOf('.');
+
+    if (dotIndex !== -1) {
+        value = value.slice(0, dotIndex);
+    }
+
+    return value.replace(/\D/g, '');
+}
+
+function applyIntegerInput(input) {
+    if (!input) return;
+    input.value = sanitizeIntegerValue(input.value);
+}
+
+function sanitizeDecimalOneValue(raw) {
+    let value = String(raw ?? '').replace(',', '.').replace(/[^\d.]/g, '');
+
+    const dotIndex = value.indexOf('.');
+    if (dotIndex === -1) {
+        return value;
+    }
+
+    const whole = value.slice(0, dotIndex);
+    const fraction = value.slice(dotIndex + 1).replace(/\./g, '').slice(0, 1);
+
+    return `${whole}.${fraction}`;
+}
+
+function formatDecimalOneValue(raw) {
+    const cleaned = sanitizeDecimalOneValue(raw);
+    if (cleaned === '' || cleaned === '.') return '';
+
+    const n = Math.round(parseFloat(cleaned) * 10) / 10;
+    if (!Number.isFinite(n) || n < 0) return cleaned;
+
+    return n % 1 === 0 ? String(Math.trunc(n)) : n.toFixed(1);
+}
+
+function applyDecimalOneInput(input) {
+    if (!input) return;
+    input.value = formatDecimalOneValue(input.value);
+}
+
+function isDecimalOneInput(input) {
+    return input instanceof HTMLInputElement && input.hasAttribute('data-decimal-one');
+}
+
+function isIntegerInput(input) {
+    return input instanceof HTMLInputElement && input.hasAttribute('data-integer-only');
+}
+
+function initQtyInputHandlers() {
+    document.addEventListener(
+        'keydown',
+        (e) => {
+            if (!isDecimalOneInput(e.target) && !isIntegerInput(e.target)) return;
+
+            if (e.key === ',' || e.key === '.') {
+                if (isIntegerInput(e.target)) {
+                    e.preventDefault();
+                    return;
+                }
+
+                if (isDecimalOneInput(e.target) && e.target.value.includes('.')) {
+                    e.preventDefault();
+                }
+            }
+        },
+        true
+    );
+
+    document.addEventListener(
+        'input',
+        (e) => {
+            if (isDecimalOneInput(e.target)) {
+                const cleaned = sanitizeDecimalOneValue(e.target.value);
+                if (e.target.value !== cleaned) {
+                    e.target.value = cleaned;
+                }
+                return;
+            }
+
+            if (isIntegerInput(e.target)) {
+                const cleaned = sanitizeIntegerValue(e.target.value);
+                if (e.target.value !== cleaned) {
+                    e.target.value = cleaned;
+                }
+            }
+        },
+        true
+    );
+
+    document.addEventListener(
+        'paste',
+        (e) => {
+            if (isDecimalOneInput(e.target)) {
+                e.preventDefault();
+                const pasted = e.clipboardData?.getData('text') ?? '';
+                e.target.value = formatDecimalOneValue(pasted);
+                return;
+            }
+
+            if (isIntegerInput(e.target)) {
+                e.preventDefault();
+                const pasted = e.clipboardData?.getData('text') ?? '';
+                e.target.value = sanitizeIntegerValue(pasted);
+            }
+        },
+        true
+    );
+
+    document.addEventListener(
+        'blur',
+        (e) => {
+            if (isDecimalOneInput(e.target)) {
+                applyDecimalOneInput(e.target);
+                return;
+            }
+
+            if (isIntegerInput(e.target)) {
+                applyIntegerInput(e.target);
+            }
+        },
+        true
+    );
+}
+
+function bindIntegerInputs() {}
+
+function bindDecimalOneInputs() {}
+
+bindTitleCaseInputs();
+initQtyInputHandlers();
+
+document.addEventListener(
+    'submit',
+    (e) => {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+
+        bindTitleCaseInputs(form);
+        qsa('[data-title-case]', form).forEach(applyTitleCaseInput);
+        qsa('input[data-decimal-one]', form).forEach(applyDecimalOneInput);
+        qsa('input[data-integer-only]', form).forEach(applyIntegerInput);
+    },
+    true
+);
 
 function showToast(message, tone = 'info', sub = '') {
     const root = qs('#toast-root');
@@ -24,7 +238,7 @@ function showToast(message, tone = 'info', sub = '') {
     el.innerHTML = `
       <div class="${toneClass} px-4 py-3">
         <div class="text-sm font-extrabold text-white">${message}</div>
-        <div class="mt-1 text-xs font-semibold text-white/80">${sub}</div>
+        ${sub ? `<div class="mt-1 text-xs font-semibold text-white/80">${sub}</div>` : ''}
       </div>
     `;
 
@@ -119,23 +333,41 @@ qsa('form[data-modal-form]').forEach((form) => {
     });
 });
 
-qsa('form[data-product-form]').forEach((form) => {
-    const select = qs('[name="product_id"]', form);
-    const nameInput = qs('[data-product-name]', form);
-    const unitInput = qs('[data-product-unit]', form);
-    if (!select || !nameInput) return;
+qsa('form[data-stock-form]').forEach((form) => {
+    const select = qs('[name="satuan"]', form);
+    const suffixes = qsa('[data-stock-unit-suffix]', form);
+    if (!select || suffixes.length === 0) return;
+
+    const sync = () => {
+        const unit = select.value || '—';
+        suffixes.forEach((el) => {
+            el.textContent = unit;
+        });
+    };
+
+    select.addEventListener('change', sync);
+    sync();
+});
+
+qsa('form[data-production-select-form]').forEach((form) => {
+    const select = qs('[name="production_record_id"]', form);
+    const namePreview = qs('[name="nama_preview"]', form);
+    const unitPreview = qs('[name="satuan_preview"]', form);
+    if (!select || !namePreview || !unitPreview) return;
 
     const sync = () => {
         const opt = select.options[select.selectedIndex];
         if (opt?.value) {
-            nameInput.value = opt.dataset.nama || opt.textContent.trim();
-            if (unitInput && opt.dataset.satuan) {
-                unitInput.value = opt.dataset.satuan;
-            }
+            namePreview.value = opt.dataset.nama || '';
+            unitPreview.value = opt.dataset.satuan || '';
+        } else {
+            namePreview.value = '';
+            unitPreview.value = '';
         }
     };
 
     select.addEventListener('change', sync);
+    sync();
 });
 
 qsa('form[data-journal-form]').forEach((form) => {
@@ -212,6 +444,27 @@ document.addEventListener('click', () => {
     qsa('[data-dropdown-menu]').forEach((menu) => menu.classList.add('hidden'));
 });
 
+qsa('[data-lang-picker-inactive]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = btn.closest('[data-dropdown-menu]');
+        if (menu) {
+            menu.classList.add('hidden');
+        }
+        showToast('Bahasa Inggris belum tersedia', 'info', 'Masih dalam pengembangan');
+    });
+});
+
+qsa('[data-lang-picker-active]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = btn.closest('[data-dropdown-menu]');
+        if (menu) {
+            menu.classList.add('hidden');
+        }
+    });
+});
+
 qsa('[data-print]').forEach((btn) => {
     btn.addEventListener('click', () => window.print());
 });
@@ -221,4 +474,73 @@ if (flash) {
     showToast(flash.textContent?.trim() || 'Berhasil', 'success');
 }
 
+const flashError = qs('[data-flash-error]');
+if (flashError) {
+    showToast(flashError.textContent?.trim() || 'Terjadi kesalahan', 'danger');
+}
+
+window.showToast = showToast;
+
 qsa('dialog[data-auto-open="true"]').forEach((dlg) => openModal(dlg));
+
+function debounce(fn, delay = 250) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
+function filterSearchableTable(wrapper) {
+    const input = qs('[data-table-search-input]', wrapper);
+    const body = qs('[data-table-search-body]', wrapper);
+    if (!input || !body) return;
+
+    const rows = qsa('[data-searchable-row]', body);
+    const emptyRow = qs('[data-table-empty]', body);
+    const noResultsRow = qs('[data-table-no-results]', body);
+    const query = input.value.trim().toLowerCase();
+
+    let visible = 0;
+    rows.forEach((row) => {
+        const haystack = (row.dataset.search || row.textContent || '').toLowerCase();
+        const match = !query || haystack.includes(query);
+        row.classList.toggle('hidden', !match);
+        if (match) visible += 1;
+    });
+
+    if (emptyRow) {
+        emptyRow.classList.toggle('hidden', rows.length > 0);
+    }
+
+    if (noResultsRow) {
+        noResultsRow.classList.toggle('hidden', visible > 0 || rows.length === 0);
+    }
+}
+
+qsa('[data-table-search]').forEach((wrapper) => {
+    const input = qs('[data-table-search-input]', wrapper);
+    if (!input) return;
+
+    const run = debounce(() => filterSearchableTable(wrapper), 200);
+    input.addEventListener('input', run);
+    input.addEventListener('search', run);
+    filterSearchableTable(wrapper);
+});
+
+qsa('[data-unit-add-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const card = btn.closest('[data-unit-card]');
+        const formWrap = card ? qs('[data-unit-add-form]', card) : null;
+        if (!formWrap) return;
+
+        const isHidden = formWrap.classList.contains('hidden');
+        formWrap.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+
+        if (isHidden) {
+            const input = qs('input[name="nama_satuan"]', formWrap);
+            input?.focus();
+        }
+    });
+});

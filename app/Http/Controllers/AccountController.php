@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Services\AccountingService;
+use App\Support\FormatHelper;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -29,9 +30,11 @@ class AccountController extends Controller
             'grup' => ['required', 'string', 'max:100'],
         ]);
 
+        $data = FormatHelper::applyTitleCase($data, ['nama']);
+
         Account::create($data);
 
-        return redirect()->back()->with('success', __('Akun berhasil ditambahkan.'));
+        return redirect()->back()->with('success', __('ui.flash_account_created'));
     }
 
     public function update(Request $request, string $kode)
@@ -44,15 +47,17 @@ class AccountController extends Controller
             'grup' => ['required', 'string', 'max:100'],
         ]);
 
+        $data = FormatHelper::applyTitleCase($data, ['nama']);
+
         $account->update($data);
 
-        return redirect()->back()->with('success', __('Akun berhasil diperbarui.'));
+        return redirect()->back()->with('success', __('ui.flash_account_updated'));
     }
 
     public function destroy(string $kode)
     {
         Account::findOrFail($kode)->delete();
 
-        return redirect()->back()->with('success', __('Akun berhasil dihapus.'));
+        return redirect()->back()->with('success', __('ui.flash_account_deleted'));
     }
 }
