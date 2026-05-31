@@ -71,11 +71,11 @@
                     </button>
                 </form>
 
-                @if ($role === 'admin')
-                    <p class="mt-4 text-center text-xs font-semibold text-slate-400">
-                        Basket?
-                        <a href="{{ route('auth.login.basket') }}" class="text-amber-600 hover:underline">Login di sini</a>
-                    </p>
+                @if (config('app.debug'))
+                    <div class="mt-4 rounded-xl bg-amber-50 px-3 py-2.5 text-center text-[11px] leading-relaxed text-amber-900/80 ring-1 ring-amber-200/60">
+                        <span class="font-bold">Akun demo:</span>
+                        {{ $role === 'karyawan' ? 'karyawan / karyawan123' : 'admin / admin123' }}
+                    </div>
                 @endif
             </div>
         </div>

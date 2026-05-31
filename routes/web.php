@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BahanDasarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\OperationalCostController;
+use App\Http\Controllers\PdfReportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\RawMaterialController;
@@ -39,7 +41,6 @@ Route::get('/login', function () {
 Route::prefix('login')->group(function () {
     Route::get('/admin', fn () => app(AuthController::class)->showLogin('admin'))->name('auth.login.admin');
     Route::get('/karyawan', fn () => app(AuthController::class)->showLogin('karyawan'))->name('auth.login.karyawan');
-    Route::get('/basket', fn () => app(AuthController::class)->showLogin('basket'))->name('auth.login.basket');
     Route::post('/', [AuthController::class, 'login'])->name('auth.login.submit');
 });
 
@@ -51,16 +52,26 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
 
     Route::get('/stok-bahan-baku', [RawMaterialController::class, 'index'])->name('admin.stok');
+    Route::get('/stok-bahan-baku/{id}', [RawMaterialController::class, 'show'])->name('admin.stok.show');
     Route::post('/stok-bahan-baku', [RawMaterialController::class, 'store'])->name('admin.stok.store');
     Route::put('/stok-bahan-baku/{id}', [RawMaterialController::class, 'update'])->name('admin.stok.update');
     Route::post('/stok-bahan-baku/{id}/restock', [RawMaterialController::class, 'restock'])->name('admin.stok.restock');
     Route::delete('/stok-bahan-baku/{id}', [RawMaterialController::class, 'destroy'])->name('admin.stok.destroy');
+
+    Route::get('/bahan-dasar', [BahanDasarController::class, 'index'])->name('admin.bahan_dasar');
+    Route::get('/bahan-dasar/{id}', [BahanDasarController::class, 'show'])->name('admin.bahan_dasar.show');
+    Route::post('/bahan-dasar', [BahanDasarController::class, 'store'])->name('admin.bahan_dasar.store');
+    Route::put('/bahan-dasar/{id}', [BahanDasarController::class, 'update'])->name('admin.bahan_dasar.update');
+    Route::delete('/bahan-dasar/{id}', [BahanDasarController::class, 'destroy'])->name('admin.bahan_dasar.destroy');
+    Route::post('/bahan-dasar/{id}/buat-adonan', [BahanDasarController::class, 'buatAdonan'])->name('admin.bahan_dasar.buat_adonan');
+    Route::delete('/bahan-dasar/{id}/batch/{batchId}', [BahanDasarController::class, 'destroyBatch'])->name('admin.bahan_dasar.batch.destroy');
 
     Route::post('/satuan', [UnitController::class, 'store'])->name('admin.satuan.store');
     Route::put('/satuan/{id}', [UnitController::class, 'update'])->name('admin.satuan.update');
     Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])->name('admin.satuan.destroy');
 
     Route::get('/data-produksi', [ProductionController::class, 'index'])->name('admin.produksi');
+    Route::get('/data-produksi/{id}', [ProductionController::class, 'show'])->name('admin.produksi.show');
     Route::post('/data-produksi', [ProductionController::class, 'store'])->name('admin.produksi.store');
     Route::put('/data-produksi/{id}', [ProductionController::class, 'update'])->name('admin.produksi.update');
     Route::delete('/data-produksi/{id}', [ProductionController::class, 'destroy'])->name('admin.produksi.destroy');
@@ -80,6 +91,7 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
     Route::delete('/kategori-biaya/{id}', [ExpenseCategoryController::class, 'destroy'])->name('admin.kategori_biaya.destroy');
 
     Route::get('/data-produk', [ProductController::class, 'index'])->name('admin.produk');
+    Route::get('/data-produk/{id}', [ProductController::class, 'show'])->name('admin.produk.show');
     Route::post('/data-produk', [ProductController::class, 'store'])->name('admin.produk.store');
     Route::put('/data-produk/{id}', [ProductController::class, 'update'])->name('admin.produk.update');
     Route::delete('/data-produk/{id}', [ProductController::class, 'destroy'])->name('admin.produk.destroy');
@@ -90,6 +102,16 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
         Route::get('/neraca', [ReportController::class, 'balanceSheet'])->name('admin.neraca');
     });
 
+    Route::prefix('pdf')->name('admin.pdf.')->group(function () {
+        Route::get('/trial-balance', [PdfReportController::class, 'trialBalance'])->name('tb');
+        Route::get('/general-ledger', [PdfReportController::class, 'generalLedger'])->name('gl');
+        Route::get('/jurnal-umum', [PdfReportController::class, 'journal'])->name('jurnal');
+        Route::get('/coa', [PdfReportController::class, 'coa'])->name('coa');
+        Route::get('/neraca', [PdfReportController::class, 'balanceSheet'])->name('neraca');
+        Route::get('/laba-rugi', [PdfReportController::class, 'incomeStatement'])->name('laba_rugi');
+        Route::get('/laporan-penjualan', [PdfReportController::class, 'salesReport'])->name('penjualan');
+    });
+
     Route::prefix('akuntansi')->group(function () {
         Route::get('/coa', [AccountController::class, 'index'])->name('admin.coa');
         Route::post('/coa', [AccountController::class, 'store'])->name('admin.coa.store');
@@ -97,7 +119,6 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
         Route::delete('/coa/{kode}', [AccountController::class, 'destroy'])->name('admin.coa.destroy');
 
         Route::get('/jurnal-umum', [JournalController::class, 'index'])->name('admin.jurnal');
-        Route::post('/jurnal-umum', [JournalController::class, 'store'])->name('admin.jurnal.store');
         Route::delete('/jurnal-umum/{id}', [JournalController::class, 'destroy'])->name('admin.jurnal.destroy');
 
         Route::get('/general-ledger', [ReportController::class, 'generalLedger'])->name('admin.gl');
@@ -109,6 +130,7 @@ Route::middleware($access('karyawan'))->prefix('karyawan')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'karyawan'])->name('karyawan.dashboard');
 
     Route::get('/input-produksi', [ProductionController::class, 'index'])->name('karyawan.produksi');
+    Route::get('/input-produksi/{id}', [ProductionController::class, 'show'])->name('karyawan.produksi.show');
     Route::post('/input-produksi', [ProductionController::class, 'store'])->name('karyawan.produksi.store');
 
     Route::get('/input-penjualan', [SalesTransactionController::class, 'index'])->name('karyawan.penjualan');
@@ -117,6 +139,7 @@ Route::middleware($access('karyawan'))->prefix('karyawan')->group(function () {
     Route::delete('/input-penjualan/{id}', [SalesTransactionController::class, 'destroy'])->name('karyawan.penjualan.destroy');
 
     Route::get('/input-persediaan', [RawMaterialController::class, 'index'])->name('karyawan.persediaan');
+    Route::get('/input-persediaan/{id}', [RawMaterialController::class, 'show'])->name('karyawan.persediaan.show');
     Route::post('/input-persediaan', [RawMaterialController::class, 'store'])->name('karyawan.persediaan.store');
     Route::put('/input-persediaan/{id}', [RawMaterialController::class, 'update'])->name('karyawan.persediaan.update');
     Route::post('/input-persediaan/{id}/restock', [RawMaterialController::class, 'restock'])->name('karyawan.persediaan.restock');
@@ -132,8 +155,6 @@ Route::middleware($access('karyawan'))->prefix('karyawan')->group(function () {
     Route::delete('/input-operasional/{id}', [OperationalCostController::class, 'destroy'])->name('karyawan.operasional.destroy');
 
     Route::get('/data-produk', [ProductController::class, 'index'])->name('karyawan.produk');
+    Route::get('/data-produk/{id}', [ProductController::class, 'show'])->name('karyawan.produk.show');
 });
 
-Route::middleware($access('basket'))->prefix('basket')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'basket'])->name('basket.dashboard');
-});

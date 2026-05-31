@@ -9,6 +9,8 @@ class UnitController extends Controller
 {
     public function store(Request $request)
     {
+        Unit::ensureProtectedExist();
+
         $data = $request->validate([
             'nama_satuan' => ['required', 'string', 'max:50', 'unique:units,nama'],
         ]);
@@ -26,6 +28,16 @@ class UnitController extends Controller
             'nama_satuan' => ['required', 'string', 'max:50', 'unique:units,nama,'.$unit->id],
         ]);
 
+        if ($data['nama_satuan'] !== $unit->nama) {
+            if ($unit->isProtected()) {
+                return redirect()->back()->with('error', 'Satuan kg dan L tidak dapat diubah.');
+            }
+
+            if ($unit->isInUse()) {
+                return redirect()->back()->with('error', 'Satuan tidak dapat diubah karena masih dipakai pada bahan baku.');
+            }
+        }
+
         $unit->update(['nama' => $data['nama_satuan']]);
 
         return redirect()->back()->with('success', 'Satuan berhasil diperbarui.');
@@ -33,7 +45,17 @@ class UnitController extends Controller
 
     public function destroy(int $id)
     {
-        Unit::findOrFail($id)->delete();
+        $unit = Unit::findOrFail($id);
+
+        if ($unit->isProtected()) {
+            return redirect()->back()->with('error', 'Satuan kg dan L tidak dapat dihapus.');
+        }
+
+        if ($unit->isInUse()) {
+            return redirect()->back()->with('error', 'Satuan tidak dapat dihapus karena masih dipakai pada bahan baku.');
+        }
+
+        $unit->delete();
 
         return redirect()->back()->with('success', 'Satuan berhasil dihapus.');
     }

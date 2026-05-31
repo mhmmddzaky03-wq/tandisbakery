@@ -53,4 +53,9 @@ class ProductionRecord extends Model
     {
         return $this->hasMany(ProductionMaterialUsage::class, 'production_record_id');
     }
+
+    public function bahanDasarUsages(): HasMany
+    {
+        return $this->hasMany(PemakaianBahanDasarProduksi::class, 'production_record_id');
+    }
 }

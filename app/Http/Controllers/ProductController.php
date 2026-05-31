@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductionRecord;
+use App\Services\ProductStockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -32,7 +35,19 @@ class ProductController extends Controller
         return view($viewName, compact('products', 'availableProductions', 'search'));
     }
 
-    public function store(Request $request)
+    public function show(string $id)
+    {
+        $product = Product::query()->with('productionRecord')->findOrFail($id);
+        $productions = static::productionsForProduct($product);
+        $productionBatchCount = $productions->count();
+
+        $role = auth()->user()->role;
+        $viewName = $role === 'admin' ? 'admin.produk-show' : 'karyawan.produk-show';
+
+        return view($viewName, compact('product', 'productions', 'productionBatchCount'));
+    }
+
+    public function store(Request $request, ProductStockService $stockService)
     {
         $data = $request->validate([
             'production_record_id' => [
@@ -42,18 +57,23 @@ class ProductController extends Controller
                 Rule::unique('products', 'production_record_id'),
             ],
             'harga'  => ['required', 'integer', 'min:0'],
-            'status' => ['required', 'string', 'in:Aktif,Non-Aktif'],
         ]);
 
         $production = ProductionRecord::findOrFail($data['production_record_id']);
+
+        if (Product::existsForName($production->product_name)) {
+            throw ValidationException::withMessages([
+                'production_record_id' => 'Produk dengan nama ini sudah terdaftar.',
+            ]);
+        }
 
         Product::create([
             'id'                   => Product::generateNextId(),
             'production_record_id' => $production->id,
             'nama'                 => $production->product_name,
             'satuan'               => $production->satuan,
+            'jumlah'               => $stockService->quantityForName($production->product_name),
             'harga'                => $data['harga'],
-            'status'               => $data['status'],
         ]);
 
         return redirect()->back()->with('success', 'Produk berhasil didaftarkan dari data produksi.');
@@ -64,24 +84,11 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $data = $request->validate([
-            'production_record_id' => [
-                'required',
-                'string',
-                Rule::exists('production_records', 'id')->where('status', 'Berhasil'),
-                Rule::unique('products', 'production_record_id')->ignore($product->id, 'id'),
-            ],
             'harga'  => ['required', 'integer', 'min:0'],
-            'status' => ['required', 'string', 'in:Aktif,Non-Aktif'],
         ]);
 
-        $production = ProductionRecord::findOrFail($data['production_record_id']);
-
         $product->update([
-            'production_record_id' => $production->id,
-            'nama'                 => $production->product_name,
-            'satuan'               => $production->satuan,
-            'harga'                => $data['harga'],
-            'status'               => $data['status'],
+            'harga' => $data['harga'],
         ]);
 
         return redirect()->back()->with('success', 'Produk berhasil diperbarui.');
@@ -96,9 +103,18 @@ class ProductController extends Controller
 
     private function availableProductionsQuery()
     {
+        $registeredNames = Product::query()
+            ->pluck('nama')
+            ->map(fn (string $name) => Product::normalizeName($name))
+            ->unique()
+            ->values()
+            ->all();
+
         return ProductionRecord::query()
             ->where('status', 'Berhasil')
-            ->whereDoesntHave('product')
+            ->when($registeredNames !== [], function ($query) use ($registeredNames) {
+                $query->whereNotIn(DB::raw('LOWER(TRIM(product_name))'), $registeredNames);
+            })
             ->orderByDesc('tanggal')
             ->orderByDesc('id');
     }
@@ -107,11 +123,8 @@ class ProductController extends Controller
     {
         return ProductionRecord::query()
             ->where('status', 'Berhasil')
-            ->where(function ($q) use ($product) {
-                $q->whereDoesntHave('product');
-                if ($product?->production_record_id) {
-                    $q->orWhere('id', $product->production_record_id);
-                }
+            ->when($product?->nama, function ($query) use ($product) {
+                $query->whereRaw('LOWER(TRIM(product_name)) = ?', [Product::normalizeName($product->nama)]);
             })
             ->orderByDesc('tanggal')
             ->orderByDesc('id')

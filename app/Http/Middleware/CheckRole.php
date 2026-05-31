@@ -36,8 +36,6 @@ class CheckRole
                 return redirect()->route('admin.dashboard');
             } elseif ($userRole === 'karyawan') {
                 return redirect()->route('karyawan.dashboard');
-            } elseif ($userRole === 'basket') {
-                return redirect()->route('basket.dashboard');
             }
             abort(403, 'Unauthorized action.');
         }

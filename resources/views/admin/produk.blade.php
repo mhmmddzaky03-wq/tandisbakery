@@ -9,6 +9,7 @@
     $storeRoute = 'admin.produk.store';
     $updateRoute = 'admin.produk.update';
     $destroyRoute = 'admin.produk.destroy';
+    $showRoute = 'admin.produk.show';
     $canEdit = true;
 @endphp
 

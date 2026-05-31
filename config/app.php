@@ -47,7 +47,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Set AUTH_ENABLED=false during development to skip login screens and
-    | auto-sign-in the seeded user for each area (admin / karyawan / basket).
+    | auto-sign-in the seeded user for each area (admin / karyawan).
     | Set to true before production deploy.
     |
     */
@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------

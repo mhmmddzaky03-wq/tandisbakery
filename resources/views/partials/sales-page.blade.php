@@ -94,7 +94,7 @@
                     @endforelse
                     <tr data-table-no-results class="hidden">
                         <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                            Tidak ada data yang cocok dengan pencarian.
+                            Data tidak ditemukan
                         </td>
                     </tr>
                 </tbody>
@@ -103,10 +103,15 @@
     </div>
 
     @if ($canEdit ?? true)
+        @php
+            $editSalesId = old('_edit_id');
+            $hasSalesErrors = $errors->has('tanggal') || $errors->has('total') || $errors->has('metode') || $errors->has('jumlah');
+        @endphp
         @foreach ($transactions as $t)
-            <x-modal id="edit-sales-{{ $t->id }}" title="Ubah Transaksi Penjualan" :subtitle="$t->id">
-                <form method="POST" action="{{ route($updateRoute, $t->id) }}" class="space-y-4" data-modal-form>
-                    @csrf @method('PUT')
+                <x-modal id="edit-sales-{{ $t->id }}" title="Edit Transaksi Penjualan" :subtitle="$t->id" :auto-open="$editSalesId === $t->id && $hasSalesErrors">
+                    <form method="POST" action="{{ route($updateRoute, $t->id) }}" class="space-y-4" data-modal-form>
+                        @csrf @method('PUT')
+                        <input type="hidden" name="_edit_id" value="{{ $t->id }}" />
                     <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', $t->tanggal->format('Y-m-d'))" required autofocus />
                     <x-form-field label="Total Penjualan (Rp)" name="total" type="number" :value="old('total', $t->total)" min="0" required helper="Total uang masuk pada hari tersebut" />
                     <x-form-field label="Metode Pembayaran" name="metode" type="select" required>
@@ -126,7 +131,7 @@
             id="sales-baru"
             title="Tambah Transaksi Penjualan"
             subtitle="Rekap penjualan harian"
-            :auto-open="$errors->has('tanggal') || $errors->has('total') || $errors->has('metode') || $errors->has('jumlah')"
+            :auto-open="! old('_edit_id') && ($errors->has('tanggal') || $errors->has('total') || $errors->has('metode') || $errors->has('jumlah'))"
         >
             <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form>
                 @csrf

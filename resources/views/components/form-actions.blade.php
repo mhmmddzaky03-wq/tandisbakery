@@ -7,6 +7,7 @@
 
 <div @class([
     'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
+    'mt-4' => $compact,
     'mt-6 border-t border-slate-100 pt-4' => ! $compact,
 ])>
     <button type="button" class="bakery-btn-ghost w-full sm:w-auto" data-modal-close>

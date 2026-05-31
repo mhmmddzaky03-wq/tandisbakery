@@ -11,7 +11,7 @@
         @endif
     </div>
     @if (isset($actions) && ! $actions->isEmpty())
-        <div class="flex shrink-0 items-center gap-3">
+        <div class="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
             {{ $actions }}
         </div>
     @endif

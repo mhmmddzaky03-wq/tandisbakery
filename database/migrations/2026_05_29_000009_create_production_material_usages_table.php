@@ -42,7 +42,7 @@ return new class extends Migration
                 ->on('raw_materials')
                 ->restrictOnDelete();
 
-            $table->unique(['production_record_id', 'raw_material_id']);
+            $table->unique(['production_record_id', 'raw_material_id'], 'prod_mat_usage_rec_mat_uq');
         });
     }
 

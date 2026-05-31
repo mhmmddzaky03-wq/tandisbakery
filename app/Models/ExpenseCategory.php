@@ -32,4 +32,13 @@ class ExpenseCategory extends Model
     {
         return $this->hasMany(OperationalCost::class);
     }
+
+    public function canBeDeleted(): bool
+    {
+        if (isset($this->operational_costs_count)) {
+            return (int) $this->operational_costs_count === 0;
+        }
+
+        return ! $this->operationalCosts()->exists();
+    }
 }

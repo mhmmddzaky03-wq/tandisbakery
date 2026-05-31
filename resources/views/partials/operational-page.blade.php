@@ -250,13 +250,13 @@
                         @empty
                             <tr data-table-empty>
                                 <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                                    Belum ada biaya operasional pada periode ini.
+                                    Data tidak ditemukan
                                 </td>
                             </tr>
                         @endforelse
                         <tr data-table-no-results class="hidden">
                             <td colspan="{{ ($canEdit ?? true) ? 6 : 5 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                                Tidak ada data yang cocok dengan pencarian.
+                                Data tidak ditemukan
                             </td>
                         </tr>
                     </tbody>
@@ -355,21 +355,31 @@
                                                 >
                                                     <x-icons.pencil />
                                                 </button>
-                                                <form id="delete-kategori-{{ $cat->id }}" method="POST" action="{{ route($categoryDestroyRoute, $cat->id) }}" class="inline">
-                                                    @csrf @method('DELETE')
-                                                </form>
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
-                                                    data-delete-confirm
-                                                    data-delete-form="delete-kategori-{{ $cat->id }}"
-                                                    data-confirm-message="Hapus kategori biaya ini?"
-                                                    onclick="handleConfirmDelete(this)"
-                                                    title="Hapus"
-                                                    aria-label="Hapus"
-                                                >
-                                                    <x-icons.trash />
-                                                </button>
+                                                @if ($cat->canBeDeleted())
+                                                    <form id="delete-kategori-{{ $cat->id }}" method="POST" action="{{ route($categoryDestroyRoute, $cat->id) }}" class="inline">
+                                                        @csrf @method('DELETE')
+                                                    </form>
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                                                        data-delete-confirm
+                                                        data-delete-form="delete-kategori-{{ $cat->id }}"
+                                                        data-confirm-message="Hapus kategori biaya ini?"
+                                                        onclick="handleConfirmDelete(this)"
+                                                        title="Hapus"
+                                                        aria-label="Hapus"
+                                                    >
+                                                        <x-icons.trash />
+                                                    </button>
+                                                @else
+                                                    <span
+                                                        class="inline-flex h-8 w-8 items-center justify-center text-slate-300"
+                                                        title="Masih dipakai pada transaksi biaya"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <x-icons.trash />
+                                                    </span>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -387,7 +397,7 @@
             </div>
 
             @foreach ($allCategories as $cat)
-                <x-modal id="edit-kategori-{{ $cat->id }}" title="Ubah Kategori Biaya" :subtitle="$cat->nama">
+                <x-modal id="edit-kategori-{{ $cat->id }}" title="Edit Kategori Biaya" :subtitle="$cat->nama">
                     <form method="POST" action="{{ route($categoryUpdateRoute, $cat->id) }}" class="space-y-4" data-modal-form>
                         @csrf @method('PUT')
                         <x-form-field label="Nama Kategori" name="nama" :value="old('nama', $cat->nama)" required />
@@ -455,10 +465,15 @@
         @endforeach
 
         @if ($canEdit ?? true)
+            @php
+                $editCostId = old('_edit_id');
+                $hasCostErrors = $errors->has('tanggal') || $errors->has('expense_category_id') || $errors->has('jumlah') || $errors->has('desk');
+            @endphp
             @foreach ($costs as $c)
-                <x-modal id="edit-cost-{{ $c->id }}" title="Ubah Biaya Operasional" :subtitle="$c->kat">
+                <x-modal id="edit-cost-{{ $c->id }}" title="Edit Biaya Operasional" :subtitle="$c->kat" :auto-open="$editCostId === $c->id && $hasCostErrors">
                     <form method="POST" action="{{ route($updateRoute, $c->id) }}" class="space-y-4" data-modal-form>
                         @csrf @method('PUT')
+                        <input type="hidden" name="_edit_id" value="{{ $c->id }}" />
                         <x-form-field label="Tanggal" name="tanggal" type="date" :value="old('tanggal', $c->tanggal->format('Y-m-d'))" required autofocus />
                         <x-form-field label="Kategori" name="expense_category_id" type="select" required>
                             @php $categoryOptions($c->expense_category_id); @endphp
@@ -483,7 +498,7 @@
                 id="cost-baru"
                 title="Tambah Biaya Operasional"
                 subtitle="Catat pengeluaran tetap dan variabel per bulan"
-                :auto-open="$errors->has('tanggal') || $errors->has('expense_category_id') || $errors->has('jumlah')"
+                :auto-open="! old('_edit_id') && ($errors->has('tanggal') || $errors->has('expense_category_id') || $errors->has('jumlah'))"
             >
                 <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form>
                     @csrf

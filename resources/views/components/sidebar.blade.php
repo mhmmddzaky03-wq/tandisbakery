@@ -6,7 +6,6 @@
 @php
     $isAdmin = $role === 'admin';
     $isKaryawan = $role === 'karyawan';
-    $isBasket = $role === 'basket';
 
     $icon = fn ($d) => '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="'.$d.'" /></svg>';
 
@@ -19,6 +18,7 @@
     @if ($isAdmin)
         <x-nav-link href="{{ route('admin.dashboard') }}" :active="$active === 'admin.dashboard'" :icon="$icon('M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z')">Dashboard</x-nav-link>
         <x-nav-link href="{{ route('admin.stok') }}" :active="$active === 'admin.stok'" :icon="$icon('M7 7h10M7 12h10M7 17h10M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z')">Stok Bahan Baku</x-nav-link>
+        <x-nav-link href="{{ route('admin.bahan_dasar') }}" :active="$active === 'admin.bahan_dasar'" :icon="$icon('M4 14l8-4 8 4M4 10l8-4 8 4M4 18l8-4 8 4')">Bahan Dasar</x-nav-link>
         <x-nav-link href="{{ route('admin.produksi') }}" :active="$active === 'admin.produksi'" :icon="$icon('M8 7h8M6 21h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1l-1-2H8L7 7H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z')">Data Produksi</x-nav-link>
         <x-nav-link href="{{ route('admin.penjualan') }}" :active="$active === 'admin.penjualan'" :icon="$icon('M4 7h16M4 11h16M8 15h4M6 19h12')">Transaksi Penjualan</x-nav-link>
         <x-nav-link href="{{ route('admin.operasional') }}" :active="$active === 'admin.operasional'" :icon="$icon('M12 3v18M17 8l-5-5-5 5M7 16l5 5 5-5')">Biaya Operasional</x-nav-link>
@@ -45,8 +45,5 @@
         <x-nav-link href="{{ route('karyawan.produk') }}" :active="$active === 'karyawan.produk'" :icon="$icon('M7 4h10l3 6-8 10L4 10l3-6Z')">Data Produk</x-nav-link>
     @endif
 
-    @if ($isBasket)
-        <x-nav-link href="{{ route('basket.dashboard') }}" :active="$active === 'basket.dashboard'" :icon="$icon('M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z')">Dashboard Basket</x-nav-link>
-    @endif
 </nav>
 

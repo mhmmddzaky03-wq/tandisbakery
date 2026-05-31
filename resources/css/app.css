@@ -62,6 +62,25 @@
         @apply w-full rounded-xl bg-[#F3F4F6] px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none ring-1 ring-black/5 focus:ring-2 focus:ring-amber-400;
     }
 
+    select.bakery-input {
+        @apply appearance-none bg-no-repeat py-0 leading-normal;
+        padding-right: 2.5rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+    }
+
+    select.bakery-input.h-10 {
+        height: 2.5rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        line-height: 1.25rem;
+    }
+
+    select.bakery-input:not(.h-10) {
+        @apply min-h-[2.75rem] py-2.5;
+    }
+
     .bakery-field + .bakery-field {
         @apply mt-4;
     }
@@ -71,7 +90,15 @@
     }
 
     .bakery-modal[open] {
-        @apply fixed inset-0 z-[80] m-auto flex max-h-[100dvh] items-center justify-center p-4;
+        @apply fixed inset-0 z-[80] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center overflow-hidden border-0 bg-transparent p-4;
+    }
+
+    .bakery-modal-panel {
+        @apply min-h-0 w-full max-w-full shrink-0;
+    }
+
+    .bakery-modal-body {
+        -webkit-overflow-scrolling: touch;
     }
 
     [data-submit-loading]:not(.hidden) {
@@ -91,6 +118,36 @@
     .bakery-btn-ghost {
         @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition bg-white text-slate-700 ring-1 ring-black/10 hover:bg-slate-50;
         white-space: nowrap;
+    }
+
+    .detail-back-link {
+        @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800;
+        white-space: nowrap;
+    }
+
+    .bakery-action-toolbar {
+        @apply inline-flex items-stretch overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/10;
+    }
+
+    .bakery-toolbar-btn {
+        @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-sm font-semibold transition;
+        white-space: nowrap;
+    }
+
+    .bakery-toolbar-btn + .bakery-toolbar-btn {
+        @apply border-l border-slate-200;
+    }
+
+    .bakery-toolbar-btn-secondary {
+        @apply text-slate-700 hover:bg-slate-50;
+    }
+
+    .bakery-toolbar-btn-danger {
+        @apply text-rose-600 hover:bg-rose-50;
+    }
+
+    .bakery-toolbar-btn-primary {
+        @apply bg-amber-500 text-white hover:bg-amber-600;
     }
 
     .bakery-table {
@@ -119,6 +176,11 @@
         -webkit-overflow-scrolling: touch;
     }
 
+    /* Tables inside cards: flush with card body, no inner rounded box */
+    .bakery-card .bakery-table-wrap {
+        @apply rounded-none ring-0;
+    }
+
     /* In-page search bar (always visible, including mobile) */
     .bakery-search {
         @apply flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-2.5 ring-1 ring-black/5;
@@ -128,6 +190,104 @@
 
     .bakery-search input {
         @apply flex-1 min-w-0 bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 outline-none;
+    }
+
+    .unit-qty--anchor-toggle {
+        @apply block w-full min-w-0;
+    }
+
+    .unit-qty--anchor-toggle .unit-qty__row {
+        @apply flex items-center justify-end gap-2;
+    }
+
+    .unit-qty--anchor-toggle .unit-qty__value {
+        @apply shrink-0 whitespace-nowrap text-right tabular-nums;
+    }
+
+    .unit-qty--anchor-toggle .unit-qty__toggle-slot {
+        @apply flex h-6 w-[4.25rem] shrink-0 items-center justify-end;
+    }
+
+    .unit-toggle {
+        @apply inline-flex shrink-0 items-center gap-0.5 rounded-lg bg-slate-200/70 p-0.5;
+    }
+
+    .unit-toggle--compact .unit-toggle-btn {
+        @apply min-w-[2rem] px-2 py-1 text-[10px];
+    }
+
+    .unit-toggle-btn {
+        @apply min-w-[2.25rem] rounded-md px-2.5 py-1 text-[11px] font-bold tracking-wide text-slate-500 transition;
+    }
+
+    .unit-toggle-btn:hover:not(:disabled):not(.unit-toggle-btn--active) {
+        @apply bg-white/70 text-slate-700;
+    }
+
+    .unit-toggle-btn--active {
+        @apply bg-white text-slate-900 shadow-sm ring-1 ring-black/5;
+    }
+
+    .unit-toggle-btn:disabled {
+        @apply cursor-not-allowed opacity-50;
+    }
+
+    .unit-input-group {
+        @apply flex overflow-hidden rounded-xl bg-[#F3F4F6] ring-1 ring-black/5 transition focus-within:ring-2 focus-within:ring-amber-400;
+    }
+
+    .unit-input-group input {
+        @apply min-w-0 flex-1 border-0 bg-transparent px-3 py-2.5 text-sm text-slate-700 outline-none;
+    }
+
+    .unit-input-group__units {
+        @apply flex shrink-0 items-center border-l border-slate-200/80 bg-slate-100/90 px-1;
+    }
+
+    .unit-stock-card {
+        @apply rounded-xl bg-slate-50 px-2.5 py-2 text-right ring-1 ring-slate-100;
+    }
+
+    [data-production-row] .unit-stock-card--production {
+        @apply flex min-h-[3.625rem] flex-col justify-center;
+    }
+
+    [data-production-row] .unit-stock-card__qty-row {
+        @apply flex min-h-6 items-center justify-end gap-2;
+    }
+
+    [data-production-row] .unit-stock-card__unit-slot {
+        @apply flex h-6 min-w-[4.25rem] items-center justify-end;
+    }
+
+    [data-production-row] .unit-stock-card__remain {
+        @apply mt-1;
+    }
+
+    [data-production-row] select.bakery-input {
+        padding-left: 0.75rem;
+        padding-right: 2rem;
+        background-position: right 0.5rem center;
+    }
+
+    [data-production-row] select.bakery-input:not(.has-value) {
+        @apply text-slate-400;
+    }
+
+    [data-production-row] select.bakery-input.has-value {
+        @apply text-slate-700;
+    }
+
+    [data-production-row] select.bakery-input option[disabled] {
+        @apply text-slate-400;
+    }
+
+    [data-production-row] select.bakery-input option:not([disabled]) {
+        @apply text-slate-700;
+    }
+
+    [data-production-row] .unit-input-group input {
+        @apply max-w-[3.25rem] px-2;
     }
 }
 

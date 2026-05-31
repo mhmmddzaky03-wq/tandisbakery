@@ -15,16 +15,19 @@ class ReportController extends Controller
 
     public function incomeStatement(Request $request)
     {
-        [$from, $to] = $this->period($request);
+        $from = $request->input('from', now()->startOfMonth()->toDateString());
+        $to = $request->input('to', now()->endOfMonth()->toDateString());
 
         $data = $this->accounting->incomeStatement($from, $to);
+        $filterLabel = \App\Support\PdfExporter::filterLabel($from, $to);
 
-        return view('admin.laba-rugi', compact('data', 'from', 'to'));
+        return view('admin.laba-rugi', compact('data', 'from', 'to', 'filterLabel'));
     }
 
     public function salesReport(Request $request)
     {
-        [$from, $to] = $this->period($request);
+
+        [$from, $to] = $this->optionalPeriod($request);
 
         $sales = SalesTransaction::query()
             ->when($from, fn ($q) => $q->whereDate('tanggal', '>=', $from))
@@ -34,26 +37,38 @@ class ReportController extends Controller
 
         $total = (int) $sales->sum('total');
 
-        return view('admin.laporan-penjualan', compact('sales', 'total', 'from', 'to'));
+        $filterLabel = $from || $to
+            ? \App\Support\PdfExporter::filterLabel($from, $to)
+            : 'Semua data';
+
+        return view('admin.laporan-penjualan', compact('sales', 'total', 'from', 'to', 'filterLabel'));
     }
 
-    public function balanceSheet()
+    public function balanceSheet(Request $request)
     {
-        $data = $this->accounting->balanceSheet();
+        $asOf = $request->input('as_of', config('trial_balance_snapshot.as_of', now()->toDateString()));
+        $view = $request->input('view', 'ringkasan');
+        if (! in_array($view, ['ringkasan', 'aset', 'pasiva'], true)) {
+            $view = 'ringkasan';
+        }
 
-        return view('admin.neraca', compact('data'));
+        $data = $this->accounting->balanceSheet($asOf);
+        $filterLabel = \App\Support\PdfExporter::filterLabel(null, null, $asOf);
+
+        return view('admin.neraca', compact('data', 'asOf', 'filterLabel', 'view'));
     }
 
     public function generalLedger(Request $request)
     {
-        $accountKode = $request->input('account', '5-150');
-        $from = $request->input('from');
-        $to = $request->input('to');
-
         $accounts = Account::orderBy('kode')->get();
+        $defaultAccount = Account::where('kode', '6-100')->exists() ? '6-100' : ($accounts->first()?->kode ?? '1-110');
+
+        $accountKode = $request->input('account', $defaultAccount);
+        $from = $request->input('from', '2025-06-01');
+        $to = $request->input('to', config('trial_balance_snapshot.as_of', '2025-06-30'));
 
         if (! Account::where('kode', $accountKode)->exists()) {
-            $accountKode = $accounts->first()?->kode ?? '1-110';
+            $accountKode = $defaultAccount;
         }
 
         $ledger = $this->accounting->generalLedger($accountKode, $from, $to);
@@ -61,18 +76,18 @@ class ReportController extends Controller
         return view('admin.general-ledger', array_merge($ledger, [
             'accounts' => $accounts,
             'accountKode' => $accountKode,
-            'from' => $from,
-            'to' => $to,
         ]));
     }
 
-    public function trialBalance()
+    public function trialBalance(Request $request)
     {
-        $rows = $this->accounting->trialBalance();
+        $asOf = $request->input('as_of', config('trial_balance_snapshot.as_of', now()->toDateString()));
+        $rows = $this->accounting->trialBalance($asOf);
         $totalDebit = $rows->sum('debit');
         $totalKredit = $rows->sum('kredit');
+        $difference = $totalDebit - $totalKredit;
 
-        return view('admin.trial-balance', compact('rows', 'totalDebit', 'totalKredit'));
+        return view('admin.trial-balance', compact('rows', 'totalDebit', 'totalKredit', 'difference', 'asOf'));
     }
 
     /**
@@ -84,5 +99,16 @@ class ReportController extends Controller
         $to = $request->input('to', now()->endOfMonth()->toDateString());
 
         return [$from, $to];
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function optionalPeriod(Request $request): array
+    {
+        return [
+            $request->filled('from') ? $request->input('from') : null,
+            $request->filled('to') ? $request->input('to') : null,
+        ];
     }
 }

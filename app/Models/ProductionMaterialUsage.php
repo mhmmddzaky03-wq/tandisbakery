@@ -10,6 +10,7 @@ class ProductionMaterialUsage extends Model
     protected $fillable = [
         'production_record_id',
         'raw_material_id',
+        'raw_material_restock_id',
         'jumlah',
         'satuan',
         'harga_satuan',
@@ -31,5 +32,10 @@ class ProductionMaterialUsage extends Model
     public function rawMaterial(): BelongsTo
     {
         return $this->belongsTo(RawMaterial::class, 'raw_material_id');
+    }
+
+    public function restockBatch(): BelongsTo
+    {
+        return $this->belongsTo(RawMaterialRestock::class, 'raw_material_restock_id');
     }
 }

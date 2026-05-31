@@ -9,6 +9,7 @@
     $storeRoute = 'karyawan.produksi.store';
     $updateRoute = '';
     $destroyRoute = '';
+    $showRoute = 'karyawan.produksi.show';
     $canEdit = false;
     $canAdd = true;
 @endphp

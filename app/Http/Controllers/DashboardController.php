@@ -25,10 +25,18 @@ class DashboardController extends Controller
         $materials = RawMaterial::all();
         $lowStock = $materials->filter(fn ($m) => (float) $m->jumlah <= (float) $m->min);
 
-        $productions = ProductionRecord::orderByDesc('tanggal')->limit(5)->get();
         $totalProduction = ProductionRecord::count();
         $successProduction = ProductionRecord::where('status', 'Berhasil')->count();
         $failedProduction = ProductionRecord::where('status', 'Gagal')->count();
+        $latestProduction = ProductionRecord::query()->orderByDesc('tanggal')->orderByDesc('id')->first();
+        $recentFailedProduction = ProductionRecord::query()
+            ->where('status', 'Gagal')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->first();
+        $productionSuccessRate = $totalProduction > 0
+            ? (int) round(($successProduction / $totalProduction) * 100)
+            : 0;
 
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
@@ -40,16 +48,22 @@ class DashboardController extends Controller
 
         $income = $this->accounting->incomeStatement($monthStart, $monthEnd);
 
-        $salesTrend = SalesTransaction::orderBy('tanggal')
-            ->get()
-            ->groupBy(fn ($t) => Carbon::parse($t->tanggal)->format('d M'))
-            ->map(fn ($group) => (int) $group->sum('total'))
-            ->take(8);
+        $salesChart = $this->salesTrendChart(14);
+        $salesTrendLabel = $this->salesTrendChangeLabel(7);
 
         $fixedCosts = $periodTotals['fixed'];
-        $variableCosts = $periodTotals['variable'] + $periodTotals['restock'];
+        $variableCosts = $periodTotals['variable'];
+        $restockCosts = $periodTotals['restock'];
+        $totalCostComposition = $fixedCosts + $variableCosts + $restockCosts;
+
+        $costChart = [
+            'labels' => ['Biaya tetap', 'Biaya variabel', 'Restock bahan'],
+            'values' => [$fixedCosts, $variableCosts, $restockCosts],
+        ];
 
         $activityLogs = ActivityLog::query()->latest()->take(10)->get();
+
+        $monthName = Carbon::now()->locale('id')->translatedFormat('F Y');
 
         return view('admin.dashboard', [
             'stockCount' => $materials->count(),
@@ -59,14 +73,19 @@ class DashboardController extends Controller
             'operationalMonth' => $operationalMonth,
             'salesMonth' => $salesMonth,
             'salesLast30' => $salesLast30,
+            'salesTrendLabel' => $salesTrendLabel,
             'netProfit' => $income['net_profit'],
+            'grossProfit' => $income['gross_profit'],
             'totalCosts' => $income['expenses'],
-            'productions' => $productions,
-            'salesTrend' => $salesTrend,
-            'fixedCosts' => $fixedCosts,
-            'variableCosts' => $variableCosts,
+            'latestProduction' => $latestProduction,
+            'recentFailedProduction' => $recentFailedProduction,
+            'productionSuccessRate' => $productionSuccessRate,
+            'failedProduction' => $failedProduction,
+            'salesChart' => $salesChart,
+            'costChart' => $costChart,
+            'totalCostComposition' => $totalCostComposition,
             'activityLogs' => $activityLogs,
-            'format' => FormatHelper::class,
+            'monthName' => $monthName,
         ]);
     }
 
@@ -75,14 +94,55 @@ class DashboardController extends Controller
         return view('karyawan.dashboard');
     }
 
-    public function basket()
+    /**
+     * @return array{labels: list<string>, values: list<int>, total: int, peak: int, peak_label: string}
+     */
+    private function salesTrendChart(int $days = 14): array
     {
-        $today = now()->toDateString();
-        $todaySales = SalesTransaction::whereDate('tanggal', $today)->get();
-        $orderCount = $todaySales->count();
-        $completed = $todaySales->where('total', '>', 0)->count();
-        $pending = max(0, $orderCount - $completed);
+        $labels = [];
+        $values = [];
+        $peak = 0;
+        $peakLabel = '—';
 
-        return view('basket.dashboard', compact('orderCount', 'completed', 'pending'));
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dayTotal = (int) SalesTransaction::whereDate('tanggal', $date)->sum('total');
+            $label = $date->format('d/m');
+
+            $labels[] = $label;
+            $values[] = $dayTotal;
+
+            if ($dayTotal >= $peak) {
+                $peak = $dayTotal;
+                $peakLabel = $date->locale('id')->translatedFormat('D, d M');
+            }
+        }
+
+        return [
+            'labels' => $labels,
+            'values' => $values,
+            'total' => array_sum($values),
+            'peak' => $peak,
+            'peak_label' => $peakLabel,
+        ];
+    }
+
+    private function salesTrendChangeLabel(int $days = 7): ?string
+    {
+        $currentStart = now()->subDays($days - 1)->startOfDay()->toDateString();
+        $previousStart = now()->subDays($days * 2 - 1)->startOfDay()->toDateString();
+        $previousEnd = now()->subDays($days)->endOfDay()->toDateString();
+
+        $current = (int) SalesTransaction::where('tanggal', '>=', $currentStart)->sum('total');
+        $previous = (int) SalesTransaction::whereBetween('tanggal', [$previousStart, $previousEnd])->sum('total');
+
+        if ($previous === 0) {
+            return $current > 0 ? '+100%' : null;
+        }
+
+        $pct = round((($current - $previous) / $previous) * 100, 1);
+        $sign = $pct >= 0 ? '+' : '';
+
+        return $sign.$pct.'%';
     }
 }

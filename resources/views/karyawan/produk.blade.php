@@ -6,6 +6,7 @@
     $active = 'karyawan.produk';
     $pageTitle = 'Data Produk';
     $pageSubtitle = 'Daftarkan produk berdasarkan riwayat produksi berhasil';
+    $showRoute = 'karyawan.produk.show';
     $canEdit = false;
 @endphp
 

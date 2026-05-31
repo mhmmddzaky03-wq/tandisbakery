@@ -7,8 +7,10 @@
     $pageTitle = 'Input Data Persediaan';
     $pageSubtitle = 'Kelola stok bahan baku untuk produksi';
     $storeRoute = 'karyawan.persediaan.store';
+    $indexRoute = 'karyawan.persediaan';
     $updateRoute = 'karyawan.persediaan.update';
     $restockRoute = 'karyawan.persediaan.restock';
+    $showRoute = 'karyawan.persediaan.show';
     $destroyRoute = 'karyawan.persediaan.destroy';
     $unitStoreRoute = 'karyawan.satuan.store';
     $unitDestroyRoute = 'karyawan.satuan.destroy';

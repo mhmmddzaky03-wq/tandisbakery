@@ -7,8 +7,10 @@
     $pageTitle = 'Stok Bahan Baku';
     $pageSubtitle = 'Kelola stok bahan baku untuk produksi';
     $storeRoute = 'admin.stok.store';
+    $indexRoute = 'admin.stok';
     $updateRoute = 'admin.stok.update';
     $restockRoute = 'admin.stok.restock';
+    $showRoute = 'admin.stok.show';
     $destroyRoute = 'admin.stok.destroy';
     $unitStoreRoute = 'admin.satuan.store';
     $unitDestroyRoute = 'admin.satuan.destroy';

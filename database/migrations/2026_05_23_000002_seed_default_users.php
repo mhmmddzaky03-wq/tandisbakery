@@ -22,13 +22,6 @@ return new class extends Migration
                 'password' => 'karyawan123',
                 'role' => 'karyawan',
             ],
-            [
-                'name' => 'Basket',
-                'username' => 'basket',
-                'email' => 'basket@tandisbakery.com',
-                'password' => 'basket123',
-                'role' => 'basket',
-            ],
         ];
 
         foreach ($users as $data) {
@@ -41,6 +34,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        User::whereIn('username', ['admin', 'karyawan', 'basket'])->delete();
+        User::whereIn('username', ['admin', 'karyawan'])->delete();
     }
 };

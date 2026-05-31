@@ -13,6 +13,7 @@
     'disabled' => false,
     'readonly' => false,
     'options' => [],
+    'rows' => 3,
 ])
 
 @php
@@ -46,7 +47,7 @@
         <textarea
             id="{{ $inputId }}"
             name="{{ $name }}"
-            rows="{{ $attributes->get('rows', 3) }}"
+            rows="{{ $rows }}"
             placeholder="{{ $placeholder }}"
             @required($required)
             @if ($autofocus) autofocus @endif

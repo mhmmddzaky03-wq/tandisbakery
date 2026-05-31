@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\ExpenseCategory;
+use App\Models\JournalEntry;
 use App\Services\AccountingService;
 use App\Support\FormatHelper;
 use Illuminate\Http\Request;
@@ -51,7 +53,23 @@ class AccountController extends Controller
 
     public function destroy(string $kode)
     {
-        Account::findOrFail($kode)->delete();
+        $account = Account::findOrFail($kode);
+
+        if (JournalEntry::where('account_kode', $kode)->exists()) {
+            return redirect()->back()->with(
+                'error',
+                'Akun tidak dapat dihapus karena sudah memiliki transaksi jurnal. Nonaktifkan atau ubah akun di transaksi terkait terlebih dahulu.'
+            );
+        }
+
+        if (ExpenseCategory::where('account_kode', $kode)->exists()) {
+            return redirect()->back()->with(
+                'error',
+                'Akun tidak dapat dihapus karena masih dipakai oleh kategori biaya operasional.'
+            );
+        }
+
+        $account->delete();
 
         return redirect()->back()->with('success', 'Akun berhasil dihapus.');
     }

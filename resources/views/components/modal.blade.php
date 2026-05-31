@@ -21,11 +21,15 @@
     data-modal="{{ $id }}"
     @if ($isDetail) data-modal-detail @endif
     @if ($autoOpen) data-auto-open="true" @endif
-    class="bakery-modal {{ $widthClass }} {{ $isDetail ? '' : 'w-[calc(100%-2rem)]' }} rounded-2xl border-0 bg-transparent p-0 shadow-none backdrop:bg-black/40"
+    class="bakery-modal rounded-2xl border-0 bg-transparent p-0 shadow-none backdrop:bg-black/40"
     aria-labelledby="modal-title-{{ $id }}"
 >
     <div @class([
-        'bakery-card flex max-h-[min(90vh,680px)] flex-col overflow-hidden !rounded-2xl shadow-xl ring-1 ring-black/10',
+        'bakery-card bakery-modal-panel flex w-full flex-col !rounded-2xl shadow-xl ring-1 ring-black/10',
+        $widthClass,
+        $isDetail ? '' : 'w-[calc(100vw-2rem)] sm:w-full',
+        'max-h-[min(90vh,680px)] overflow-hidden' => $scrollable && ! $isDetail,
+        'max-h-none overflow-visible' => ! $scrollable && ! $isDetail,
         'max-h-none' => $isDetail,
     ])>
         <div class="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -48,12 +52,12 @@
         </div>
 
         @if ($scrollable)
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+            <div class="bakery-modal-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
                 {{ $slot }}
             </div>
         @else
             <div @class([
-                'px-5 py-4',
+                'px-5 py-3',
                 'detail-modal-body' => $isDetail,
                 'overflow-visible' => ! $isDetail,
             ])>

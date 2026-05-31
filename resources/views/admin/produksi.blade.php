@@ -5,10 +5,11 @@
     $role = 'admin';
     $active = 'admin.produksi';
     $pageTitle = 'Data Produksi';
-    $pageSubtitle = 'Kelola data produksi dan penggunaan bahan baku';
+    $pageSubtitle = 'Kelola data produksi, bahan dasar, dan bahan baku';
     $storeRoute = 'admin.produksi.store';
     $updateRoute = 'admin.produksi.update';
     $destroyRoute = 'admin.produksi.destroy';
+    $showRoute = 'admin.produksi.show';
     $canEdit = true;
     $canAdd = true;
 @endphp

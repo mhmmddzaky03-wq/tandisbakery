@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\JournalEntry;
 use App\Models\JournalTransaction;
 use App\Services\AccountingService;
-use App\Support\FormatHelper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class JournalController extends Controller
 {
@@ -18,72 +14,35 @@ class JournalController extends Controller
 
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $sourceOptions = $this->accounting->journalSourceOptions();
+        $source = $request->input('source', '');
+        if ($source !== '' && ! array_key_exists($source, $sourceOptions)) {
+            $source = '';
+        }
+
         $from = $request->input('from');
         $to = $request->input('to');
 
-        $journals = $this->accounting->journalGroups($search, $from, $to);
-        $accounts = Account::orderBy('kode')->get();
-
-        $totalDebit = JournalEntry::sum('debit');
-        $totalKredit = JournalEntry::sum('credit');
-        $totalTransaksi = JournalTransaction::count();
+        $journals = $this->accounting->journalGroups($source ?: null, $from, $to);
+        $totals = $this->accounting->journalTotals($source ?: null, $from, $to);
 
         return view('admin.jurnal-umum', compact(
             'journals',
-            'accounts',
-            'search',
+            'source',
+            'sourceOptions',
             'from',
             'to',
-            'totalDebit',
-            'totalKredit',
-            'totalTransaksi'
+            'totals'
         ));
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'tanggal' => ['required', 'date'],
-            'deskripsi' => ['required', 'string', 'max:255'],
-            'ref' => ['nullable', 'string', 'max:255'],
-            'lines' => ['required', 'array', 'min:2'],
-            'lines.*.account_kode' => ['required', 'string', 'exists:accounts,kode'],
-            'lines.*.debit' => ['required', 'integer', 'min:0'],
-            'lines.*.credit' => ['required', 'integer', 'min:0'],
-        ]);
-
-        $totalDebit = collect($data['lines'])->sum('debit');
-        $totalCredit = collect($data['lines'])->sum('credit');
-
-        if ($totalDebit !== $totalCredit || $totalDebit === 0) {
-            return back()->withErrors(['lines' => 'Total debit dan kredit harus sama dan lebih dari nol.'])->withInput();
-        }
-
-        $data = FormatHelper::applyTitleCase($data, ['deskripsi']);
-
-        DB::transaction(function () use ($data) {
-            $tx = JournalTransaction::create([
-                'tanggal' => $data['tanggal'],
-                'deskripsi' => $data['deskripsi'],
-                'ref' => $data['ref'] ?? null,
-            ]);
-
-            foreach ($data['lines'] as $line) {
-                JournalEntry::create([
-                    'journal_transaction_id' => $tx->id,
-                    'account_kode' => $line['account_kode'],
-                    'debit' => $line['debit'],
-                    'credit' => $line['credit'],
-                ]);
-            }
-        });
-
-        return redirect()->back()->with('success', 'Jurnal berhasil ditambahkan.');
     }
 
     public function destroy(int $id)
     {
+        $blocked = $this->accounting->journalDeleteBlockedReason($id);
+        if ($blocked) {
+            return redirect()->back()->with('error', $blocked);
+        }
+
         JournalTransaction::findOrFail($id)->delete();
 
         return redirect()->back()->with('success', 'Jurnal berhasil dihapus.');

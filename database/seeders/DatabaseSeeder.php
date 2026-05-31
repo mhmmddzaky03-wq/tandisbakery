@@ -5,9 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\RawMaterial;
-use App\Models\Account;
-use App\Models\JournalTransaction;
 use App\Models\JournalEntry;
+use App\Models\JournalTransaction;
 use App\Models\ProductionRecord;
 use App\Models\SalesTransaction;
 use App\Models\Unit;
@@ -24,7 +23,6 @@ class DatabaseSeeder extends Seeder
         foreach ([
             ['name' => 'Haris', 'username' => 'admin', 'email' => 'admin@tandisbakery.com', 'password' => 'admin123', 'role' => 'admin'],
             ['name' => 'Karyawan Toko', 'username' => 'karyawan', 'email' => 'karyawan@tandisbakery.com', 'password' => 'karyawan123', 'role' => 'karyawan'],
-            ['name' => 'Basket', 'username' => 'basket', 'email' => 'basket@tandisbakery.com', 'password' => 'basket123', 'role' => 'basket'],
         ] as $user) {
             User::updateOrCreate(['username' => $user['username']], $user);
         }
@@ -47,25 +45,25 @@ class DatabaseSeeder extends Seeder
             ProductionRecord::create($p);
         }
 
-        Product::create(['id' => 'P001', 'production_record_id' => 'PRD001', 'nama' => 'Roti Tawar', 'satuan' => 'loyang', 'harga' => 25000, 'status' => 'Aktif']);
-        Product::create(['id' => 'P002', 'production_record_id' => 'PRD002', 'nama' => 'Croissant', 'satuan' => 'pcs', 'harga' => 12000, 'status' => 'Aktif']);
-        Product::create(['id' => 'P003', 'production_record_id' => 'PRD003', 'nama' => 'Kue Ulang Tahun', 'satuan' => 'pcs', 'harga' => 350000, 'status' => 'Aktif']);
+        Product::create(['id' => 'P001', 'production_record_id' => 'PRD001', 'nama' => 'Roti Tawar', 'satuan' => 'loyang', 'jumlah' => 10, 'harga' => 25000]);
+        Product::create(['id' => 'P002', 'production_record_id' => 'PRD002', 'nama' => 'Croissant', 'satuan' => 'pcs', 'jumlah' => 48, 'harga' => 12000]);
+        Product::create(['id' => 'P003', 'production_record_id' => 'PRD003', 'nama' => 'Kue Ulang Tahun', 'satuan' => 'pcs', 'jumlah' => 1, 'harga' => 350000]);
 
         // 4. Seed Raw Materials
         $materials = [
-            ['id' => 'SBB001', 'nama' => 'Wincheez Custom (B) 8 x 2 kg', 'jumlah' => 48, 'satuan' => 'kg', 'min' => 16, 'harga' => 54323],
-            ['id' => 'SBB002', 'nama' => 'Telur Ayam', 'jumlah' => 100, 'satuan' => 'pcs', 'min' => 50, 'harga' => 28000],
-            ['id' => 'SBB003', 'nama' => 'Endura Smoke Beef M 1kg', 'jumlah' => 2, 'satuan' => 'kg', 'min' => 1, 'harga' => 101410],
-            ['id' => 'SBB006', 'nama' => 'UHT Milk Full Cream Sleeve 1kg', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 176904],
-            ['id' => 'SBB010', 'nama' => 'Kismis Hitam 1kg USA Premium', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 50000],
-            ['id' => 'SBB011', 'nama' => 'Pastel Besar', 'jumlah' => 200, 'satuan' => 'liter', 'min' => 80, 'harga' => 15000],
+            ['id' => 'SBB001', 'nama' => 'Wincheez Custom (B) 8 x 2 kg', 'kategori' => 'kering', 'jumlah' => 48, 'satuan' => 'kg', 'min' => 16, 'harga' => 54323],
+            ['id' => 'SBB002', 'nama' => 'Telur Ayam', 'kategori' => 'basah', 'jumlah' => 100, 'satuan' => 'pcs', 'min' => 50, 'harga' => 28000],
+            ['id' => 'SBB003', 'nama' => 'Endura Smoke Beef M 1kg', 'kategori' => 'padat', 'jumlah' => 2, 'satuan' => 'kg', 'min' => 1, 'harga' => 101410],
+            ['id' => 'SBB006', 'nama' => 'UHT Milk Full Cream Sleeve 1kg', 'kategori' => 'basah', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 176904],
+            ['id' => 'SBB010', 'nama' => 'Kismis Hitam 1kg USA Premium', 'kategori' => 'kering', 'jumlah' => 1, 'satuan' => 'kg', 'min' => 1, 'harga' => 50000],
+            ['id' => 'SBB011', 'nama' => 'Pastel Besar', 'kategori' => 'padat', 'jumlah' => 200, 'satuan' => 'L', 'min' => 80, 'harga' => 15000],
         ];
 
         foreach ($materials as $mat) {
             RawMaterial::create($mat);
         }
 
-        foreach (['kg', 'pcs', 'liter', 'loyang'] as $unitName) {
+        foreach (['kg', 'pcs', 'L', 'loyang', 'gram', 'ml'] as $unitName) {
             Unit::firstOrCreate(['nama' => $unitName]);
         }
 
@@ -81,51 +79,18 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 8. Seed Opening Balances & Historical Accounting Entries (Balanced)
-        // Owner's Capital is adjusted to 277,054,484 to balance the opening ledger exactly.
-        $tx = JournalTransaction::create([
-            'tanggal' => '2025-06-01',
-            'deskripsi' => 'Saldo Awal & Transaksi Historis',
-            'ref' => 'Opening Balance',
-        ]);
+        // 8. Saldo awal (Excel) — jurnal operasional lain tidak dihapus
+        $this->call(OpeningBalanceSeeder::class);
 
-        $entries = [
-            ['account_kode' => '1-110', 'debit' => 20678197, 'credit' => 0],
-            ['account_kode' => '1-130', 'debit' => 22383272, 'credit' => 0],
-            ['account_kode' => '1-140', 'debit' => 14588531, 'credit' => 0],
-            ['account_kode' => '1-150', 'debit' => 5727000, 'credit' => 0],
-            ['account_kode' => '1-160', 'debit' => 15000, 'credit' => 0],
-            ['account_kode' => '1-210', 'debit' => 52967850, 'credit' => 0],
-            ['account_kode' => '1-211', 'debit' => 0, 'credit' => 27500000],
-            ['account_kode' => '1-230', 'debit' => 245000000, 'credit' => 0],
-            ['account_kode' => '1-231', 'debit' => 0, 'credit' => 2041667],
-            ['account_kode' => '2-160', 'debit' => 0, 'credit' => 125000],
-            ['account_kode' => '2-140', 'debit' => 0, 'credit' => 2401000],
-            ['account_kode' => '3-110', 'debit' => 0, 'credit' => 277054484],
-            ['account_kode' => '3-120', 'debit' => 0, 'credit' => 29158652],
-            ['account_kode' => '4-110', 'debit' => 0, 'credit' => 72285150],
-            ['account_kode' => '4-120', 'debit' => 110300, 'credit' => 0],
-            ['account_kode' => '4-130', 'debit' => 247000, 'credit' => 0],
-            ['account_kode' => '5-110', 'debit' => 38548803, 'credit' => 0],
-            ['account_kode' => '5-150', 'debit' => 10300000, 'credit' => 0],
-        ];
-
-        foreach ($entries as $ent) {
-            JournalEntry::create(array_merge($ent, ['journal_transaction_id' => $tx->id]));
-        }
-
-        // 9. Seed the exact mockup entries for Jurnal Umum page view:
-        // June 1, 2025 mock journal entries
+        // 9. Contoh jurnal manual (berkesinambungan dengan modul Jurnal Umum)
         $tx1 = JournalTransaction::create([
             'tanggal' => '2025-06-01',
             'deskripsi' => 'Transaksi Operasional - Rincian Jun 1',
             'ref' => 'Restock bahan baku',
         ]);
-        // Debit Materials 1-130 (Rp 500,000), Credit Cash 1-110 (Rp 500,000)
         JournalEntry::create(['journal_transaction_id' => $tx1->id, 'account_kode' => '1-130', 'debit' => 500000, 'credit' => 0]);
         JournalEntry::create(['journal_transaction_id' => $tx1->id, 'account_kode' => '1-110', 'debit' => 0, 'credit' => 500000]);
 
-        // June 3, 2025 mock journal entries
         $tx2 = JournalTransaction::create([
             'tanggal' => '2025-06-03',
             'deskripsi' => 'Investasi PT Merging Nusantara',
@@ -134,7 +99,6 @@ class DatabaseSeeder extends Seeder
         JournalEntry::create(['journal_transaction_id' => $tx2->id, 'account_kode' => '1-110', 'debit' => 17232150, 'credit' => 0]);
         JournalEntry::create(['journal_transaction_id' => $tx2->id, 'account_kode' => '3-110', 'debit' => 0, 'credit' => 17232150]);
 
-        // June 5, 2025 mock journal entries
         $tx3 = JournalTransaction::create([
             'tanggal' => '2025-06-05',
             'deskripsi' => 'Biaya Operasional Mandiri',
@@ -142,5 +106,25 @@ class DatabaseSeeder extends Seeder
         ]);
         JournalEntry::create(['journal_transaction_id' => $tx3->id, 'account_kode' => '5-150', 'debit' => 137000, 'credit' => 0]);
         JournalEntry::create(['journal_transaction_id' => $tx3->id, 'account_kode' => '1-110', 'debit' => 0, 'credit' => 137000]);
+
+        // Contoh buku besar akun 6-100 Direct Labor (sesuai template Excel)
+        $txAdj = JournalTransaction::create([
+            'tanggal' => '2025-06-30',
+            'deskripsi' => 'Penyesuaian tenaga kerja langsung',
+            'ref' => 'ADJ',
+        ]);
+        JournalEntry::create(['journal_transaction_id' => $txAdj->id, 'account_kode' => '6-100', 'debit' => 0, 'credit' => 8_300_000]);
+        JournalEntry::create(['journal_transaction_id' => $txAdj->id, 'account_kode' => '5-180', 'debit' => 8_300_000, 'credit' => 0]);
+
+        $txAlloc = JournalTransaction::create([
+            'tanggal' => '2025-06-30',
+            'deskripsi' => 'Alokasi biaya umum ke tenaga kerja langsung',
+            'ref' => 'ALLOCATING GA',
+        ]);
+        JournalEntry::create(['journal_transaction_id' => $txAlloc->id, 'account_kode' => '6-100', 'debit' => 8_300_000, 'credit' => 0]);
+        JournalEntry::create(['journal_transaction_id' => $txAlloc->id, 'account_kode' => '5-180', 'debit' => 0, 'credit' => 8_300_000]);
+
+        // Data demo dashboard (grafik tren penjualan, komposisi biaya, dll.) — relatif ke tanggal hari ini
+        $this->call(DashboardDemoSeeder::class);
     }
 }

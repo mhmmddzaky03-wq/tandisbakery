@@ -7,7 +7,6 @@
     $roleLabel = match ($role) {
         'admin' => 'Administrator',
         'karyawan' => 'Karyawan',
-        'basket' => 'Basket',
         default => ucfirst($role),
     };
 @endphp
@@ -112,9 +111,6 @@
                     </a>
                     <a href="{{ route('karyawan.dashboard') }}" class="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($role ?? '') === 'karyawan' ? 'bg-amber-50 text-amber-800' : '' }}">
                         Karyawan
-                    </a>
-                    <a href="{{ route('basket.dashboard') }}" class="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($role ?? '') === 'basket' ? 'bg-amber-50 text-amber-800' : '' }}">
-                        Basket
                     </a>
                 @else
                     <form method="POST" action="{{ route('auth.logout') }}">

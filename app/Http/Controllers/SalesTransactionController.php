@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalesTransaction;
+use App\Services\SalesJournalService;
 use App\Support\FormatHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SalesTransactionController extends Controller
 {
+    public function __construct(private SalesJournalService $salesJournal)
+    {
+    }
+
     public function index(Request $request)
     {
         $transactions = SalesTransaction::query()
@@ -59,9 +65,12 @@ class SalesTransactionController extends Controller
 
         $data['id'] = $this->nextId(SalesTransaction::class, 'TRS');
 
-        SalesTransaction::create($data);
+        DB::transaction(function () use ($data) {
+            $sale = SalesTransaction::create($data);
+            $this->salesJournal->sync($sale);
+        });
 
-        return redirect()->back()->with('success', 'Transaksi penjualan berhasil disimpan.');
+        return redirect()->back()->with('success', 'Transaksi penjualan berhasil disimpan dan dicatat ke jurnal.');
     }
 
     public function update(Request $request, string $id)
@@ -75,14 +84,22 @@ class SalesTransactionController extends Controller
             'jumlah' => ['required', 'integer', 'min:1'],
         ]);
 
-        $transaction->update($data);
+        DB::transaction(function () use ($transaction, $data) {
+            $transaction->update($data);
+            $this->salesJournal->sync($transaction->fresh());
+        });
 
         return redirect()->back()->with('success', 'Transaksi penjualan berhasil diperbarui.');
     }
 
     public function destroy(string $id)
     {
-        SalesTransaction::findOrFail($id)->delete();
+        $transaction = SalesTransaction::findOrFail($id);
+
+        DB::transaction(function () use ($transaction) {
+            $this->salesJournal->deleteForSale($transaction);
+            $transaction->delete();
+        });
 
         return redirect()->back()->with('success', 'Transaksi penjualan berhasil dihapus.');
     }

@@ -26,7 +26,7 @@
 @endphp
 
 @push('page-actions')
-    <button type="button" class="bakery-btn-ghost whitespace-nowrap" data-print>Cetak</button>
+    <x-pdf-print-button :route="route('admin.pdf.coa')" :query="array_filter(['grup' => $groupFilter ?? null])" />
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="coa-baru">
         + Tambah Akun
     </button>
@@ -117,13 +117,17 @@
                     @empty
                         <tr data-table-empty>
                             <td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">
-                                Belum ada akun.
+                                @if (! empty($groupFilter))
+                                    Data tidak ditemukan
+                                @else
+                                    Belum ada akun.
+                                @endif
                             </td>
                         </tr>
                     @endforelse
                     <tr data-table-no-results class="hidden">
                         <td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">
-                            Tidak ada data yang cocok dengan pencarian.
+                            Data tidak ditemukan
                         </td>
                     </tr>
                 </tbody>
@@ -163,7 +167,7 @@
         </div>
     </x-modal>
 
-    <x-modal id="edit-coa-{{ $acc->kode }}" title="Ubah Akun COA" :subtitle="$acc->kode">
+    <x-modal id="edit-coa-{{ $acc->kode }}" title="Edit Akun COA" :subtitle="$acc->kode">
         <form
             method="POST"
             action="{{ route('admin.coa.update', $acc->kode) }}"

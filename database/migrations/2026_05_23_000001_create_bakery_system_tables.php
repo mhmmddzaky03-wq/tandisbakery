@@ -30,7 +30,6 @@ return new class extends Migration
             $table->string('nama');
             $table->string('satuan');
             $table->integer('harga');
-            $table->string('status')->default('Aktif'); // Aktif / Non-Aktif
             $table->timestamps();
 
             $table->foreign('production_record_id')
@@ -44,7 +43,7 @@ return new class extends Migration
             $table->string('id')->primary(); // e.g. SBB001
             $table->string('nama');
             $table->decimal('jumlah', 12, 4)->default(0);
-            $table->string('satuan', 20)->default('kg');
+            $table->string('satuan', 50)->default('kg');
             $table->decimal('min', 12, 4)->default(0);
             $table->integer('harga');
             $table->timestamps();

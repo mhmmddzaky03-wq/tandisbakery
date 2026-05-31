@@ -20,9 +20,34 @@ class Product extends Model
         'production_record_id',
         'nama',
         'satuan',
+        'jumlah',
         'harga',
-        'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'jumlah' => 'integer',
+            'harga' => 'integer',
+        ];
+    }
+
+    public static function normalizeName(string $name): string
+    {
+        return mb_strtolower(trim($name));
+    }
+
+    public static function findByName(string $name): ?self
+    {
+        return static::query()
+            ->whereRaw('LOWER(TRIM(nama)) = ?', [static::normalizeName($name)])
+            ->first();
+    }
+
+    public static function existsForName(string $name): bool
+    {
+        return static::findByName($name) !== null;
+    }
 
     public static function generateNextId(): string
     {

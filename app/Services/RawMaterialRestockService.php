@@ -21,8 +21,10 @@ class RawMaterialRestockService
         int $harga,
         ?string $catatan = null,
         bool $createJournal = true,
+        ?string $kodeProduksi = null,
+        ?string $expired = null,
     ): RawMaterialRestock {
-        return DB::transaction(function () use ($material, $tanggal, $jumlah, $harga, $catatan, $createJournal) {
+        return DB::transaction(function () use ($material, $tanggal, $jumlah, $harga, $catatan, $createJournal, $kodeProduksi, $expired) {
             $total = (int) round($jumlah * $harga);
 
             $journalId = null;
@@ -38,7 +40,10 @@ class RawMaterialRestockService
             $restock = RawMaterialRestock::create([
                 'raw_material_id' => $material->id,
                 'tanggal' => $tanggal,
+                'kode_produksi' => $kodeProduksi !== null && trim($kodeProduksi) !== '' ? trim($kodeProduksi) : null,
+                'expired' => $expired,
                 'jumlah' => $jumlah,
+                'sisa' => $jumlah,
                 'harga' => $harga,
                 'total' => $total,
                 'catatan' => $catatan,

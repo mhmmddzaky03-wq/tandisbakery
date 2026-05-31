@@ -1,10 +1,11 @@
 @php
-    use App\Http\Controllers\ProductController;
     use App\Support\FormatHelper;
+
+    $showRoute = $showRoute ?? 'admin.produk.show';
 @endphp
 <div>
     <div class="bakery-card" data-table-search>
-        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div class="min-w-0 shrink text-lg font-extrabold text-slate-900">Data Produk</div>
             <x-table-search
                 placeholder="Cari produk..."
@@ -12,47 +13,52 @@
             />
         </div>
 
-        <div class="bakery-card-body bakery-table-wrap pt-4">
-            <table class="bakery-table">
+        <div class="bakery-card-body overflow-x-auto pt-2">
+            <table class="bakery-table w-full">
+                <colgroup>
+                    <col class="w-[5.5rem]" />
+                    <col />
+                    <col class="w-[8.5rem]" />
+                    <col class="w-[9rem]" />
+                    <col class="w-[7.5rem]" />
+                </colgroup>
                 <thead>
                     <tr>
-                        <th class="w-[90px]">ID</th>
-                        <th>Sumber Produksi</th>
+                        <th>ID</th>
                         <th>Nama Produk</th>
-                        <th class="w-[100px]">Satuan</th>
-                        <th class="w-[130px]">Harga</th>
-                        <th class="w-[110px]">Status</th>
-                        @if ($canEdit ?? true)
-                            <th class="w-[90px] text-center">Aksi</th>
-                        @endif
+                        <th class="text-right">Stok</th>
+                        <th class="text-right">Harga</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody data-table-search-body>
                     @forelse ($products as $product)
                         <tr
                             data-searchable-row
-                            data-search="{{ strtolower($product->id.' '.$product->nama.' '.$product->satuan.' '.$product->status.' '.($product->productionRecord?->id ?? '')) }}"
+                            data-search="{{ strtolower($product->id.' '.$product->nama.' '.$product->satuan.' '.$product->jumlah.' '.($product->productionRecord?->id ?? '')) }}"
                         >
-                            <td class="font-bold text-slate-800">{{ $product->id }}</td>
-                            <td>
+                            <td class="whitespace-nowrap font-bold text-slate-800">
+                                <a href="{{ route($showRoute, $product->id) }}" class="hover:text-sky-600">{{ $product->id }}</a>
+                            </td>
+                            <td class="min-w-[10rem]">
+                                <a href="{{ route($showRoute, $product->id) }}" class="font-semibold text-slate-800 hover:text-sky-600">{{ $product->nama }}</a>
                                 @if ($product->productionRecord)
-                                    <div class="font-semibold text-slate-700">{{ $product->productionRecord->id }}</div>
-                                    <div class="text-xs text-slate-400">{{ FormatHelper::dateId($product->productionRecord->tanggal) }}</div>
-                                @else
-                                    <span class="text-slate-400">—</span>
+                                    <div class="mt-0.5 text-[11px] font-semibold text-slate-400">Produksi awal · {{ $product->productionRecord->id }}</div>
                                 @endif
                             </td>
-                            <td>{{ $product->nama }}</td>
-                            <td>{{ $product->satuan }}</td>
-                            <td class="font-extrabold text-amber-600">{{ FormatHelper::rupiah($product->harga) }}</td>
+                            <td class="whitespace-nowrap text-right font-bold tabular-nums text-emerald-700">{{ number_format($product->jumlah, 0, ',', '.') }} {{ $product->satuan }}</td>
+                            <td class="whitespace-nowrap text-right font-extrabold tabular-nums text-amber-600">{{ FormatHelper::rupiah($product->harga) }}</td>
                             <td>
-                                <span class="bakery-badge {{ $product->status === 'Aktif' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">
-                                    {{ $product->status }}
-                                </span>
-                            </td>
-                            @if ($canEdit ?? true)
-                                <td>
-                                    <div class="flex items-center justify-center gap-1">
+                                <div class="flex items-center justify-center gap-1">
+                                    <a
+                                        href="{{ route($showRoute, $product->id) }}"
+                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-600"
+                                        title="Detail"
+                                        aria-label="Detail"
+                                    >
+                                        <x-icons.info-circle class="h-4 w-4" />
+                                    </a>
+                                    @if ($canEdit ?? true)
                                         <button
                                             type="button"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
@@ -73,20 +79,20 @@
                                                 <x-icons.trash />
                                             </button>
                                         </form>
-                                    </div>
-                                </td>
-                            @endif
+                                    @endif
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr data-table-empty>
-                            <td colspan="{{ ($canEdit ?? true) ? 7 : 6 }}" class="px-4 py-12 text-center text-sm text-slate-500">
+                            <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
                                 Belum ada produk terdaftar. Catat produksi berhasil lalu daftarkan produk di sini.
                             </td>
                         </tr>
                     @endforelse
                     <tr data-table-no-results class="hidden">
-                        <td colspan="{{ ($canEdit ?? true) ? 7 : 6 }}" class="px-4 py-12 text-center text-sm text-slate-500">
-                            Tidak ada data yang cocok dengan pencarian.
+                        <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
+                            Data tidak ditemukan
                         </td>
                     </tr>
                 </tbody>
@@ -95,68 +101,124 @@
     </div>
 
     @if ($canEdit ?? true)
+        @php
+            $editProductId = old('_edit_id');
+            $hasProductErrors = $errors->has('harga');
+        @endphp
         @foreach ($products as $product)
-            @php $editProductions = ProductController::productionsForProduct($product); @endphp
-            <x-modal id="edit-produk-{{ $product->id }}" title="Ubah Produk" :subtitle="$product->id">
-                <form method="POST" action="{{ route($updateRoute, $product->id) }}" class="space-y-4" data-modal-form data-production-select-form>
-                    @csrf @method('PUT')
-                    <x-form-field label="ID" name="id_display" type="text" :value="$product->id" disabled />
-                    <x-form-field label="Data Produksi" name="production_record_id" type="select" required helper="Pilih entri produksi berhasil yang belum didaftarkan sebagai produk">
-                        <option value="">— Pilih data produksi —</option>
-                        @foreach ($editProductions as $production)
-                            <option
-                                value="{{ $production->id }}"
-                                data-nama="{{ $production->product_name }}"
-                                data-satuan="{{ $production->satuan }}"
-                                @selected(old('production_record_id', $product->production_record_id) === $production->id)
-                            >
-                                {{ $production->id }} — {{ $production->product_name }} — {{ FormatHelper::dateId($production->tanggal) }}
-                            </option>
-                        @endforeach
-                    </x-form-field>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <x-form-field label="Nama Produk" name="nama_preview" type="text" :value="$product->nama" :readonly="true" class="bg-slate-50" />
-                        <x-form-field label="Satuan" name="satuan_preview" type="text" :value="$product->satuan" :readonly="true" class="bg-slate-50" />
-                    </div>
-                    <x-form-field label="Harga" name="harga" type="number" :value="old('harga', $product->harga)" min="0" required />
-                    <x-form-field label="Status" name="status" type="select" required>
-                        <option value="Aktif" @selected(old('status', $product->status) === 'Aktif')>Aktif</option>
-                        <option value="Non-Aktif" @selected(old('status', $product->status) === 'Non-Aktif')>Non-Aktif</option>
-                    </x-form-field>
-                    <x-form-actions />
-                </form>
-            </x-modal>
+            @include('partials.product-edit-modal', [
+                'product' => $product,
+                'productionBatchCount' => \App\Http\Controllers\ProductController::productionsForProduct($product)->count(),
+            ])
         @endforeach
 
-        <x-modal id="produk-baru" title="+ Tambah Produk" :auto-open="$errors->has('production_record_id') || $errors->has('harga')">
-            <form method="POST" action="{{ route($storeRoute) }}" class="space-y-4" data-modal-form data-production-select-form>
+        @php
+            $isCreateTarget = ! old('_edit_id') && $hasProductErrors;
+            $selectedCreateProductionId = old('production_record_id');
+        @endphp
+        <x-modal
+            id="produk-baru"
+            title="Tambah Produk"
+            size="lg"
+            :scrollable="true"
+            :auto-open="$isCreateTarget"
+        >
+            <form method="POST" action="{{ route($storeRoute) }}" class="space-y-3" data-modal-form data-production-select-form>
                 @csrf
-                <x-form-field label="Data Produksi" name="production_record_id" type="select" required autofocus helper="Pilih entri produksi berhasil yang belum didaftarkan sebagai produk">
-                    <option value="">— Pilih data produksi —</option>
-                    @foreach ($availableProductions as $production)
-                        <option
-                            value="{{ $production->id }}"
-                            data-nama="{{ $production->product_name }}"
-                            data-satuan="{{ $production->satuan }}"
-                            @selected(old('production_record_id') === $production->id)
-                        >
-                            {{ $production->id }} — {{ $production->product_name }} — {{ FormatHelper::dateId($production->tanggal) }}
-                        </option>
-                    @endforeach
-                </x-form-field>
+
                 @if ($availableProductions->isEmpty())
-                    <p class="rounded-xl bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-700">Tidak ada data produksi berhasil yang tersedia. Catat produksi terlebih dahulu di menu Data Produksi.</p>
+                    <div class="rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-100">
+                        <p class="text-xs font-semibold text-amber-800">Tidak ada data produksi berhasil yang tersedia.</p>
+                        <p class="mt-1 text-[11px] font-semibold text-amber-700/80">Catat produksi terlebih dahulu di menu Data Produksi.</p>
+                    </div>
                 @endif
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <x-form-field label="Nama Produk" name="nama_preview" type="text" value="" :readonly="true" class="bg-slate-50" placeholder="—" />
-                    <x-form-field label="Satuan" name="satuan_preview" type="text" value="" :readonly="true" class="bg-slate-50" placeholder="—" />
+
+                <div class="rounded-xl bg-slate-50/80 p-3 ring-1 ring-slate-100">
+                    <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">Sumber Produksi</p>
+                    <div class="min-w-0">
+                        <label for="field-production-create" class="mb-1.5 block text-xs font-bold text-slate-600">
+                            Data Produksi
+                            <span class="text-rose-500" aria-hidden="true">*</span>
+                        </label>
+                        <select
+                            id="field-production-create"
+                            name="production_record_id"
+                            required
+                            autofocus
+                            @disabled($availableProductions->isEmpty())
+                            class="bakery-input h-11 w-full disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 {{ $errors->has('production_record_id') && $isCreateTarget ? '!ring-2 !ring-rose-400' : '' }}"
+                        >
+                            <option value="" disabled @selected($selectedCreateProductionId === null || $selectedCreateProductionId === '')>Pilih data produksi</option>
+                            @foreach ($availableProductions as $production)
+                                <option
+                                    value="{{ $production->id }}"
+                                    data-nama="{{ $production->product_name }}"
+                                    data-satuan="{{ $production->satuan }}"
+                                    @selected($selectedCreateProductionId === $production->id)
+                                >
+                                    {{ $production->id }} · {{ $production->product_name }} · {{ FormatHelper::dateId($production->tanggal) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('production_record_id') && $isCreateTarget)
+                            <p class="mt-1.5 text-xs font-semibold text-rose-600" role="alert">{{ $errors->first('production_record_id') }}</p>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                        <div class="min-w-0">
+                            <label for="field-nama-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">Nama Produk</label>
+                            <input
+                                id="field-nama-preview-create"
+                                name="nama_preview"
+                                type="text"
+                                value="{{ old('nama_preview') }}"
+                                readonly
+                                placeholder="—"
+                                class="bakery-input h-11 w-full bg-white text-slate-700 placeholder:text-slate-400"
+                            />
+                        </div>
+                        <div class="min-w-0">
+                            <label for="field-satuan-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">Satuan</label>
+                            <input
+                                id="field-satuan-preview-create"
+                                name="satuan_preview"
+                                type="text"
+                                value="{{ old('satuan_preview') }}"
+                                readonly
+                                placeholder="—"
+                                class="bakery-input h-11 w-full bg-white uppercase text-slate-700 placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+                    <p class="mt-2 text-[11px] font-semibold text-slate-400">Stok awal dihitung dari semua produksi berhasil dengan nama produk yang sama.</p>
                 </div>
-                <x-form-field label="Harga" name="harga" type="number" :value="old('harga')" min="0" required />
-                <x-form-field label="Status" name="status" type="select" required>
-                    <option value="Aktif" @selected(old('status', 'Aktif') === 'Aktif')>Aktif</option>
-                    <option value="Non-Aktif" @selected(old('status') === 'Non-Aktif')>Non-Aktif</option>
-                </x-form-field>
-                <x-form-actions />
+
+                <div class="min-w-0">
+                    <label for="field-harga-create" class="mb-1.5 block text-xs font-bold text-slate-600">
+                        Harga Jual
+                        <span class="text-rose-500" aria-hidden="true">*</span>
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex h-11 shrink-0 items-center rounded-lg bg-slate-100 px-3 text-xs font-bold text-slate-600">Rp</span>
+                        <input
+                            id="field-harga-create"
+                            name="harga"
+                            type="number"
+                            value="{{ old('harga') }}"
+                            min="0"
+                            required
+                            inputmode="numeric"
+                            @disabled($availableProductions->isEmpty())
+                            class="bakery-input h-11 min-w-0 flex-1 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 {{ $errors->has('harga') && $isCreateTarget ? '!ring-2 !ring-rose-400' : '' }}"
+                        />
+                    </div>
+                    @if ($errors->has('harga') && $isCreateTarget)
+                        <p class="mt-1.5 text-xs font-semibold text-rose-600" role="alert">{{ $errors->first('harga') }}</p>
+                    @endif
+                </div>
+
+                <x-form-actions compact submit="Daftarkan Produk" />
             </form>
         </x-modal>
     @endif
