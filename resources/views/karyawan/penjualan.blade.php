@@ -3,12 +3,13 @@
 @php
     $role = 'karyawan';
     $active = 'karyawan.penjualan';
-    $pageTitle = 'Input Data Penjualan';
-    $pageSubtitle = 'Input dan kelola rekap transaksi penjualan harian';
-    $title = 'Input Data Penjualan'.' - Karyawan';
+    $pageTitle = 'Transaksi Penjualan';
+    $pageSubtitle = 'Input dan lihat transaksi penjualan';
+    $title = 'Transaksi Penjualan'.' - Karyawan';
     $storeRoute = 'karyawan.penjualan.store';
-    $updateRoute = 'karyawan.penjualan.update';
-    $destroyRoute = 'karyawan.penjualan.destroy';
+    $updateRoute = '';
+    $destroyRoute = '';
+    $canEdit = false;
 @endphp
 
 @push('page-actions')

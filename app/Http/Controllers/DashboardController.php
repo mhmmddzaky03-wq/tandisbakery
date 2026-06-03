@@ -91,7 +91,19 @@ class DashboardController extends Controller
 
     public function karyawan()
     {
-        return view('karyawan.dashboard');
+        $today = now()->toDateString();
+        $totalProduction = ProductionRecord::count();
+        $todaySales = (int) SalesTransaction::whereDate('tanggal', $today)->sum('total');
+        $latestProduction = ProductionRecord::query()
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->first();
+
+        return view('karyawan.dashboard', compact(
+            'totalProduction',
+            'todaySales',
+            'latestProduction',
+        ));
     }
 
     /**

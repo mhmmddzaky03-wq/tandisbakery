@@ -129,32 +129,11 @@ Route::middleware($access('admin'))->prefix('admin')->group(function () {
 Route::middleware($access('karyawan'))->prefix('karyawan')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'karyawan'])->name('karyawan.dashboard');
 
-    Route::get('/input-produksi', [ProductionController::class, 'index'])->name('karyawan.produksi');
-    Route::get('/input-produksi/{id}', [ProductionController::class, 'show'])->name('karyawan.produksi.show');
-    Route::post('/input-produksi', [ProductionController::class, 'store'])->name('karyawan.produksi.store');
+    Route::get('/data-produksi', [ProductionController::class, 'index'])->name('karyawan.produksi');
+    Route::get('/data-produksi/{id}', [ProductionController::class, 'show'])->name('karyawan.produksi.show');
+    Route::post('/data-produksi', [ProductionController::class, 'store'])->name('karyawan.produksi.store');
 
-    Route::get('/input-penjualan', [SalesTransactionController::class, 'index'])->name('karyawan.penjualan');
-    Route::post('/input-penjualan', [SalesTransactionController::class, 'store'])->name('karyawan.penjualan.store');
-    Route::put('/input-penjualan/{id}', [SalesTransactionController::class, 'update'])->name('karyawan.penjualan.update');
-    Route::delete('/input-penjualan/{id}', [SalesTransactionController::class, 'destroy'])->name('karyawan.penjualan.destroy');
-
-    Route::get('/input-persediaan', [RawMaterialController::class, 'index'])->name('karyawan.persediaan');
-    Route::get('/input-persediaan/{id}', [RawMaterialController::class, 'show'])->name('karyawan.persediaan.show');
-    Route::post('/input-persediaan', [RawMaterialController::class, 'store'])->name('karyawan.persediaan.store');
-    Route::put('/input-persediaan/{id}', [RawMaterialController::class, 'update'])->name('karyawan.persediaan.update');
-    Route::post('/input-persediaan/{id}/restock', [RawMaterialController::class, 'restock'])->name('karyawan.persediaan.restock');
-    Route::delete('/input-persediaan/{id}', [RawMaterialController::class, 'destroy'])->name('karyawan.persediaan.destroy');
-
-    Route::post('/satuan', [UnitController::class, 'store'])->name('karyawan.satuan.store');
-    Route::put('/satuan/{id}', [UnitController::class, 'update'])->name('karyawan.satuan.update');
-    Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])->name('karyawan.satuan.destroy');
-
-    Route::get('/input-operasional', [OperationalCostController::class, 'index'])->name('karyawan.operasional');
-    Route::post('/input-operasional', [OperationalCostController::class, 'store'])->name('karyawan.operasional.store');
-    Route::put('/input-operasional/{id}', [OperationalCostController::class, 'update'])->name('karyawan.operasional.update');
-    Route::delete('/input-operasional/{id}', [OperationalCostController::class, 'destroy'])->name('karyawan.operasional.destroy');
-
-    Route::get('/data-produk', [ProductController::class, 'index'])->name('karyawan.produk');
-    Route::get('/data-produk/{id}', [ProductController::class, 'show'])->name('karyawan.produk.show');
+    Route::get('/transaksi-penjualan', [SalesTransactionController::class, 'index'])->name('karyawan.penjualan');
+    Route::post('/transaksi-penjualan', [SalesTransactionController::class, 'store'])->name('karyawan.penjualan.store');
 });
 

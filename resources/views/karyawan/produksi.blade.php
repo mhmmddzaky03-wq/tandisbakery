@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @php
-    $title = 'Input Data Produksi'.' - Karyawan';
+    $title = 'Data Produksi'.' - Karyawan';
     $role = 'karyawan';
     $active = 'karyawan.produksi';
-    $pageTitle = 'Input Data Produksi';
-    $pageSubtitle = 'Kelola data produksi dan penggunaan bahan baku';
+    $pageTitle = 'Data Produksi';
+    $pageSubtitle = 'Input dan lihat data produksi';
     $storeRoute = 'karyawan.produksi.store';
     $updateRoute = '';
     $destroyRoute = '';
