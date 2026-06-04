@@ -23,7 +23,7 @@ class DashboardController extends Controller
     public function admin()
     {
         $materials = RawMaterial::all();
-        $lowStock = $materials->filter(fn ($m) => (float) $m->jumlah <= (float) $m->min);
+        $lowStock = $materials->filter(fn (RawMaterial $m) => $m->needsRestock());
 
         $totalProduction = ProductionRecord::count();
         $successProduction = ProductionRecord::where('status', 'Berhasil')->count();

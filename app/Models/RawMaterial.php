@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -82,6 +83,34 @@ class RawMaterial extends Model
     public function canBeDeleted(): bool
     {
         return ! $this->isInUse();
+    }
+
+    public function needsRestock(): bool
+    {
+        return (float) $this->jumlah <= (float) $this->min;
+    }
+
+    public function isStockSafe(): bool
+    {
+        return ! $this->needsRestock() && (float) $this->jumlah > 0;
+    }
+
+    public function stockStatusLabel(): string
+    {
+        if ((float) $this->jumlah <= 0) {
+            return 'Stok Habis';
+        }
+
+        if ($this->needsRestock()) {
+            return 'Perlu Diisi';
+        }
+
+        return 'Stok Aman';
+    }
+
+    public function scopeNeedsRestock(Builder $query): Builder
+    {
+        return $query->whereColumn('jumlah', '<=', 'min');
     }
 
     public static function generateNextId(): string
