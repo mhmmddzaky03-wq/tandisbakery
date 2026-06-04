@@ -26,6 +26,7 @@ return new class extends Migration
             $table->decimal('sisa', 14, 4);
             $table->unsignedBigInteger('total_biaya')->default(0);
             $table->string('catatan')->nullable();
+            $table->foreignId('journal_transaction_id')->nullable()->constrained('journal_transactions')->nullOnDelete();
             $table->timestamps();
 
             $table->foreign('bahan_dasar_id')

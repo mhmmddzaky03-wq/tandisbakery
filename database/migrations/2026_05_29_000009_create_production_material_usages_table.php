@@ -8,24 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('production_records', function (Blueprint $table) {
-            if (! Schema::hasColumn('production_records', 'total_material_cost')) {
-                $table->unsignedBigInteger('total_material_cost')->default(0)->after('notes');
-            }
-            if (! Schema::hasColumn('production_records', 'journal_transaction_id')) {
-                $table->foreignId('journal_transaction_id')->nullable()->after('total_material_cost')
-                    ->constrained('journal_transactions')->nullOnDelete();
-            }
-        });
-
-        if (Schema::hasTable('production_material_usages')) {
-            return;
-        }
-
         Schema::create('production_material_usages', function (Blueprint $table) {
             $table->id();
             $table->string('production_record_id');
             $table->string('raw_material_id');
+            $table->foreignId('raw_material_restock_id')->nullable()->constrained('raw_material_restocks')->nullOnDelete();
             $table->decimal('jumlah', 12, 1);
             $table->string('satuan', 50);
             $table->unsignedInteger('harga_satuan');
@@ -49,15 +36,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('production_material_usages');
-
-        Schema::table('production_records', function (Blueprint $table) {
-            if (Schema::hasColumn('production_records', 'journal_transaction_id')) {
-                $table->dropForeign(['journal_transaction_id']);
-                $table->dropColumn('journal_transaction_id');
-            }
-            if (Schema::hasColumn('production_records', 'total_material_cost')) {
-                $table->dropColumn('total_material_cost');
-            }
-        });
     }
 };
