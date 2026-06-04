@@ -23,7 +23,7 @@
             >
                 <div class="flex h-full flex-col overflow-y-auto">
                     <div class="flex items-center gap-3 px-6 py-5">
-                        <x-app-logo />
+                        <x-app-logo variant="sidebar" />
                     </div>
 
                     <div class="px-3 pb-4">

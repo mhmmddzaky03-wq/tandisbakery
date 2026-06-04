@@ -17,6 +17,14 @@
             padding-bottom: 14px;
             margin-bottom: 18px;
         }
+        .brand-row {
+            margin-bottom: 4px;
+        }
+        .brand-logo {
+            height: 42px;
+            width: auto;
+            max-width: 220px;
+        }
         .brand {
             font-size: 16pt;
             font-weight: bold;
@@ -174,7 +182,9 @@
 </head>
 <body>
     <div class="header">
-        <div class="brand">Tandi's Bakery</div>
+        <div class="brand-row">
+            <img src="{{ public_path('images/tandis-logo.png') }}" alt="Tadi's Homemade Bakery" class="brand-logo" />
+        </div>
         <div class="report-title">{{ $title ?? 'Laporan' }}</div>
         @if (! empty($filterLabel))
             <div class="filter-pill">{{ $filterLabel }}</div>
@@ -190,7 +200,7 @@
     @yield('pdf-body')
 
     <div class="footer">
-        Dokumen ini dihasilkan otomatis dari sistem Tandi's Bakery · {{ $title ?? 'Laporan' }}
+        Dokumen ini dihasilkan otomatis dari sistem Tadi's Homemade Bakery · {{ $title ?? 'Laporan' }}
     </div>
 </body>
 </html>

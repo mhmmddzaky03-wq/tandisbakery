@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{{ $title ?? 'Tandi\'s Bakery' }}</title>
+        <title>{{ $title ?? 'Tandi\'s Homemade Bakery' }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net" />
         <link href="https://fonts.bunny.net/css?family=poppins:300,400,500,600,700" rel="stylesheet" />
@@ -13,14 +13,13 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-[color:var(--color-bakery-bg)] text-slate-800">
+    <body class="min-h-screen bg-[color:var(--color-bakery-bg)] font-[family-name:var(--font-sans)] text-slate-800 antialiased">
         <div class="relative min-h-screen overflow-hidden">
             <div class="pointer-events-none absolute inset-0">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(245,158,11,0.18)_0%,rgba(245,158,11,0.0)_35%),radial-gradient(circle_at_80%_20%,rgba(245,158,11,0.16)_0%,rgba(245,158,11,0.0)_35%),radial-gradient(circle_at_50%_80%,rgba(245,158,11,0.10)_0%,rgba(245,158,11,0.0)_45%)]"></div>
-                <div class="absolute inset-0 opacity-[0.15] [background-image:radial-gradient(circle_at_10%_30%,#f59e0b_0,transparent_24%),radial-gradient(circle_at_80%_70%,#f59e0b_0,transparent_26%)]"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(245,158,11,0.14)_0%,transparent_40%),radial-gradient(circle_at_85%_10%,rgba(251,191,36,0.10)_0%,transparent_35%),radial-gradient(circle_at_50%_90%,rgba(120,113,108,0.06)_0%,transparent_45%)]"></div>
             </div>
 
-            <main class="relative mx-auto flex min-h-screen max-w-[1100px] items-center justify-center px-6 py-12">
+            <main class="relative flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
                 @yield('content')
             </main>
         </div>
@@ -28,4 +27,3 @@
         <div id="toast-root" class="pointer-events-none fixed right-6 top-6 z-[100] flex w-[360px] max-w-[92vw] flex-col gap-2"></div>
     </body>
 </html>
-

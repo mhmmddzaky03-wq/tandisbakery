@@ -7,6 +7,14 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Tandi's Bakery — dokumentasi
+
+- **[Panduan bikin ERD sendiri](docs/PANDUAN-ERD-drawio.md)** — langkah & layout biar tidak berantakan.
+- **[ERD ringkas (mulai dari sini)](docs/ERD-konseptual-ringkas.drawio)** — kerangka rapi, tinggal edit.
+- **[ERD konseptual lengkap](docs/ERD-konseptual.drawio)** — banyak atribut (mudah penuh/overlap).
+- **[ERD teknis draw.io](docs/ERD.drawio)** — skema tabel/kolom (2 halaman: bisnis + akuntansi).
+- **[ERD Markdown](docs/ERD.md)** — versi Mermaid + penjelasan; jalankan `python docs/generate_erd_drawio.py` untuk memperbarui file `.drawio`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
