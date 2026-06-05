@@ -88,7 +88,7 @@
     </div>
 
     <div class="bakery-card">
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="bakery-card-header bakery-card-header--bordered">
             <div>
                 <h2 class="text-base font-extrabold text-slate-900">Riwayat Produksi Berhasil</h2>
             </div>

@@ -122,7 +122,7 @@
 
     @if ($record->bahanDasarUsages->isNotEmpty())
         <div class="bakery-card">
-            <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div class="bakery-card-header bakery-card-header--bordered">
                 <h2 class="text-base font-extrabold text-slate-900">Pemakaian Bahan Dasar</h2>
                 <span class="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">{{ $bahanDasarCount }} baris</span>
             </div>
@@ -172,7 +172,7 @@
     @endif
 
     <div class="bakery-card">
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="bakery-card-header bakery-card-header--bordered">
             <div>
                 <h2 class="text-base font-extrabold text-slate-900">Pemakaian Bahan Baku</h2>
             </div>

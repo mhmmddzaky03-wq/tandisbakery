@@ -9,12 +9,14 @@
 @endphp
 <div>
     <div class="bakery-card" data-table-search>
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">Daftar Bahan Dasar</div>
+        <div class="bakery-card-header bakery-card-header--bordered">
+            <div class="bakery-card-header__title">Daftar Bahan Dasar</div>
+            <div class="bakery-card-header__actions">
             <x-table-search placeholder="Cari bahan dasar..." :value="$search ?? ''" />
+            </div>
         </div>
-        <div class="bakery-card-body overflow-x-auto pt-2">
-            <table class="bakery-table w-full">
+        <div class="bakery-card-body bakery-table-wrap pt-2">
+            <table class="bakery-table">
                 <colgroup>
                     <col class="w-[5.5rem]" />
                     <col />

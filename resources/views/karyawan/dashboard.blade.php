@@ -13,8 +13,8 @@
 @endphp
 
 @section('content')
-    <div>
-        <div class="grid gap-4 lg:grid-cols-2">
+    <div class="bakery-page">
+        <div class="grid gap-4 sm:grid-cols-2">
             <x-kpi-card
                 title="Total Produksi"
                 :value="(string) $totalProduction"
@@ -31,12 +31,12 @@
             />
         </div>
 
-        <div class="mt-5 bakery-card">
-            <div class="bakery-card-header">
-                <div class="text-lg font-extrabold text-slate-900">Akses Cepat</div>
+        <div class="bakery-card">
+            <div class="bakery-card-header bakery-card-header--bordered">
+                <div class="bakery-card-header__title">Akses Cepat</div>
             </div>
             <div class="bakery-card-body">
-                <div class="grid gap-3">
+                <div class="grid gap-3 sm:grid-cols-2">
                     <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-black/5">
                         <div>
                             <div class="text-sm font-extrabold text-slate-800">Data Produksi</div>

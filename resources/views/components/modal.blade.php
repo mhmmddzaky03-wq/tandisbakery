@@ -41,7 +41,7 @@
             </div>
             <button
                 type="button"
-                class="bakery-modal-close grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-50 text-slate-600 ring-1 ring-black/5 transition hover:bg-slate-100"
+                class="bakery-icon-btn bakery-modal-close shrink-0"
                 data-modal-close
                 aria-label="Tutup"
             >

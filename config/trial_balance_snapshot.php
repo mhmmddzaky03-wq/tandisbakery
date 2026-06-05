@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Neraca saldo per 30-Jun (sumber: Trial Balance Excel Tandi's Bakery).
+ * Neraca saldo per 30-Jun-2025 (sumber: Trial Balance Excel Tandi's Bakery).
  * Nilai per akun: kolom Debit / Credit pada laporan TB (satu sisi per akun).
  */
 return [
@@ -14,7 +14,7 @@ return [
         '1-132' => ['debit' => 0, 'credit' => 0],
         '1-133' => ['debit' => 0, 'credit' => 0],
         '1-140' => ['debit' => 0, 'credit' => 14_588_531],
-        '1-150' => ['debit' => 5_727_000, 'credit' => 0],
+        '1-150' => ['debit' => 0, 'credit' => 7_636_531],
         '1-160' => ['debit' => 15_000, 'credit' => 0],
         '1-170' => ['debit' => 0, 'credit' => 0],
         '1-210' => ['debit' => 52_967_850, 'credit' => 0],
@@ -39,16 +39,16 @@ return [
         '4-130' => ['debit' => 247_000, 'credit' => 0],
         '5-110' => ['debit' => 15_863_531, 'credit' => 0],
         '5-120' => ['debit' => 0, 'credit' => 0],
-        '5-130' => ['debit' => 0, 'credit' => 0],
-        '5-140' => ['debit' => 0, 'credit' => 0],
-        '5-150' => ['debit' => 2_000_000, 'credit' => 0],
-        '5-151' => ['debit' => 0, 'credit' => 0],
-        '5-152' => ['debit' => 0, 'credit' => 0],
+        '5-130' => ['debit' => 2_041_667, 'credit' => 0],
+        '5-140' => ['debit' => 315_549, 'credit' => 0],
+        '5-150' => ['debit' => 0, 'credit' => 0],
+        '5-151' => ['debit' => 2_000_000, 'credit' => 0],
+        '5-152' => ['debit' => 350_000, 'credit' => 0],
         '5-160' => ['debit' => 8_479_412, 'credit' => 0],
         '5-161' => ['debit' => 0, 'credit' => 0],
         '5-170' => ['debit' => 0, 'credit' => 0],
-        '5-180' => ['debit' => 0, 'credit' => 0],
-        '5-190' => ['debit' => 0, 'credit' => 0],
+        '5-180' => ['debit' => 2_245_600, 'credit' => 0],
+        '5-190' => ['debit' => 125_000, 'credit' => 0],
         '6-100' => ['debit' => 0, 'credit' => 0],
         '6-200' => ['debit' => 0, 'credit' => 0],
         '6-300' => ['debit' => 0, 'credit' => 0],

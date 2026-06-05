@@ -18,7 +18,7 @@
 @endphp
 
 <div class="flex w-full min-w-0 items-center gap-3 sm:gap-4">
-    <div class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-slate-50 px-4 py-2.5 ring-1 ring-black/5 sm:max-w-xl lg:max-w-2xl">
+    <div class="flex min-w-0 flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200/80 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-400/70 sm:gap-3 sm:px-4 sm:py-2.5 sm:max-w-xl lg:max-w-2xl">
         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.2-4.2" />
@@ -36,7 +36,7 @@
             <div class="relative" data-dropdown>
                 <button
                     type="button"
-                    class="relative grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-700 ring-1 ring-black/10 transition hover:bg-slate-50"
+                    class="bakery-icon-btn relative h-10 w-10"
                     data-dropdown-button
                     aria-label="{{ $hasLowStock ? 'Notifikasi: '.$lowStockCount.' bahan baku perlu diisi' : 'Notifikasi stok bahan baku' }}"
                     aria-expanded="false"
@@ -97,7 +97,7 @@
         <div class="relative" data-dropdown>
             <button
                 type="button"
-                class="grid h-10 w-10 place-items-center rounded-xl bg-white ring-1 ring-black/10 transition hover:bg-slate-50"
+                class="bakery-icon-btn h-10 w-10"
                 data-dropdown-button
                 aria-label="Bahasa Indonesia"
             >

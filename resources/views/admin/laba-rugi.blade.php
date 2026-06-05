@@ -17,36 +17,36 @@
 @endpush
 
 @section('content')
-<div class="space-y-4">
-    <form method="GET" class="flex flex-wrap items-end gap-3">
-        <div>
-            <label for="from" class="mb-1 block text-xs font-bold text-slate-600">Dari</label>
+<div class="bakery-page">
+    <form method="GET" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <div class="min-w-[140px] flex-1 sm:flex-none">
+            <label for="from" class="mb-1.5 block text-xs font-bold text-slate-600">Dari</label>
             <input type="date" id="from" name="from" value="{{ $from }}" class="bakery-input" onchange="this.form.submit()" />
         </div>
-        <div>
-            <label for="to" class="mb-1 block text-xs font-bold text-slate-600">Sampai</label>
+        <div class="min-w-[140px] flex-1 sm:flex-none">
+            <label for="to" class="mb-1.5 block text-xs font-bold text-slate-600">Sampai</label>
             <input type="date" id="to" name="to" value="{{ $to }}" class="bakery-input" onchange="this.form.submit()" />
         </div>
     </form>
 
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-2xl bg-white p-4 ring-1 ring-black/5">
+    <div class="bakery-grid-kpi">
+        <div class="bakery-card p-4 sm:p-5">
             <p class="text-xs font-semibold text-slate-500">Total pendapatan</p>
-            <p class="mt-1 text-lg font-extrabold tabular-nums text-emerald-700">{{ FormatHelper::rupiah($data['sales']) }}</p>
+            <p class="mt-1 text-lg font-extrabold tabular-nums text-emerald-700 sm:text-xl">{{ FormatHelper::rupiah($data['sales']) }}</p>
         </div>
-        <div class="rounded-2xl bg-white p-4 ring-1 ring-black/5">
+        <div class="bakery-card p-4 sm:p-5">
             <p class="text-xs font-semibold text-slate-500">Laba kotor</p>
-            <p class="mt-1 text-lg font-extrabold tabular-nums {{ $data['gross_profit'] >= 0 ? 'text-sky-700' : 'text-rose-600' }}">
+            <p class="mt-1 text-lg font-extrabold tabular-nums sm:text-xl {{ $data['gross_profit'] >= 0 ? 'text-sky-700' : 'text-rose-600' }}">
                 {{ FormatHelper::rupiah($data['gross_profit']) }}
             </p>
         </div>
-        <div class="rounded-2xl bg-white p-4 ring-1 ring-black/5">
+        <div class="bakery-card p-4 sm:p-5">
             <p class="text-xs font-semibold text-slate-500">Total beban operasional</p>
-            <p class="mt-1 text-lg font-extrabold tabular-nums text-slate-800">{{ FormatHelper::rupiah($data['total_operating_expenses']) }}</p>
+            <p class="mt-1 text-lg font-extrabold tabular-nums text-slate-800 sm:text-xl">{{ FormatHelper::rupiah($data['total_operating_expenses']) }}</p>
         </div>
-        <div class="rounded-2xl p-4 ring-1 {{ $isProfit ? 'bg-emerald-50 ring-emerald-200/60' : 'bg-rose-50 ring-rose-200/60' }}">
+        <div class="bakery-card p-4 sm:p-5 {{ $isProfit ? 'bg-emerald-50/80 ring-emerald-200/60' : 'bg-rose-50/80 ring-rose-200/60' }}">
             <p class="text-xs font-semibold {{ $isProfit ? 'text-emerald-800/80' : 'text-rose-800/80' }}">Laba bersih</p>
-            <p class="mt-1 text-lg font-extrabold tabular-nums {{ $isProfit ? 'text-emerald-900' : 'text-rose-900' }}">
+            <p class="mt-1 text-lg font-extrabold tabular-nums sm:text-xl {{ $isProfit ? 'text-emerald-900' : 'text-rose-900' }}">
                 {{ FormatHelper::rupiah($data['net_profit']) }}
             </p>
         </div>

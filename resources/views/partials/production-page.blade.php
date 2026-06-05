@@ -12,12 +12,14 @@
     </div>
 
     <div class="mt-5 bakery-card" data-table-search>
-        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div class="min-w-0 shrink text-lg font-extrabold text-slate-900">Daftar Data Produksi</div>
+        <div class="bakery-card-header bakery-card-header--bordered">
+            <div class="bakery-card-header__title">Daftar Data Produksi</div>
+            <div class="bakery-card-header__actions">
             <x-table-search
                 placeholder="Cari produksi..."
                 :value="$search ?? ''"
             />
+            </div>
         </div>
 
         <div class="bakery-card-body bakery-table-wrap pt-4">

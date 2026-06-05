@@ -44,7 +44,7 @@
 @endphp
 
 @section('content')
-<div class="space-y-5">
+<div class="space-y-5 sm:space-y-6 bakery-page">
     {{-- KPI --}}
     <div class="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
         <x-kpi-card

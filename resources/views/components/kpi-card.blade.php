@@ -9,20 +9,20 @@
 
 @php
     $toneMap = [
-        'amber' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'value' => 'text-slate-900'],
-        'green' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'value' => 'text-slate-900'],
-        'blue' => ['bg' => 'bg-sky-50', 'text' => 'text-sky-600', 'value' => 'text-slate-900'],
-        'rose' => ['bg' => 'bg-rose-50', 'text' => 'text-rose-600', 'value' => 'text-slate-900'],
-        'violet' => ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'value' => 'text-slate-900'],
+        'amber' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'value' => 'text-slate-900', 'ring' => 'ring-amber-100/80'],
+        'green' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'value' => 'text-slate-900', 'ring' => 'ring-emerald-100/80'],
+        'blue' => ['bg' => 'bg-sky-50', 'text' => 'text-sky-600', 'value' => 'text-slate-900', 'ring' => 'ring-sky-100/80'],
+        'rose' => ['bg' => 'bg-rose-50', 'text' => 'text-rose-600', 'value' => 'text-slate-900', 'ring' => 'ring-rose-100/80'],
+        'violet' => ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'value' => 'text-slate-900', 'ring' => 'ring-violet-100/80'],
     ];
     $t = $toneMap[$tone] ?? $toneMap['amber'];
     $isUp = $trend && str_starts_with((string) $trend, '+');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bakery-card min-w-0']) }}>
+<div {{ $attributes->merge(['class' => 'bakery-card min-w-0 transition-transform duration-200 hover:-translate-y-0.5']) }}>
     <div class="p-4 sm:p-5">
-        <div class="flex items-center gap-3">
-            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl {{ $t['bg'] }} {{ $t['text'] }}">
+        <div class="flex items-start gap-3">
+            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl ring-1 {{ $t['bg'] }} {{ $t['text'] }} {{ $t['ring'] }}">
                 @if ($icon)
                     {!! $icon !!}
                 @else
@@ -32,7 +32,7 @@
                     </svg>
                 @endif
             </div>
-            <p class="min-w-0 flex-1 text-xs font-semibold leading-snug text-slate-500">{{ $title }}</p>
+            <p class="min-w-0 flex-1 pt-0.5 text-xs font-semibold leading-snug text-slate-500">{{ $title }}</p>
         </div>
 
         <p class="mt-3 break-words text-lg font-extrabold leading-tight tabular-nums sm:text-xl {{ $t['value'] }}">
@@ -42,7 +42,7 @@
         @if ($trend || $sub)
             <div class="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                 @if ($trend)
-                    <span class="inline-flex shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold {{ $isUp ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
+                    <span class="inline-flex shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold {{ $isUp ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60' : 'bg-rose-50 text-rose-700 ring-1 ring-rose-200/60' }}">
                         {{ $trend }}
                     </span>
                 @endif

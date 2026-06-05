@@ -60,7 +60,7 @@
                         </label>
                         <input
                             id="username"
-                            class="bakery-input h-12 w-full rounded-xl border-slate-200/80 bg-slate-50/80 px-4 text-sm font-medium text-slate-800 placeholder:font-normal placeholder:text-slate-400 @error('username') !ring-2 !ring-rose-400/80 @enderror"
+                            class="bakery-input h-12 @error('username') bakery-input--error @enderror"
                             name="username"
                             value="{{ old('username') }}"
                             placeholder="Masukkan username"
@@ -78,7 +78,7 @@
                         </label>
                         <input
                             id="password"
-                            class="bakery-input h-12 w-full rounded-xl border-slate-200/80 bg-slate-50/80 px-4 text-sm font-medium text-slate-800 placeholder:font-normal placeholder:text-slate-400 @error('password') !ring-2 !ring-rose-400/80 @enderror"
+                            class="bakery-input h-12 @error('password') bakery-input--error @enderror"
                             type="password"
                             name="password"
                             placeholder="Masukkan password"
@@ -92,7 +92,7 @@
 
                     <button
                         type="submit"
-                        class="mt-1 w-full rounded-xl bg-slate-900 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.99]"
+                        class="bakery-btn-dark mt-1"
                     >
                         Login
                     </button>

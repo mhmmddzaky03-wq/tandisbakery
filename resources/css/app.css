@@ -9,57 +9,123 @@
     --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
-    --color-bakery-bg: #f7f7f7;
+    --color-bakery-bg: #f4f5f7;
     --color-bakery-surface: #ffffff;
     --color-bakery-muted: #f1f2f4;
     --color-bakery-text: #1f2937;
     --color-bakery-subtle: #6b7280;
 
-    --color-bakery-primary: #f59e0b; /* orange button */
-    --color-bakery-primary-600: #ea7d0a;
+    --color-bakery-primary: #f59e0b;
+    --color-bakery-primary-600: #d97706;
+    --color-bakery-primary-700: #b45309;
     --color-bakery-primary-50: #fff7ed;
 
     --color-bakery-success: #22c55e;
     --color-bakery-danger: #ef4444;
     --color-bakery-info: #3b82f6;
+
+    --radius-bakery: 1rem;
+    --radius-bakery-lg: 1.25rem;
+    --shadow-bakery: 0 1px 3px rgb(15 23 42 / 0.06), 0 1px 2px rgb(15 23 42 / 0.04);
+    --shadow-bakery-md: 0 4px 14px rgb(15 23 42 / 0.07), 0 2px 4px rgb(15 23 42 / 0.04);
 }
 
 @layer base {
     html {
         font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
     }
 
     body {
         color: var(--color-bakery-text);
         background: var(--color-bakery-bg);
+        line-height: 1.5;
     }
 
-    /* Global box-sizing safety — prevents padding from exceeding viewport */
     *, *::before, *::after {
         box-sizing: border-box;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-bakery-primary);
+        outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+        outline: none;
+    }
+
+    h1, h2, h3, h4 {
+        text-wrap: balance;
     }
 }
 
 @layer components {
+    /* ── Layout ── */
+    .bakery-page {
+        @apply space-y-5 sm:space-y-6;
+    }
+
+    .bakery-grid-kpi {
+        @apply grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4;
+    }
+
+    .bakery-grid-2 {
+        @apply grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5;
+    }
+
+    /* ── Cards ── */
     .bakery-card {
-        @apply rounded-2xl bg-white shadow-sm ring-1 ring-black/5;
+        @apply rounded-2xl bg-white ring-1 ring-slate-200/70;
         max-width: 100%;
         overflow-wrap: break-word;
         word-wrap: break-word;
+        box-shadow: var(--shadow-bakery);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .bakery-card:hover {
+        box-shadow: var(--shadow-bakery-md);
     }
 
     .bakery-card-header {
-        @apply flex flex-nowrap items-center justify-between gap-3 px-4 sm:px-5 pt-5;
+        @apply flex flex-col gap-3 px-4 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-5;
         max-width: 100%;
+    }
+
+    .bakery-card-header--bordered {
+        @apply border-b border-slate-100 pb-4;
+    }
+
+    .bakery-card-header__title {
+        @apply min-w-0 text-base font-extrabold tracking-tight text-slate-900 sm:text-lg;
+    }
+
+    .bakery-card-header__actions {
+        @apply flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end;
     }
 
     .bakery-card-body {
-        @apply px-4 sm:px-5 pb-5;
+        @apply px-4 pb-5 sm:px-5;
         max-width: 100%;
     }
 
+    /* ── Forms ── */
     .bakery-input {
-        @apply w-full rounded-xl bg-[#F3F4F6] px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none ring-1 ring-black/5 focus:ring-2 focus:ring-amber-400;
+        @apply w-full rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 ring-1 ring-slate-200/80 transition;
+        @apply hover:bg-white hover:ring-slate-300/80;
+        @apply focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400/80 focus:ring-offset-0;
+        @apply disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-50;
+    }
+
+    .bakery-input--error {
+        @apply !ring-2 !ring-rose-400/90 bg-rose-50/30;
+    }
+
+    .bakery-input--success {
+        @apply !ring-2 !ring-emerald-400/80;
     }
 
     select.bakery-input {
@@ -85,12 +151,92 @@
         @apply mt-4;
     }
 
+    .bakery-field label {
+        @apply mb-1.5 block text-xs font-bold tracking-wide text-slate-600;
+    }
+
+    .bakery-field-helper {
+        @apply mt-1.5 text-xs font-medium text-slate-400;
+    }
+
+    .bakery-field-error {
+        @apply mt-1.5 text-xs font-semibold text-rose-600;
+    }
+
+    .bakery-form-alert {
+        @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700;
+    }
+
+    .bakery-form-alert--success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+    }
+
+    /* ── Buttons ── */
+    .bakery-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
+        white-space: nowrap;
+    }
+
+    .bakery-btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition;
+        @apply bg-amber-500 text-white shadow-amber-500/20;
+        @apply hover:bg-amber-600 active:bg-amber-700 active:scale-[0.98];
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
+        @apply disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
+        white-space: nowrap;
+    }
+
+    .bakery-btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition;
+        @apply bg-white text-slate-700 ring-1 ring-slate-200/90;
+        @apply hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2;
+        @apply disabled:cursor-not-allowed disabled:opacity-60;
+        white-space: nowrap;
+    }
+
+    .bakery-btn-dark {
+        @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-bold text-white shadow-sm transition;
+        @apply bg-slate-900 hover:bg-slate-800 active:bg-slate-950 active:scale-[0.99];
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2;
+    }
+
+    .bakery-btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition;
+        @apply bg-rose-50 text-rose-700 ring-1 ring-rose-200/80;
+        @apply hover:bg-rose-100 active:bg-rose-200/80;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2;
+    }
+
+    .bakery-icon-btn {
+        @apply inline-grid h-9 w-9 place-items-center rounded-xl text-slate-600 ring-1 ring-slate-200/80 transition;
+        @apply hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
+    }
+
+    .bakery-icon-btn--danger {
+        @apply text-rose-600 ring-rose-200/80 hover:bg-rose-50 hover:text-rose-700;
+    }
+
+    .bakery-filter-btn {
+        @apply inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition;
+        @apply hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-800;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
+    }
+
+    .bakery-filter-btn--active {
+        @apply border-amber-200 bg-amber-50 text-amber-800;
+    }
+
+    /* ── Modals ── */
     .bakery-modal::backdrop {
-        background: rgb(15 23 42 / 0.45);
+        background: rgb(15 23 42 / 0.5);
+        backdrop-filter: blur(2px);
     }
 
     .bakery-modal[open] {
-        @apply fixed inset-0 z-[80] m-0 flex h-full w-full max-h-none max-w-none items-center justify-center overflow-hidden border-0 bg-transparent p-4;
+        @apply fixed inset-0 z-[80] m-0 flex h-full w-full max-h-none max-w-none items-end justify-center overflow-hidden border-0 bg-transparent p-0 sm:items-center sm:p-4;
     }
 
     .bakery-modal-panel {
@@ -105,32 +251,21 @@
         @apply inline-flex;
     }
 
-    .bakery-btn {
-        @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition;
-        white-space: nowrap;
-    }
-
-    .bakery-btn-primary {
-        @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700;
-        white-space: nowrap;
-    }
-
-    .bakery-btn-ghost {
-        @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition bg-white text-slate-700 ring-1 ring-black/10 hover:bg-slate-50;
-        white-space: nowrap;
-    }
-
+    /* ── Detail / toolbar ── */
     .detail-back-link {
-        @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800;
+        @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-500 transition;
+        @apply hover:bg-slate-100 hover:text-slate-800 active:bg-slate-200/70;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
         white-space: nowrap;
     }
 
     .bakery-action-toolbar {
-        @apply inline-flex items-stretch overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/10;
+        @apply inline-flex max-w-full flex-wrap items-stretch overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80;
     }
 
     .bakery-toolbar-btn {
         @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-sm font-semibold transition;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400;
         white-space: nowrap;
     }
 
@@ -139,15 +274,35 @@
     }
 
     .bakery-toolbar-btn-secondary {
-        @apply text-slate-700 hover:bg-slate-50;
+        @apply text-slate-700 hover:bg-slate-50 active:bg-slate-100;
     }
 
     .bakery-toolbar-btn-danger {
-        @apply text-rose-600 hover:bg-rose-50;
+        @apply text-rose-600 hover:bg-rose-50 active:bg-rose-100/80;
     }
 
     .bakery-toolbar-btn-primary {
-        @apply bg-amber-500 text-white hover:bg-amber-600;
+        @apply bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700;
+    }
+
+    /* ── Tables (responsive overflow + sticky header) ── */
+    .bakery-table-wrap {
+        @apply max-w-full overflow-x-auto rounded-2xl ring-1 ring-slate-100;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(203 213 225) transparent;
+    }
+
+    .bakery-table-wrap::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .bakery-table-wrap::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-slate-300;
+    }
+
+    .bakery-card .bakery-table-wrap {
+        @apply rounded-none ring-0;
     }
 
     .bakery-table {
@@ -156,42 +311,96 @@
     }
 
     .bakery-table thead th {
-        @apply bg-slate-50 text-slate-500 font-semibold;
+        @apply bg-slate-50 px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500;
+        position: sticky;
+        top: 0;
+        z-index: 2;
         white-space: nowrap;
+        box-shadow: inset 0 -1px 0 rgb(241 245 249);
     }
 
     .bakery-table th,
     .bakery-table td {
-        @apply px-4 py-3 border-b border-slate-100;
+        @apply border-b border-slate-100 px-4 py-3;
     }
 
+    .bakery-table tbody tr {
+        @apply transition-colors duration-150;
+    }
+
+    .bakery-table tbody tr:hover {
+        @apply bg-amber-50/40;
+    }
+
+    .bakery-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .bakery-table .num,
+    .bakery-table td.text-right,
+    .bakery-table th.text-right {
+        @apply tabular-nums;
+    }
+
+    /* ── Badges & search ── */
     .bakery-badge {
         @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-black/5;
         white-space: nowrap;
     }
 
-    /* Table containers: allow horizontal scroll on mobile */
-    .bakery-table-wrap {
-        @apply overflow-x-auto rounded-2xl ring-1 ring-slate-100;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Tables inside cards: flush with card body, no inner rounded box */
-    .bakery-card .bakery-table-wrap {
-        @apply rounded-none ring-0;
-    }
-
-    /* In-page search bar (always visible, including mobile) */
     .bakery-search {
-        @apply flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-2.5 ring-1 ring-black/5;
-        width: 100%;
-        max-width: 100%;
+        @apply flex w-full min-w-0 items-center gap-2 rounded-2xl bg-slate-50 px-4 py-2.5 ring-1 ring-slate-200/80 transition;
+        @apply focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-400/70;
     }
 
     .bakery-search input {
-        @apply flex-1 min-w-0 bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 outline-none;
+        @apply min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-700 placeholder:font-normal placeholder:text-slate-400 outline-none;
     }
 
+    /* ── Empty state ── */
+    .bakery-empty {
+        @apply flex flex-col items-center justify-center px-4 py-12 text-center;
+    }
+
+    .bakery-empty__title {
+        @apply text-sm font-bold text-slate-600;
+    }
+
+    .bakery-empty__desc {
+        @apply mt-1 max-w-xs text-xs font-medium text-slate-400;
+    }
+
+    /* ── Sidebar nav ── */
+    .bakery-nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2;
+    }
+
+    .bakery-nav-link--active {
+        @apply bg-amber-500 text-white shadow-md shadow-amber-500/25;
+    }
+
+    .bakery-nav-link--idle {
+        @apply text-slate-600 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100;
+    }
+
+    .bakery-nav-link__icon {
+        @apply grid h-8 w-8 shrink-0 place-items-center rounded-xl ring-1 ring-black/5 transition;
+    }
+
+    .bakery-nav-link--active .bakery-nav-link__icon {
+        @apply bg-white/20 text-white ring-0;
+    }
+
+    .bakery-nav-link--idle .bakery-nav-link__icon {
+        @apply bg-white text-slate-400;
+    }
+
+    .bakery-nav-link--idle:hover .bakery-nav-link__icon {
+        @apply text-slate-500;
+    }
+
+    /* ── Unit widgets ── */
     .unit-qty--anchor-toggle {
         @apply block w-full min-w-0;
     }
@@ -218,6 +427,7 @@
 
     .unit-toggle-btn {
         @apply min-w-[2.25rem] rounded-md px-2.5 py-1 text-[11px] font-bold tracking-wide text-slate-500 transition;
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400;
     }
 
     .unit-toggle-btn:hover:not(:disabled):not(.unit-toggle-btn--active) {
@@ -233,7 +443,7 @@
     }
 
     .unit-input-group {
-        @apply flex overflow-hidden rounded-xl bg-[#F3F4F6] ring-1 ring-black/5 transition focus-within:ring-2 focus-within:ring-amber-400;
+        @apply flex overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-200/80 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-400/80;
     }
 
     .unit-input-group input {
@@ -291,11 +501,14 @@
     }
 }
 
-/* ── Responsive overflow handling (no visual changes) ── */
 @layer utilities {
-    /* Prevent horizontal page overflow on all screens */
     .bakery-scroll-root {
         overflow-x: hidden;
         max-width: 100vw;
+    }
+
+    .bakery-scroll-y {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }

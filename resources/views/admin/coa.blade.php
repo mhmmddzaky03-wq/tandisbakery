@@ -54,9 +54,11 @@
     </div>
 
     <div class="bakery-card mt-4" data-table-search>
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">Daftar Akun COA</div>
+        <div class="bakery-card-header bakery-card-header--bordered">
+            <div class="bakery-card-header__title">Daftar Akun COA</div>
+            <div class="bakery-card-header__actions">
             <x-table-search placeholder="Cari akun..." :value="''" />
+            </div>
         </div>
 
         <div class="bakery-card-body bakery-table-wrap pt-2">

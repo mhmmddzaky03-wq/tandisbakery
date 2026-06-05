@@ -23,9 +23,11 @@
     </div>
 
     <div class="mt-6 bakery-card" data-table-search>
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="text-lg font-extrabold text-slate-900">Data Transaksi Penjualan</div>
+        <div class="bakery-card-header bakery-card-header--bordered">
+            <div class="bakery-card-header__title">Data Transaksi Penjualan</div>
+            <div class="bakery-card-header__actions">
             <x-table-search placeholder="Cari Transaksi" :value="''" />
+            </div>
         </div>
 
         <div class="bakery-card-body bakery-table-wrap pt-2">

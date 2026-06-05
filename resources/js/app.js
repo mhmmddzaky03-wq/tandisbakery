@@ -474,23 +474,51 @@ qsa('form[data-production-select-form]').forEach((form) => {
 });
 
 // Sidebar toggle (mobile)
+function closeSidebar() {
+    const sidebar = qs('[data-sidebar]');
+    const overlay = qs('[data-sidebar-overlay]');
+    const toggle = qs('[data-sidebar-toggle]');
+    if (sidebar) sidebar.classList.add('-translate-x-full');
+    if (overlay) overlay.classList.add('hidden');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+function openSidebar() {
+    const sidebar = qs('[data-sidebar]');
+    const overlay = qs('[data-sidebar-overlay]');
+    const toggle = qs('[data-sidebar-toggle]');
+    if (sidebar) sidebar.classList.remove('-translate-x-full');
+    if (overlay) overlay.classList.remove('hidden');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+}
+
 qsa('[data-sidebar-toggle]').forEach((btn) => {
     btn.addEventListener('click', () => {
         const sidebar = qs('[data-sidebar]');
-        const overlay = qs('[data-sidebar-overlay]');
-        if (!sidebar || !overlay) return;
-        sidebar.classList.toggle('-translate-x-full');
-        overlay.classList.toggle('hidden');
+        if (!sidebar) return;
+        const isClosed = sidebar.classList.contains('-translate-x-full');
+        if (isClosed) openSidebar();
+        else closeSidebar();
     });
+});
+
+qsa('[data-sidebar-close]').forEach((btn) => {
+    btn.addEventListener('click', closeSidebar);
 });
 
 const overlay = qs('[data-sidebar-overlay]');
 if (overlay) {
-    overlay.addEventListener('click', () => {
-        const sidebar = qs('[data-sidebar]');
-        if (!sidebar) return;
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
+    overlay.addEventListener('click', closeSidebar);
+}
+
+const sidebarEl = qs('[data-sidebar]');
+if (sidebarEl) {
+    qsa('a', sidebarEl).forEach((link) => {
+        link.addEventListener('click', () => {
+            if (window.matchMedia('(max-width: 1023px)').matches) {
+                closeSidebar();
+            }
+        });
     });
 }
 

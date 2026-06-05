@@ -64,7 +64,7 @@
     </div>
 
     <div class="bakery-card">
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="bakery-card-header bakery-card-header--bordered">
             <h2 class="text-base font-extrabold text-slate-900">Stok Adonan per Batch</h2>
             <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Total {{ FormatHelper::formatQtyOne($item->jumlah) }} {{ $satuan }}</span>
         </div>
@@ -114,7 +114,7 @@
     </div>
 
     <div class="bakery-card">
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="bakery-card-header bakery-card-header--bordered">
             <h2 class="text-base font-extrabold text-slate-900">Dipakai di Produksi</h2>
             <span class="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700">{{ ($produksiTerpakai ?? collect())->count() }} produksi</span>
         </div>
@@ -172,7 +172,7 @@
     </div>
 
     <div class="bakery-card">
-        <div class="bakery-card-header flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="bakery-card-header bakery-card-header--bordered">
             <h2 class="text-base font-extrabold text-slate-900">Riwayat Pemakaian Bahan Baku</h2>
             <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{{ $allPemakaian->count() }} baris</span>
         </div>

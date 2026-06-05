@@ -39,7 +39,7 @@
             @required($required)
             @if ($autofocus) autofocus @endif
             @if ($disabled) disabled @endif
-            class="bakery-input {{ $error ? '!ring-2 !ring-rose-400' : '' }}"
+            class="bakery-input {{ $error ? 'bakery-input--error' : '' }}"
         >
             {{ $slot }}
         </select>
@@ -52,7 +52,7 @@
             @required($required)
             @if ($autofocus) autofocus @endif
             @if ($useTitleCase) data-title-case @endif
-            class="bakery-input min-h-[88px] resize-y {{ $error ? '!ring-2 !ring-rose-400' : '' }}"
+            class="bakery-input min-h-[88px] resize-y {{ $error ? 'bakery-input--error' : '' }}"
         >{{ $oldValue }}</textarea>
     @else
         <input
@@ -69,15 +69,15 @@
             @if ($disabled) disabled @endif
             @if ($readonly) readonly @endif
             @if ($useTitleCase && $type === 'text') data-title-case @endif
-            {{ $attributes->except('class')->merge(['class' => 'bakery-input '.($error ? '!ring-2 !ring-rose-400' : '')]) }}
+            {{ $attributes->except('class')->merge(['class' => 'bakery-input '.($error ? 'bakery-input--error' : '')]) }}
         />
     @endif
 
     @if ($helper)
-        <p class="mt-1.5 text-xs font-semibold text-slate-400">{{ $helper }}</p>
+        <p class="bakery-field-helper">{{ $helper }}</p>
     @endif
 
     @if ($error)
-        <p class="mt-1.5 text-xs font-semibold text-rose-600" role="alert">{{ $error }}</p>
+        <p class="bakery-field-error" role="alert">{{ $error }}</p>
     @endif
 </div>

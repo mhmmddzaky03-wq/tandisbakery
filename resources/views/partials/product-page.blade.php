@@ -5,16 +5,18 @@
 @endphp
 <div>
     <div class="bakery-card" data-table-search>
-        <div class="bakery-card-header flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div class="min-w-0 shrink text-lg font-extrabold text-slate-900">Data Produk</div>
+        <div class="bakery-card-header bakery-card-header--bordered">
+            <div class="bakery-card-header__title">Data Produk</div>
+            <div class="bakery-card-header__actions">
             <x-table-search
                 placeholder="Cari produk..."
                 :value="$search ?? ''"
             />
+            </div>
         </div>
 
-        <div class="bakery-card-body overflow-x-auto pt-2">
-            <table class="bakery-table w-full">
+        <div class="bakery-card-body bakery-table-wrap pt-2">
+            <table class="bakery-table">
                 <colgroup>
                     <col class="w-[5.5rem]" />
                     <col />
