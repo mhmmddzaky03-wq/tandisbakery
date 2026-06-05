@@ -4,8 +4,8 @@
     $title = 'Bahan Dasar - Admin';
     $role = 'admin';
     $active = 'admin.bahan_dasar';
-    $pageTitle = 'Bahan Dasar';
-    $pageSubtitle = 'Kelola adonan setengah jadi dari bahan baku';
+    $pageTitle = __('app.pages.base_materials');
+    $pageSubtitle = __('app.pages.base_materials_subtitle');
     $storeRoute = 'admin.bahan_dasar.store';
     $updateRoute = 'admin.bahan_dasar.update';
     $destroyRoute = 'admin.bahan_dasar.destroy';
@@ -14,7 +14,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="bahan-dasar-baru">
-        + Tambah Bahan Dasar
+        {{ __('bahan_dasar.action_add') }}
     </button>
 @endpush
 

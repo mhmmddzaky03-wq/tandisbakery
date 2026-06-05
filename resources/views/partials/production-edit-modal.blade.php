@@ -22,7 +22,7 @@
     $isEditTarget = old('_edit_id') === $r->id;
     $hasProductionErrors = $errors->has('tanggal') || $errors->has('product_name') || $errors->has('jumlah') || $errors->has('status') || $errors->has('notes') || $errors->has('use_bahan_dasar') || $errors->has('materials') || $errors->has('materials.*') || $errors->has('bahan_dasar') || $errors->has('bahan_dasar.*');
 @endphp
-<x-modal id="edit-prod-{{ $r->id }}" size="lg" title="Edit Produksi" :subtitle="$r->id" :scrollable="true" :auto-open="$isEditTarget && $hasProductionErrors">
+<x-modal id="edit-prod-{{ $r->id }}" size="lg" :title="__('production.modal_edit')" :subtitle="$r->id" :scrollable="true" :auto-open="$isEditTarget && $hasProductionErrors">
     <form id="form-edit-prod-{{ $r->id }}" method="POST" action="{{ route($updateRoute, $r->id) }}" data-modal-form data-production-form>
         @csrf @method('PUT')
         <input type="hidden" name="_edit_id" value="{{ $r->id }}" />

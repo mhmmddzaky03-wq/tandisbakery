@@ -6,15 +6,15 @@
 <table class="summary-grid">
     <tr>
         <td>
-            <div class="summary-label">Transaksi</div>
+            <div class="summary-label">{{ __('reports.journal.total_transactions') }}</div>
             <div class="summary-value">{{ number_format($totals['transaksi'], 0, ',', '.') }}</div>
         </td>
         <td>
-            <div class="summary-label">Total Debit</div>
+            <div class="summary-label">{{ __('reports.journal.total_debit_label') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($totals['debit']) }}</div>
         </td>
         <td class="highlight">
-            <div class="summary-label">Total Kredit</div>
+            <div class="summary-label">{{ __('reports.journal.total_credit_label') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($totals['kredit']) }}</div>
         </td>
     </tr>
@@ -44,10 +44,10 @@
             <table class="data-table" style="margin-bottom:0;border-top:0">
                 <thead>
                     <tr>
-                        <th style="width:56px">Akun</th>
-                        <th>Nama</th>
-                        <th class="num" style="width:100px">Debit</th>
-                        <th class="num" style="width:100px">Kredit</th>
+                        <th style="width:56px">{{ __('reports.trial_balance.col_code') }}</th>
+                        <th>{{ __('app.common.name') }}</th>
+                        <th class="num" style="width:100px">{{ __('reports.debit') }}</th>
+                        <th class="num" style="width:100px">{{ __('reports.credit') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,6 +64,6 @@
         @endforeach
     </div>
 @empty
-    <p class="muted" style="text-align:center;padding:24px">Data tidak ditemukan</p>
+    <p class="muted" style="text-align:center;padding:24px">{{ __('reports.not_found') }}</p>
 @endforelse
 @endsection

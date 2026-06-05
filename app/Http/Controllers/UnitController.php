@@ -17,7 +17,7 @@ class UnitController extends Controller
 
         Unit::create(['nama' => $data['nama_satuan']]);
 
-        return redirect()->back()->with('success', 'Satuan berhasil ditambahkan.');
+        return redirect()->back()->with('success', __('messages.flash.unit_created'));
     }
 
     public function update(Request $request, int $id)
@@ -30,17 +30,17 @@ class UnitController extends Controller
 
         if ($data['nama_satuan'] !== $unit->nama) {
             if ($unit->isProtected()) {
-                return redirect()->back()->with('error', 'Satuan kg dan L tidak dapat diubah.');
+                return redirect()->back()->with('error', __('messages.flash.unit_protected_edit'));
             }
 
             if ($unit->isInUse()) {
-                return redirect()->back()->with('error', 'Satuan tidak dapat diubah karena masih dipakai pada bahan baku.');
+                return redirect()->back()->with('error', __('messages.flash.unit_in_use_edit'));
             }
         }
 
         $unit->update(['nama' => $data['nama_satuan']]);
 
-        return redirect()->back()->with('success', 'Satuan berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.unit_updated'));
     }
 
     public function destroy(int $id)
@@ -48,15 +48,15 @@ class UnitController extends Controller
         $unit = Unit::findOrFail($id);
 
         if ($unit->isProtected()) {
-            return redirect()->back()->with('error', 'Satuan kg dan L tidak dapat dihapus.');
+            return redirect()->back()->with('error', __('messages.flash.unit_protected_delete'));
         }
 
         if ($unit->isInUse()) {
-            return redirect()->back()->with('error', 'Satuan tidak dapat dihapus karena masih dipakai pada bahan baku.');
+            return redirect()->back()->with('error', __('messages.flash.unit_in_use_delete'));
         }
 
         $unit->delete();
 
-        return redirect()->back()->with('success', 'Satuan berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.unit_deleted'));
     }
 }

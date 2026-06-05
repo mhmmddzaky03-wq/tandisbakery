@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -10,6 +10,21 @@
 
         <meta name="dummy-toast" content="Fitur ini belum diaktifkan" />
         <meta name="dummy-toast-sub" content="Tugas Backend ah" />
+
+        <meta name="toast-default-success" content="{{ __('app.flash.success') }}" />
+        <meta name="toast-default-error" content="{{ __('app.flash.error') }}" />
+        <meta name="i18n-confirm-delete" content="{{ __('js.confirm_delete') }}" />
+        <meta name="i18n-confirm-delete-production" content="{{ __('js.confirm_delete_production') }}" />
+        <meta name="i18n-cannot-delete" content="{{ __('js.cannot_delete') }}" />
+        <meta name="i18n-cannot-delete-linked" content="{{ __('js.cannot_delete_linked_product') }}" />
+        <meta name="i18n-select-stock-batch" content="{{ __('js.select_stock_batch') }}" />
+        <meta name="i18n-select-base-material" content="{{ __('js.select_base_material') }}" />
+        <meta name="i18n-select-dough-batch" content="{{ __('js.select_dough_batch') }}" />
+        <meta name="i18n-coa-subgroup" content="{{ __('js.coa_select_subgroup') }}" />
+        <meta name="i18n-optional" content="{{ __('app.common.optional') }}" />
+        <meta name="i18n-required" content="{{ __('app.common.required') }}" />
+        <meta name="i18n-materials-hint-optional" content="{{ __('js.materials_hint_optional') }}" />
+        <meta name="i18n-materials-hint-required" content="{{ __('js.materials_hint_required') }}" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -24,7 +39,7 @@
             <aside
                 class="fixed inset-y-0 left-0 z-50 flex w-[min(280px,88vw)] -translate-x-full flex-col bg-white shadow-xl ring-1 ring-slate-200/80 transition-transform duration-300 ease-out lg:w-[280px] lg:translate-x-0"
                 data-sidebar
-                aria-label="Navigasi utama"
+                aria-label="{{ __('app.common.main_nav') }}"
             >
                 <div class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
                     <x-app-logo variant="sidebar" />
@@ -32,7 +47,7 @@
                         type="button"
                         class="bakery-icon-btn lg:hidden"
                         data-sidebar-close
-                        aria-label="Tutup menu"
+                        aria-label="{{ __('app.common.close_menu') }}"
                     >
                         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" />
@@ -52,7 +67,7 @@
                             type="button"
                             class="bakery-icon-btn lg:hidden"
                             data-sidebar-toggle
-                            aria-label="Buka menu"
+                            aria-label="{{ __('app.common.open_menu') }}"
                             aria-expanded="false"
                         >
                             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

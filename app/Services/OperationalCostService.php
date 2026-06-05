@@ -150,7 +150,7 @@ class OperationalCostService
 
         if ($restockTotal > 0) {
             array_unshift($variableRows, [
-                'label' => 'Belanja Bahan Baku',
+                'label' => __('operational.stats.raw_material_purchase'),
                 'amount' => $restockTotal,
                 'from_restock' => true,
             ]);

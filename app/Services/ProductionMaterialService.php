@@ -47,7 +47,7 @@ class ProductionMaterialService
 
                     if ($batch->raw_material_id !== $material->id) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Batch stok tidak sesuai dengan bahan baku yang dipilih.',
+                            'materials' => __('messages.validation.batch_mismatch_material'),
                         ]);
                     }
 
@@ -55,7 +55,7 @@ class ProductionMaterialService
 
                     if ($qtyInMaterialUnit > $batchSisa + 0.000_1) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Stok batch '.$material->nama.' tidak cukup.',
+                            'materials' => __('messages.validation.stock_batch_insufficient', ['name' => $material->nama]),
                         ]);
                     }
 
@@ -68,7 +68,7 @@ class ProductionMaterialService
 
                     if ($qtyInMaterialUnit > $materialStock + 0.000_1) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Stok '.$material->nama.' tidak cukup.',
+                            'materials' => __('messages.validation.stock_insufficient', ['name' => $material->nama]),
                         ]);
                     }
 
@@ -167,7 +167,7 @@ class ProductionMaterialService
     {
         if (count($lines) === 0) {
             throw ValidationException::withMessages([
-                'materials' => 'Minimal satu bahan baku wajib diisi.',
+                'materials' => __('messages.validation.materials_required'),
             ]);
         }
 
@@ -178,7 +178,7 @@ class ProductionMaterialService
 
             if (empty($line['raw_material_id'])) {
                 throw ValidationException::withMessages([
-                    "{$key}.raw_material_id" => 'Pilih bahan baku',
+                    "{$key}.raw_material_id" => __('messages.validation.select_material'),
                 ]);
             }
 
@@ -188,7 +188,7 @@ class ProductionMaterialService
 
             if ($material && $this->materialHasAvailableBatches($material->id) && empty($batchId)) {
                 throw ValidationException::withMessages([
-                    "{$key}.raw_material_restock_id" => 'Pilih batch stok',
+                    "{$key}.raw_material_restock_id" => __('messages.validation.select_stock_batch'),
                 ]);
             }
 
@@ -196,7 +196,7 @@ class ProductionMaterialService
                 $batchId = (int) $batchId;
                 if (isset($seenBatches[$batchId])) {
                     throw ValidationException::withMessages([
-                        'materials' => 'Batch stok yang sama tidak boleh dipakai dua kali dalam satu produksi.',
+                        'materials' => __('messages.validation.duplicate_batch_in_production'),
                     ]);
                 }
 
@@ -206,7 +206,7 @@ class ProductionMaterialService
 
                 if ($batch && $material && $batch->raw_material_id !== $material->id) {
                     throw ValidationException::withMessages([
-                        "{$key}.raw_material_restock_id" => 'Batch stok tidak sesuai bahan baku.',
+                        "{$key}.raw_material_restock_id" => __('messages.validation.batch_mismatch_material_short'),
                     ]);
                 }
             }
@@ -214,20 +214,20 @@ class ProductionMaterialService
             $qty = $line['jumlah'];
             if ($qty === null || $qty <= 0) {
                 throw ValidationException::withMessages([
-                    "{$key}.jumlah" => 'Takaran harus lebih dari 0.',
+                    "{$key}.jumlah" => __('messages.validation.dosage_must_be_positive'),
                 ]);
             }
 
             if (empty($line['satuan'])) {
                 throw ValidationException::withMessages([
-                    "{$key}.satuan" => 'Pilih satuan.',
+                    "{$key}.satuan" => __('messages.validation.select_unit'),
                 ]);
             }
 
             if ($material && $usageUnit !== null && $usageUnit !== '') {
                 if (! UnitConverter::canConvert($material->satuan, $usageUnit)) {
                     throw ValidationException::withMessages([
-                        "{$key}.satuan" => 'Satuan tidak sesuai dengan bahan baku.',
+                        "{$key}.satuan" => __('messages.validation.unit_mismatch_material'),
                     ]);
                 }
             }
@@ -260,7 +260,7 @@ class ProductionMaterialService
 
             if ($batch) {
                 $available = (float) $batch->sisa;
-                $stockLabel = 'batch '.$material->nama;
+                $stockLabel = __('messages.validation.stock_batch_label', ['name' => $material->nama]);
             } else {
                 $available = (float) $material->jumlah;
                 $stockLabel = $material->nama;
@@ -268,7 +268,11 @@ class ProductionMaterialService
 
             if ($needed > $available + 0.000_1) {
                 $displayAvailable = UnitConverter::convert($available, $material->satuan, $usageUnit) ?? $available;
-                $errors["materials.{$index}.jumlah"] = 'Stok '.$stockLabel.' tidak cukup (tersedia '.FormatHelper::formatQtyOne($displayAvailable).' '.$usageUnit.').';
+                $errors["materials.{$index}.jumlah"] = __('messages.validation.stock_insufficient_detail', [
+                    'label' => $stockLabel,
+                    'available' => FormatHelper::formatQtyOne($displayAvailable),
+                    'unit' => $usageUnit,
+                ]);
             }
         }
 

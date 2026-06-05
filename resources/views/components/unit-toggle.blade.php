@@ -15,7 +15,7 @@
     data-unit-toggle
     data-selected="{{ $selected }}"
     role="group"
-    aria-label="Pilih satuan"
+    aria-label="{{ __('app.common.select_unit') }}"
     @if ($disabled) data-unit-toggle-disabled @endif
 >
     @foreach ($units as $unit)

@@ -132,7 +132,7 @@ class BahanDasarController extends Controller
             );
         });
 
-        return redirect()->route('admin.bahan_dasar')->with('success', 'Bahan dasar '.$data['nama'].' berhasil ditambahkan beserta batch adonan pertama.');
+        return redirect()->route('admin.bahan_dasar')->with('success', __('messages.flash.bahan_dasar_created', ['name' => $data['nama']]));
     }
 
     public function update(Request $request, string $id)
@@ -151,7 +151,7 @@ class BahanDasarController extends Controller
 
         if ($satuan !== $item->satuan && $item->batches()->exists()) {
             throw ValidationException::withMessages([
-                'satuan' => 'Satuan tidak dapat diubah setelah ada batch adonan.',
+                'satuan' => __('messages.validation.satuan_locked_after_batch'),
             ]);
         }
 
@@ -161,7 +161,7 @@ class BahanDasarController extends Controller
             'min'    => FormatHelper::normalizeQtyOne($data['min']),
         ]);
 
-        return redirect()->back()->with('success', 'Bahan dasar '.$item->nama.' berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.bahan_dasar_updated', ['name' => $item->nama]));
     }
 
     public function buatAdonan(Request $request, string $id, BahanDasarMaterialService $materialService)
@@ -194,7 +194,7 @@ class BahanDasarController extends Controller
             );
         });
 
-        return redirect()->back()->with('success', 'Adonan '.$item->nama.' berhasil dibuat.');
+        return redirect()->back()->with('success', __('messages.flash.dough_created', ['name' => $item->nama]));
     }
 
     public function destroy(string $id)
@@ -202,13 +202,13 @@ class BahanDasarController extends Controller
         $item = BahanDasar::findOrFail($id);
 
         if (! $item->canBeDeleted()) {
-            return redirect()->back()->with('error', 'Bahan dasar tidak dapat dihapus karena sudah memiliki riwayat adonan.');
+            return redirect()->back()->with('error', __('messages.flash.bahan_dasar_delete_blocked'));
         }
 
         $nama = $item->nama;
         $item->delete();
 
-        return redirect()->route('admin.bahan_dasar')->with('success', 'Bahan dasar '.$nama.' berhasil dihapus.');
+        return redirect()->route('admin.bahan_dasar')->with('success', __('messages.flash.bahan_dasar_deleted', ['name' => $nama]));
     }
 
     public function destroyBatch(string $id, int $batchId, BahanDasarMaterialService $materialService)
@@ -217,12 +217,12 @@ class BahanDasarController extends Controller
         $batch = $item->batches()->findOrFail($batchId);
 
         if ((float) $batch->sisa < (float) $batch->jumlah - 0.000_1) {
-            return redirect()->back()->with('error', 'Batch adonan tidak dapat dihapus karena sebagian stok sudah dipakai.');
+            return redirect()->back()->with('error', __('messages.flash.dough_batch_delete_blocked'));
         }
 
         DB::transaction(fn () => $materialService->reverseBatch($batch));
 
-        return redirect()->back()->with('success', 'Batch adonan berhasil dihapus dan bahan baku dikembalikan.');
+        return redirect()->back()->with('success', __('messages.flash.dough_batch_deleted'));
     }
 
     private function materialsForForm()

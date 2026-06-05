@@ -19,6 +19,6 @@
             </div>
         </div>
     @empty
-        <p class="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-400">Tidak ada saldo</p>
+        <p class="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-400">{{ __('reports.no_balance') }}</p>
     @endforelse
 </div>

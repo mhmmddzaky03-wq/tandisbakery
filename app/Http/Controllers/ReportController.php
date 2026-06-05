@@ -39,7 +39,7 @@ class ReportController extends Controller
 
         $filterLabel = $from || $to
             ? \App\Support\PdfExporter::filterLabel($from, $to)
-            : 'Semua data';
+            : __('app.pages.sales_report_subtitle');
 
         return view('admin.laporan-penjualan', compact('sales', 'total', 'from', 'to', 'filterLabel'));
     }

@@ -1,11 +1,14 @@
 import { initDashboardCharts } from './dashboard-charts';
 
+const i18n = (name, fallback) =>
+    document.querySelector(`meta[name="i18n-${name}"]`)?.content || fallback;
+
 function handleProductionDelete(btn) {
     if (!btn) return;
 
     const isLinked = btn.getAttribute('data-has-product') === '1';
     if (isLinked) {
-        const message = btn.getAttribute('data-linked-message') || 'Data tidak dapat dihapus. Sudah terdaftar sebagai produk.';
+        const message = btn.getAttribute('data-linked-message') || i18n('cannot-delete-linked', 'Cannot delete.');
         showToast(message, 'danger');
         return;
     }
@@ -14,7 +17,7 @@ function handleProductionDelete(btn) {
     const form = formId ? document.getElementById(formId) : null;
     if (!form) return;
 
-    const confirmMsg = btn.getAttribute('data-confirm-message') || 'Hapus data produksi ini?';
+    const confirmMsg = btn.getAttribute('data-confirm-message') || i18n('confirm-delete-production', 'Delete?');
     if (window.confirm(confirmMsg)) {
         form.submit();
     }
@@ -29,7 +32,7 @@ function handleConfirmDelete(btn) {
     const form = formId ? document.getElementById(formId) : null;
     if (!form) return;
 
-    const confirmMsg = btn.getAttribute('data-confirm-message') || 'Hapus data ini?';
+    const confirmMsg = btn.getAttribute('data-confirm-message') || i18n('confirm-delete', 'Delete?');
     if (window.confirm(confirmMsg)) {
         form.submit();
     }
@@ -40,12 +43,12 @@ window.handleConfirmDelete = handleConfirmDelete;
 function handleBlockedDelete(btn) {
     if (!btn) return;
 
-    const confirmMsg = btn.getAttribute('data-confirm-message') || 'Hapus data ini?';
+    const confirmMsg = btn.getAttribute('data-confirm-message') || i18n('confirm-delete', 'Delete?');
     if (!window.confirm(confirmMsg)) return;
 
     if (btn.getAttribute('data-delete-blocked') === '1') {
         showToast(
-            btn.getAttribute('data-blocked-message') || 'Data tidak dapat dihapus.',
+            btn.getAttribute('data-blocked-message') || i18n('cannot-delete', 'Cannot delete.'),
             'danger'
         );
         return;
@@ -537,35 +540,17 @@ document.addEventListener('click', () => {
     qsa('[data-dropdown-menu]').forEach((menu) => menu.classList.add('hidden'));
 });
 
-qsa('[data-lang-picker-inactive]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const menu = btn.closest('[data-dropdown-menu]');
-        if (menu) {
-            menu.classList.add('hidden');
-        }
-        showToast('Bahasa Inggris belum tersedia', 'info', 'Masih dalam pengembangan');
-    });
-});
-
-qsa('[data-lang-picker-active]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const menu = btn.closest('[data-dropdown-menu]');
-        if (menu) {
-            menu.classList.add('hidden');
-        }
-    });
-});
+const defaultSuccess = document.querySelector('meta[name="toast-default-success"]')?.content || 'OK';
+const defaultError = document.querySelector('meta[name="toast-default-error"]')?.content || 'Error';
 
 const flash = qs('[data-flash-success]');
 if (flash) {
-    showToast(flash.textContent?.trim() || 'Berhasil', 'success');
+    showToast(flash.textContent?.trim() || defaultSuccess, 'success');
 }
 
 const flashError = qs('[data-flash-error]');
 if (flashError) {
-    showToast(flashError.textContent?.trim() || 'Terjadi kesalahan', 'danger');
+    showToast(flashError.textContent?.trim() || defaultError, 'danger');
 }
 
 window.showToast = showToast;
@@ -944,7 +929,7 @@ function initProductionMaterialSection(section) {
     let initialRows = [{ raw_material_id: '', raw_material_restock_id: '', jumlah: '', satuan: '' }];
     let unitLabels = UNIT_SHORT_LABELS;
     const selectPlaceholder = section.dataset.selectPlaceholder || '—';
-    const batchPlaceholder = section.dataset.batchPlaceholder || 'Pilih batch stok';
+    const batchPlaceholder = section.dataset.batchPlaceholder || i18n('select-stock-batch', 'Select batch');
 
     function readSectionJson(selector, fallback) {
         const el = qs(selector, section);
@@ -1605,7 +1590,7 @@ function setupProductionBahanDasarToggle(root = document) {
             materialApi?.setMaterialsOptional?.(useBahanDasar);
 
             if (badge) {
-                badge.textContent = useBahanDasar ? 'Opsional' : 'Wajib';
+                badge.textContent = useBahanDasar ? i18n('optional', 'Optional') : i18n('required', 'Required');
                 badge.classList.toggle('bg-violet-50', useBahanDasar);
                 badge.classList.toggle('text-violet-700', useBahanDasar);
                 badge.classList.toggle('bg-rose-50', !useBahanDasar);
@@ -1614,8 +1599,8 @@ function setupProductionBahanDasarToggle(root = document) {
 
             if (hint) {
                 hint.textContent = useBahanDasar
-                    ? 'Bahan baku langsung dari stok. Tidak wajib jika sudah memakai bahan dasar.'
-                    : 'Bahan baku langsung dari stok. Wajib diisi jika produksi tidak memakai bahan dasar.';
+                    ? i18n('materials-hint-optional', '')
+                    : i18n('materials-hint-required', '');
             }
 
             if (useBahanDasar && panel) {
@@ -1653,8 +1638,8 @@ function initProductionBahanDasarSection(section) {
 
     let items = [];
     let initialRows = [{ bahan_dasar_id: '', batch_bahan_dasar_id: '', jumlah: '', satuan: '' }];
-    const selectPlaceholder = section.dataset.selectPlaceholder || 'Pilih bahan dasar';
-    const batchPlaceholder = section.dataset.batchPlaceholder || 'Pilih batch adonan';
+    const selectPlaceholder = section.dataset.selectPlaceholder || i18n('select-base-material', 'Select base material');
+    const batchPlaceholder = section.dataset.batchPlaceholder || i18n('select-dough-batch', 'Select dough batch');
 
     function readJson(selector, fallback) {
         const el = qs(selector, section);
@@ -1965,7 +1950,7 @@ function populateCoaSubGroups(form, groupMap, selectedGrup, selectedSub) {
     const subSelect = qs('select[name="sub_grup"]', form);
     if (!subSelect) return;
 
-    const placeholder = form.dataset.coaPlaceholderSub || '— Pilih sub-grup —';
+    const placeholder = form.dataset.coaPlaceholderSub || i18n('coa-subgroup', 'Select sub-group');
     const options = groupMap[selectedGrup] || [];
 
     subSelect.disabled = !selectedGrup;

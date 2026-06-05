@@ -28,15 +28,15 @@
         <div class="mb-3 flex items-center gap-2.5">
             <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-extrabold text-sky-700">1</span>
             <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Informasi Produksi</h3>
-                <p class="text-xs text-slate-500">Tanggal, produk, jumlah hasil, dan status batch</p>
+                <h3 class="text-sm font-extrabold text-slate-900">{{ __('production.section_info') }}</h3>
+                <p class="text-xs text-slate-500">{{ __('production.section_info_sub') }}</p>
             </div>
         </div>
 
         <div class="space-y-4 rounded-xl bg-slate-50/70 p-4 ring-1 ring-slate-100">
             @if ($showFormErrors)
                 <div class="rounded-xl bg-rose-50 px-4 py-3 ring-1 ring-rose-200" role="alert" data-form-error-banner>
-                    <p class="text-sm font-extrabold text-rose-800">Data gagal disimpan. Periksa isian berikut:</p>
+                    <p class="text-sm font-extrabold text-rose-800">{{ __('production.save_error') }}</p>
                     <ul class="mt-1.5 space-y-0.5 text-xs font-semibold text-rose-700">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -49,7 +49,7 @@
                 <div class="min-w-0 flex-1" data-production-product-field>
                     <div class="mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                         <label for="field-product-{{ $prefix }}" class="text-xs font-bold text-slate-600">
-                            Nama Produk
+                            {{ __('production.field_product_name') }}
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         @if ($isCreateForm && $catalogProductNames->isNotEmpty())
@@ -62,7 +62,7 @@
                                     data-production-use-catalog
                                     @checked($useExistingProduct)
                                 />
-                                Sudah ada di data produk
+                                {{ __('production.already_in_catalog') }}
                             </label>
                         @endif
                     </div>
@@ -70,7 +70,7 @@
                         id="field-product-{{ $prefix }}"
                         type="text"
                         value="{{ $productNameValue }}"
-                        placeholder="Contoh: Roti Tawar"
+                        placeholder="{{ __('production.product_placeholder') }}"
                         data-title-case
                         data-production-product-text
                         @if (! $useExistingProduct || ! $isCreateForm) name="product_name" @endif
@@ -88,7 +88,7 @@
                             @if ($autofocus && $useExistingProduct) autofocus @endif
                             class="bakery-input h-11 w-full {{ $useExistingProduct ? '' : 'hidden' }} {{ $errors->has('product_name') ? '!ring-2 !ring-rose-400' : '' }}"
                         >
-                            <option value="" disabled @selected($productNameValue === '')>Pilih produk</option>
+                            <option value="" disabled @selected($productNameValue === '')>{{ __('production.select_product') }}</option>
                             @foreach ($catalogProductNames as $name)
                                 <option value="{{ $name }}" @selected($productNameValue === $name)>{{ $name }}</option>
                             @endforeach
@@ -100,7 +100,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <label for="field-tanggal-{{ $prefix }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        Tanggal
+                        {{ __('app.common.date') }}
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -120,7 +120,7 @@
             <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div class="min-w-0 flex-1">
                     <label for="field-jumlah-{{ $prefix }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        Jumlah Hasil
+                        {{ __('production.field_result_qty') }}
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <div class="flex h-11 items-center gap-2">
@@ -142,10 +142,10 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <span class="mb-1.5 block text-xs font-bold text-slate-600">
-                        Status
+                        {{ __('app.common.status') }}
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </span>
-                    <div class="grid h-11 grid-cols-2 gap-2" role="radiogroup" aria-label="Status">
+                    <div class="grid h-11 grid-cols-2 gap-2" role="radiogroup" aria-label="{{ __('app.common.status') }}">
                         <label class="cursor-pointer">
                             <input
                                 type="radio"
@@ -157,7 +157,7 @@
                             />
                             <span class="flex h-11 items-center justify-center gap-1.5 rounded-xl bg-white text-sm font-bold text-slate-600 ring-1 ring-slate-200 transition peer-checked:bg-emerald-50 peer-checked:text-emerald-700 peer-checked:ring-2 peer-checked:ring-emerald-400">
                                 <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
-                                Berhasil
+                                {{ __('production.status.success') }}
                             </span>
                         </label>
                         <label class="cursor-pointer">
@@ -170,7 +170,7 @@
                             />
                             <span class="flex h-11 items-center justify-center gap-1.5 rounded-xl bg-white text-sm font-bold text-slate-600 ring-1 ring-slate-200 transition peer-checked:bg-rose-50 peer-checked:text-rose-700 peer-checked:ring-2 peer-checked:ring-rose-400">
                                 <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
-                                Gagal
+                                {{ __('production.status.failed') }}
                             </span>
                         </label>
                     </div>
@@ -190,10 +190,10 @@
             <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-violet-100 text-xs font-extrabold text-violet-700">2</span>
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <h3 class="text-sm font-extrabold text-slate-900">Pemakaian Bahan Dasar</h3>
-                    <span class="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Opsional</span>
+                    <h3 class="text-sm font-extrabold text-slate-900">{{ __('production.section_base_materials') }}</h3>
+                    <span class="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">{{ __('production.note_optional') }}</span>
                 </div>
-                <p class="mt-0.5 text-xs text-slate-500">Centang jika produk memakai adonan setengah jadi dari menu Bahan Dasar.</p>
+                <p class="mt-0.5 text-xs text-slate-500">{{ __('production.section_base_materials_sub') }}</p>
             </div>
         </div>
 
@@ -206,7 +206,7 @@
                 data-production-use-bahan-dasar
                 @checked($useBahanDasar)
             />
-            <span class="text-sm font-semibold text-violet-900">Produksi ini memakai bahan dasar (adonan)</span>
+            <span class="text-sm font-semibold text-violet-900">{{ __('production.section_base_materials_toggle') }}</span>
         </label>
 
         <div
@@ -226,17 +226,17 @@
             <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-extrabold text-amber-700">3</span>
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <h3 class="text-sm font-extrabold text-slate-900">Pemakaian Bahan Baku</h3>
+                    <h3 class="text-sm font-extrabold text-slate-900">{{ __('production.section_raw_materials') }}</h3>
                     <span
                         data-production-materials-badge
                         class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide {{ $materialsOptional ? 'bg-violet-50 text-violet-700' : 'bg-rose-50 text-rose-600' }}"
-                    >{{ $materialsOptional ? 'Opsional' : 'Wajib' }}</span>
+                    >{{ $materialsOptional ? __('production.note_optional') : __('production.note_required') }}</span>
                 </div>
                 <p class="mt-0.5 text-xs text-slate-500" data-production-materials-hint>
                     @if ($materialsOptional)
-                        Bahan baku langsung dari stok. Tidak wajib jika sudah memakai bahan dasar.
+                        {{ __('production.section_raw_materials_hint_optional') }}
                     @else
-                        Bahan baku langsung dari stok. Wajib diisi jika produksi tidak memakai bahan dasar.
+                        {{ __('production.section_raw_materials_hint_required') }}
                     @endif
                 </p>
             </div>
@@ -254,8 +254,8 @@
         <div class="mb-3 flex items-center gap-2.5">
             <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-200 text-xs font-extrabold text-slate-600">4</span>
             <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Keterangan</h3>
-                <p class="text-xs text-slate-500">Opsional — alasan jika produksi gagal</p>
+                <h3 class="text-sm font-extrabold text-slate-900">{{ __('production.field_note') }}</h3>
+                <p class="text-xs text-slate-500">{{ __('production.field_note_failed') }}</p>
             </div>
         </div>
 
@@ -264,7 +264,7 @@
                 id="field-notes-{{ $prefix }}"
                 name="notes"
                 rows="2"
-                placeholder="Opsional — catatan tambahan atau alasan jika gagal"
+                placeholder="{{ __('production.field_note_placeholder') }}"
                 class="bakery-input min-h-[72px] w-full resize-y {{ $errors->has('notes') ? '!ring-2 !ring-rose-400' : '' }}"
             >{{ $notesValue }}</textarea>
             @error('notes')
@@ -275,7 +275,7 @@
 
     @if ($linkedProductId)
         <p class="rounded-xl bg-sky-50 px-4 py-3 text-xs font-semibold text-sky-700">
-            Produksi ini terdaftar sebagai sumber awal produk katalog {{ $linkedProductId }}.
+            {{ __('production.catalog_source_hint', ['id' => $linkedProductId]) }}
         </p>
     @endif
 </div>

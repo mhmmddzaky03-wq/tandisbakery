@@ -12,7 +12,7 @@
         </span>
         <span class="min-w-0 flex-1">
             <span class="block text-sm font-bold text-slate-800">{{ $section['label'] }}</span>
-            <span class="text-xs text-slate-500">{{ $section['lines']->count() }} akun</span>
+            <span class="text-xs text-slate-500">{{ __('reports.accounts_count', ['count' => $section['lines']->count()]) }}</span>
         </span>
         <span class="shrink-0 text-right">
             <span class="block text-sm font-extrabold tabular-nums text-slate-900">{{ FormatHelper::rupiah($section['subtotal']) }}</span>

@@ -23,7 +23,7 @@ class ExpenseCategoryController extends Controller
 
         $category = ExpenseCategory::create($data);
 
-        return redirect()->back()->with('success',' Kategori '.$category->nama.' berhasil ditambahkan.');
+        return redirect()->back()->with('success', __('messages.flash.expense_category_created', ['name' => $category->nama]));
     }
 
     public function update(Request $request, int $id)
@@ -40,7 +40,7 @@ class ExpenseCategoryController extends Controller
             'jenis' => $data['jenis'],
         ]);
 
-        return redirect()->back()->with('success',' Kategori '.$category->nama.' berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.expense_category_updated', ['name' => $category->nama]));
     }
 
     public function destroy(int $id)
@@ -48,13 +48,13 @@ class ExpenseCategoryController extends Controller
         $category = ExpenseCategory::withCount('operationalCosts')->findOrFail($id);
 
         if ($category->operational_costs_count > 0) {
-            return redirect()->back()->with('error',' Kategori '.$category->nama.' tidak bisa dihapus karena sudah dipakai. Nonaktifkan saja.');
+            return redirect()->back()->with('error', __('messages.flash.expense_category_delete_blocked', ['name' => $category->nama]));
         }
 
         $name = $category->nama;
         $category->delete();
 
-        return redirect()->back()->with('success',' Kategori '.$name.' berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.expense_category_deleted', ['name' => $name]));
     }
 
     private function validated(Request $request, ?ExpenseCategory $category = null): array
@@ -68,8 +68,8 @@ class ExpenseCategoryController extends Controller
             ],
             'jenis' => ['required', 'string', 'in:Fixed,Variable'],
         ], [], [
-            'nama' => 'Nama Kategori',
-            'jenis' => 'Jenis',
+            'nama' => __('validation.attributes.nama'),
+            'jenis' => __('validation.attributes.jenis'),
         ]);
     }
 }

@@ -34,29 +34,29 @@ class PdfExporter
     public static function filterLabel(?string $from, ?string $to, ?string $singleDate = null): string
     {
         if ($singleDate) {
-            return 'Per tanggal '.FormatHelper::dateId($singleDate);
+            return __('reports.pdf.as_of_date', ['date' => FormatHelper::dateId($singleDate)]);
         }
 
         if ($from && $to) {
-            return FormatHelper::dateId($from).' s/d '.FormatHelper::dateId($to);
+            return FormatHelper::dateId($from).' '.__('app.common.to').' '.FormatHelper::dateId($to);
         }
 
         if ($from) {
-            return 'Dari '.FormatHelper::dateId($from);
+            return __('app.common.from').' '.FormatHelper::dateId($from);
         }
 
         if ($to) {
-            return 'Sampai '.FormatHelper::dateId($to);
+            return __('app.common.to').' '.FormatHelper::dateId($to);
         }
 
-        return 'Semua data';
+        return __('app.pages.sales_report_subtitle');
     }
 
     public static function generatedAt(): string
     {
         return now()
             ->timezone(self::TIMEZONE_WIB)
-            ->locale('id')
+            ->locale(app()->getLocale())
             ->translatedFormat('d F Y, H:i').' WIB';
     }
 

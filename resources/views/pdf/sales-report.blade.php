@@ -6,9 +6,9 @@
 <table class="summary-grid">
     <tr>
         <td colspan="3" class="highlight">
-            <div class="summary-label">Total penjualan</div>
+            <div class="summary-label">{{ __('reports.sales_report.total_sales') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($total) }}</div>
-            <div style="font-size:8pt;color:#64748b;margin-top:4px">{{ $sales->count() }} transaksi</div>
+            <div style="font-size:8pt;color:#64748b;margin-top:4px">{{ __('reports.transactions_count', ['count' => $sales->count()]) }}</div>
         </td>
     </tr>
 </table>
@@ -16,11 +16,11 @@
 <table class="data-table">
     <thead>
         <tr>
-            <th style="width:72px">ID</th>
-            <th style="width:88px">Tanggal</th>
-            <th class="num">Total</th>
-            <th style="width:80px">Metode</th>
-            <th class="center" style="width:48px">Jml</th>
+            <th style="width:72px">{{ __('app.common.id') }}</th>
+            <th style="width:88px">{{ __('app.common.date') }}</th>
+            <th class="num">{{ __('app.common.total') }}</th>
+            <th style="width:80px">{{ __('reports.method') }}</th>
+            <th class="center" style="width:48px">{{ __('app.common.quantity') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -34,7 +34,7 @@
             </tr>
         @endforeach
         <tr class="total">
-            <td colspan="2">TOTAL</td>
+            <td colspan="2">{{ __('reports.trial_balance.total') }}</td>
             <td class="num">{{ FormatHelper::rupiah($total) }}</td>
             <td colspan="2"></td>
         </tr>

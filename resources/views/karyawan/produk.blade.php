@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @php
-    $title = 'Data Produk'.' - Karyawan';
+    $title = __('app.pages.products').' - '.__('app.common.employee');
     $role = 'karyawan';
     $active = 'karyawan.produk';
-    $pageTitle = 'Data Produk';
-    $pageSubtitle = 'Daftarkan produk berdasarkan riwayat produksi berhasil';
+    $pageTitle = __('app.pages.products');
+    $pageSubtitle = __('app.pages.products_subtitle');
     $showRoute = 'karyawan.produk.show';
     $canEdit = false;
 @endphp

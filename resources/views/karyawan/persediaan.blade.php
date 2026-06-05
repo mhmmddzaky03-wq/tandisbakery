@@ -4,8 +4,8 @@
     $title = 'Input Data Persediaan'.' - Karyawan';
     $role = 'karyawan';
     $active = 'karyawan.persediaan';
-    $pageTitle = 'Input Data Persediaan';
-    $pageSubtitle = 'Kelola stok bahan baku untuk produksi';
+    $pageTitle = __('app.pages.inventory_input');
+    $pageSubtitle = __('app.pages.inventory_input_subtitle');
     $storeRoute = 'karyawan.persediaan.store';
     $indexRoute = 'karyawan.persediaan';
     $updateRoute = 'karyawan.persediaan.update';
@@ -18,7 +18,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="stok-baru">
-        + Tambah Stok Baru
+        {{ __('stock.action_add') }}
     </button>
 @endpush
 

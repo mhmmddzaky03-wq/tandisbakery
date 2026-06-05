@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8" />
-    <title>{{ $title ?? 'Laporan' }} — Tandi's Bakery</title>
+    <title>{{ $title ?? __('reports.pdf.default_title') }} — Tandi's Bakery</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -183,16 +183,16 @@
 <body>
     <div class="header">
         <div class="brand-row">
-            <img src="{{ public_path('images/tandis-logo.png') }}" alt="Tadi's Homemade Bakery" class="brand-logo" />
+            <img src="{{ public_path('images/tandis-logo.png') }}" alt="Tandi's Homemade Bakery" class="brand-logo" />
         </div>
-        <div class="report-title">{{ $title ?? 'Laporan' }}</div>
+        <div class="report-title">{{ $title ?? __('reports.pdf.default_title') }}</div>
         @if (! empty($filterLabel))
             <div class="filter-pill">{{ $filterLabel }}</div>
         @endif
         <table class="meta-row">
             <tr>
-                <td>Dicetak: {{ \App\Support\PdfExporter::generatedAt() }}</td>
-                <td class="right">Halaman <span class="page-num"></span></td>
+                <td>{{ __('reports.pdf.printed_at') }} {{ \App\Support\PdfExporter::generatedAt() }}</td>
+                <td class="right">{{ __('reports.pdf.page') }} <span class="page-num"></span></td>
             </tr>
         </table>
     </div>
@@ -200,7 +200,7 @@
     @yield('pdf-body')
 
     <div class="footer">
-        Dokumen ini dihasilkan otomatis dari sistem Tadi's Homemade Bakery · {{ $title ?? 'Laporan' }}
+        {{ __('reports.pdf.footer', ['title' => $title ?? __('reports.pdf.default_title')]) }}
     </div>
 </body>
 </html>

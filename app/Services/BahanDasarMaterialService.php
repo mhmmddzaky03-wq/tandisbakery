@@ -35,7 +35,7 @@ class BahanDasarMaterialService
 
             if ($outputQty <= 0) {
                 throw ValidationException::withMessages([
-                    'jumlah_hasil' => 'Jumlah adonan hasil wajib lebih dari 0.',
+                    'jumlah_hasil' => __('messages.validation.dough_output_qty_required'),
                 ]);
             }
 
@@ -62,13 +62,13 @@ class BahanDasarMaterialService
 
                     if ($restockBatch->raw_material_id !== $material->id) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Batch stok tidak sesuai dengan bahan baku yang dipilih.',
+                            'materials' => __('messages.validation.batch_mismatch_material'),
                         ]);
                     }
 
                     if ($qtyInMaterialUnit > (float) $restockBatch->sisa + 0.000_1) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Stok batch '.$material->nama.' tidak cukup.',
+                            'materials' => __('messages.validation.stock_batch_insufficient', ['name' => $material->nama]),
                         ]);
                     }
 
@@ -78,7 +78,7 @@ class BahanDasarMaterialService
                 } else {
                     if ($qtyInMaterialUnit > (float) $material->jumlah + 0.000_1) {
                         throw ValidationException::withMessages([
-                            'materials' => 'Stok '.$material->nama.' tidak cukup.',
+                            'materials' => __('messages.validation.stock_insufficient', ['name' => $material->nama]),
                         ]);
                     }
 
@@ -227,7 +227,7 @@ class BahanDasarMaterialService
     {
         if ($lines === []) {
             throw ValidationException::withMessages([
-                'materials' => 'Pilih minimal satu bahan baku.',
+                'materials' => __('messages.validation.select_at_least_one_material'),
             ]);
         }
 
@@ -238,7 +238,7 @@ class BahanDasarMaterialService
 
             if (empty($line['raw_material_id'])) {
                 throw ValidationException::withMessages([
-                    "{$key}.raw_material_id" => 'Pilih bahan baku.',
+                    "{$key}.raw_material_id" => __('messages.validation.select_material'),
                 ]);
             }
 
@@ -249,7 +249,7 @@ class BahanDasarMaterialService
 
                 if (isset($seenBatches[$batchId])) {
                     throw ValidationException::withMessages([
-                        'materials' => 'Batch stok yang sama tidak boleh dipakai dua kali.',
+                        'materials' => __('messages.validation.duplicate_batch'),
                     ]);
                 }
 
@@ -258,7 +258,7 @@ class BahanDasarMaterialService
 
             if ((float) ($line['jumlah'] ?? 0) <= 0) {
                 throw ValidationException::withMessages([
-                    "{$key}.jumlah" => 'Takaran harus lebih dari 0.',
+                    "{$key}.jumlah" => __('messages.validation.dosage_must_be_positive'),
                 ]);
             }
         }
@@ -283,7 +283,7 @@ class BahanDasarMaterialService
 
             if ($restockBatch) {
                 $available = (float) $restockBatch->sisa;
-                $stockLabel = 'batch '.$material->nama;
+                $stockLabel = __('messages.validation.stock_batch_label', ['name' => $material->nama]);
             } else {
                 $available = (float) $material->jumlah;
                 $stockLabel = $material->nama;
@@ -291,7 +291,11 @@ class BahanDasarMaterialService
 
             if ($needed > $available + 0.000_1) {
                 $displayAvailable = UnitConverter::convert($available, $material->satuan, $usageUnit) ?? $available;
-                $errors["materials.{$index}.jumlah"] = 'Stok '.$stockLabel.' tidak cukup (tersedia '.FormatHelper::formatQtyOne($displayAvailable).' '.$usageUnit.').';
+                $errors["materials.{$index}.jumlah"] = __('messages.validation.stock_insufficient_detail', [
+                    'label' => $stockLabel,
+                    'available' => FormatHelper::formatQtyOne($displayAvailable),
+                    'unit' => $usageUnit,
+                ]);
             }
         }
 

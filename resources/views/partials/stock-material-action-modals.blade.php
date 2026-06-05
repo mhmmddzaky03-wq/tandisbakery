@@ -22,7 +22,7 @@
 
 <x-modal
     id="edit-stok-{{ $m->id }}"
-    title="Edit Bahan Baku"
+    :title="__('stock.modal_edit')"
     size="lg"
     :scrollable="true"
     :auto-open="$isEditTarget && ($errors->has('nama') || $errors->has('kategori') || $errors->has('satuan') || $errors->has('min') || $errors->has('kode_produksi') || $errors->has('expired'))"
@@ -31,18 +31,18 @@
         @csrf @method('PUT')
         <input type="hidden" name="_edit_id" value="{{ $m->id }}" />
         <div class="grid gap-3 sm:grid-cols-2 [&_.bakery-field+.bakery-field]:!mt-0">
-            <x-form-field label="Nama Bahan" name="nama" :value="old('nama', $m->nama)" required autofocus />
-            <x-form-field label="Kategori Bahan" name="kategori" type="select" :value="old('kategori', $m->kategori ?? RawMaterial::KATEGORI_PADAT)" required>
+            <x-form-field :label="__('stock.field_name')" name="nama" :value="old('nama', $m->nama)" required autofocus />
+            <x-form-field :label="__('stock.field_category')" name="kategori" type="select" :value="old('kategori', $m->kategori ?? RawMaterial::KATEGORI_PADAT)" required>
                 @foreach (RawMaterial::kategoriOptions() as $value => $label)
                     <option value="{{ $value }}" @selected(old('kategori', $m->kategori ?? RawMaterial::KATEGORI_PADAT) === $value)>{{ $label }}</option>
                 @endforeach
             </x-form-field>
         </div>
-        <p class="text-xs text-slate-500">Jumlah dan harga diperbarui melalui restock.</p>
+        <p class="text-xs text-slate-500">{{ __('stock.restock_hint') }}</p>
         <div class="grid gap-3 sm:grid-cols-2 [&_.bakery-field+.bakery-field]:!mt-0">
             <div class="min-w-0">
                 <label for="field-satuan-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Satuan
+                    {{ __('app.common.unit') }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <select
@@ -51,7 +51,7 @@
                     required
                     class="bakery-input h-11 w-full {{ $errors->has('satuan') && $isEditTarget ? '!ring-2 !ring-rose-400' : '' }}"
                 >
-                    <option value="" disabled @selected($selectedSatuan === '')>Pilih Satuan</option>
+                    <option value="" disabled @selected($selectedSatuan === '')>{{ __('stock.select_unit') }}</option>
                     @if ($selectedSatuan && ! $unitNames->contains($selectedSatuan))
                         <option value="{{ $selectedSatuan }}" @selected(true)>{{ $selectedSatuan }}</option>
                     @endif
@@ -65,7 +65,7 @@
             </div>
             <div class="bakery-field !mt-0">
                 <label for="field-min-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Batas Aman
+                    {{ __('stock.field_min') }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <div class="flex items-center gap-2">
@@ -92,11 +92,11 @@
         </div>
         @if ($latestRestock)
             <div class="rounded-xl bg-slate-50/80 p-3 ring-1 ring-slate-100">
-                <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">Batch Restock Terakhir</p>
+                <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ __('stock.last_restock_batch') }}</p>
                 <div class="grid gap-3 sm:grid-cols-2">
                     <div class="min-w-0">
                         <label for="field-kode-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                            Kode Produksi
+                            {{ __('stock.field_production_code') }}
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         <input
@@ -104,7 +104,7 @@
                             name="kode_produksi"
                             type="text"
                             value="{{ $editKodeProduksi }}"
-                            placeholder="Kode produksi"
+                            placeholder="{{ __('stock.production_code_placeholder') }}"
                             required
                             class="bakery-input h-11 w-full {{ $errors->has('kode_produksi') && $isEditTarget ? '!ring-2 !ring-rose-400' : '' }}"
                         />
@@ -114,7 +114,7 @@
                     </div>
                     <div class="min-w-0">
                         <label for="field-expired-edit-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                            Tanggal Expired
+                            {{ __('stock.field_expired') }}
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         <input
@@ -130,7 +130,7 @@
                         @endif
                     </div>
                 </div>
-                <p class="mt-2 text-[11px] font-semibold text-slate-400">Mengubah info batch pada restock terakhir ({{ FormatHelper::dateId($latestRestock->tanggal) }}).</p>
+                <p class="mt-2 text-[11px] font-semibold text-slate-400">{{ __('stock.batch_edit_hint', ['date' => FormatHelper::dateId($latestRestock->tanggal)]) }}</p>
             </div>
         @endif
         <x-form-actions compact />
@@ -139,7 +139,7 @@
 
 <x-modal
     id="restock-stok-{{ $m->id }}"
-    title="Restock Bahan Baku"
+    :title="__('stock.modal_restock')"
     :scrollable="true"
     :auto-open="$isRestockTarget && ($errors->has('restock_tanggal') || $errors->has('restock_jumlah') || $errors->has('restock_harga') || $errors->has('restock_kode_produksi') || $errors->has('restock_expired') || $errors->has('restock_catatan'))"
 >
@@ -150,14 +150,14 @@
             <div class="flex items-center justify-between gap-4">
                 <span class="min-w-0 truncate font-bold text-slate-800">{{ $m->nama }}</span>
                 <div class="flex shrink-0 items-center gap-2">
-                    <span class="text-slate-500">Stok Saat Ini</span>
+                    <span class="text-slate-500">{{ __('stock.field_current_stock') }}</span>
                     <span class="font-bold text-slate-800">{{ FormatHelper::formatQtyOne($m->jumlah) }} {{ $satuan }}</span>
                 </div>
             </div>
         </div>
         <div class="bakery-field">
             <label for="field-restock-tanggal-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                Tanggal Pembelian
+                {{ __('stock.field_purchase_date') }}
                 <span class="text-rose-500" aria-hidden="true">*</span>
             </label>
             <input
@@ -175,7 +175,7 @@
         <div class="grid gap-3 sm:grid-cols-2">
             <div class="min-w-0">
                 <label for="field-restock-kode-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Kode Produksi
+                    {{ __('stock.field_production_code') }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -183,7 +183,7 @@
                     name="restock_kode_produksi"
                     type="text"
                     value="{{ $restockKodeProduksi }}"
-                    placeholder="Kode produksi"
+                    placeholder="{{ __('stock.production_code_placeholder') }}"
                     required
                     class="bakery-input h-11 w-full {{ $errors->has('restock_kode_produksi') && $isRestockTarget ? '!ring-2 !ring-rose-400' : '' }}"
                 />
@@ -193,7 +193,7 @@
             </div>
             <div class="min-w-0">
                 <label for="field-restock-expired-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Tanggal Expired
+                    {{ __('stock.field_expired') }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -212,7 +212,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div class="min-w-0 flex-1">
                 <label for="field-restock-jumlah-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Jumlah Restock
+                    {{ __('stock.field_restock_qty') }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <div class="flex items-center gap-2">
@@ -235,7 +235,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <label for="field-restock-harga-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                    Harga per {{ $satuan }}
+                    {{ __('stock.field_price_per') }} {{ $satuan }}
                     <span class="text-rose-500" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -254,13 +254,13 @@
         </div>
         <div class="bakery-field">
             <label for="field-restock-catatan-{{ $m->id }}" class="mb-1.5 block text-xs font-bold text-slate-600">
-                Catatan
+                {{ __('stock.field_note') }}
             </label>
             <textarea
                 id="field-restock-catatan-{{ $m->id }}"
                 name="restock_catatan"
                 rows="2"
-                placeholder="Opsional — nomor faktur, supplier, dll."
+                placeholder="{{ __('stock.note_placeholder') }}"
                 class="bakery-input w-full {{ $errors->has('restock_catatan') && $isRestockTarget ? '!ring-2 !ring-rose-400' : '' }}"
             >{{ $restockCatatan }}</textarea>
             @if ($errors->has('restock_catatan') && $isRestockTarget)

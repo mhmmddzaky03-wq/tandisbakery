@@ -37,7 +37,7 @@ class AccountController extends Controller
 
         Account::create($data);
 
-        return redirect()->back()->with('success', 'Akun berhasil ditambahkan.');
+        return redirect()->back()->with('success', __('messages.flash.account_created'));
     }
 
     public function update(Request $request, string $kode)
@@ -48,7 +48,7 @@ class AccountController extends Controller
 
         $account->update($data);
 
-        return redirect()->back()->with('success', 'Akun berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.account_updated'));
     }
 
     public function destroy(string $kode)
@@ -58,20 +58,20 @@ class AccountController extends Controller
         if (JournalEntry::where('account_kode', $kode)->exists()) {
             return redirect()->back()->with(
                 'error',
-                'Akun tidak dapat dihapus karena sudah memiliki transaksi jurnal. Nonaktifkan atau ubah akun di transaksi terkait terlebih dahulu.'
+                __('messages.flash.account_delete_has_journal')
             );
         }
 
         if (ExpenseCategory::where('account_kode', $kode)->exists()) {
             return redirect()->back()->with(
                 'error',
-                'Akun tidak dapat dihapus karena masih dipakai oleh kategori biaya operasional.'
+                __('messages.flash.account_delete_has_expense_category')
             );
         }
 
         $account->delete();
 
-        return redirect()->back()->with('success', 'Akun berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.account_deleted'));
     }
 
     private function validated(Request $request, ?Account $account = null): array
@@ -95,7 +95,7 @@ class AccountController extends Controller
 
         if (! in_array($data['sub_grup'], $groupSubs, true)) {
             throw \Illuminate\Validation\ValidationException::withMessages([
-                'sub_grup' => 'Sub-grup tidak sesuai dengan grup yang dipilih.',
+                'sub_grup' => __('messages.validation.sub_grup_mismatch'),
             ]);
         }
 

@@ -214,7 +214,7 @@ class RawMaterialController extends Controller
             $material->saveQuietly();
         }
 
-        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil ditambahkan.');
+        return redirect()->back()->with('success', __('messages.flash.raw_material_created', ['name' => $material->nama]));
     }
 
     public function update(Request $request, string $id)
@@ -250,7 +250,7 @@ class RawMaterialController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.raw_material_updated', ['name' => $material->nama]));
     }
 
     public function restock(Request $request, string $id, RawMaterialRestockService $restockService)
@@ -281,7 +281,7 @@ class RawMaterialController extends Controller
             $data['restock_expired'] ?? null,
         );
 
-        return redirect()->back()->with('success',' Bahan baku '.$material->nama.' berhasil direstock.');
+        return redirect()->back()->with('success', __('messages.flash.raw_material_restocked', ['name' => $material->nama]));
     }
 
     public function destroy(string $id)
@@ -289,13 +289,13 @@ class RawMaterialController extends Controller
         $material = RawMaterial::findOrFail($id);
 
         if (! $material->canBeDeleted()) {
-            return redirect()->back()->with('error', 'Bahan baku tidak dapat dihapus karena masih dipakai pada data produksi.');
+            return redirect()->back()->with('error', __('messages.flash.raw_material_delete_blocked'));
         }
 
         $nama = $material->nama;
         $material->delete();
 
-        return redirect()->back()->with('success',' Bahan baku '.$nama.' berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.raw_material_deleted', ['name' => $nama]));
     }
 
     private function normalizeJumlahInput(Request $request): void

@@ -33,19 +33,19 @@ class OperationalCostController extends Controller
 
         $stats = [
             [
-                'label' => 'Total Biaya',
+                'label' => __('operational.stats.total'),
                 'value' => FormatHelper::rupiah($grandTotal),
                 'tone' => 'violet',
                 'icon' => $ic('<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h14a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>'),
             ],
             [
-                'label' => 'Biaya Tetap',
+                'label' => __('operational.stats.fixed'),
                 'value' => FormatHelper::rupiah($totals['fixed']),
                 'tone' => 'blue',
                 'icon' => $ic('<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
             ],
             [
-                'label' => 'Biaya Variabel',
+                'label' => __('operational.stats.variable'),
                 'value' => FormatHelper::rupiah($variableTotal),
                 'tone' => 'amber',
                 'icon' => $ic('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'),
@@ -105,7 +105,7 @@ class OperationalCostController extends Controller
 
         $cost = $this->service->record($data);
 
-        return redirect()->back()->with('success',' Biaya '.$cost->kat.' berhasil disimpan.');
+        return redirect()->back()->with('success', __('messages.flash.operational_cost_saved', ['name' => $cost->kat]));
     }
 
     public function update(Request $request, string $id)
@@ -116,7 +116,7 @@ class OperationalCostController extends Controller
 
         $cost = $this->service->update($cost, $data);
 
-        return redirect()->back()->with('success',' Biaya '.$cost->kat.' berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.operational_cost_updated', ['name' => $cost->kat]));
     }
 
     public function destroy(string $id)
@@ -126,7 +126,7 @@ class OperationalCostController extends Controller
 
         $this->service->delete($cost);
 
-        return redirect()->back()->with('success',' Biaya '.$name.' berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.operational_cost_deleted', ['name' => $name]));
     }
 
     private function validated(Request $request): array
@@ -140,10 +140,10 @@ class OperationalCostController extends Controller
             'desk' => ['nullable', 'string', 'max:500'],
             'jumlah' => ['required', 'integer', 'min:1'],
         ], [], [
-            'expense_category_id' => 'Kategori',
-            'desk' => 'Deskripsi',
-            'jumlah' => 'Jumlah',
-            'tanggal' => 'Tanggal',
+            'expense_category_id' => __('validation.attributes.expense_category_id'),
+            'desk' => __('validation.attributes.desk'),
+            'jumlah' => __('validation.attributes.jumlah'),
+            'tanggal' => __('validation.attributes.tanggal'),
         ]);
     }
 

@@ -65,7 +65,7 @@ class ProductionBahanDasarService
 
                 if ($batch->bahan_dasar_id !== $bahanDasar->id) {
                     throw ValidationException::withMessages([
-                        'bahan_dasar' => 'Batch adonan tidak sesuai dengan bahan dasar yang dipilih.',
+                        'bahan_dasar' => __('messages.validation.dough_batch_mismatch'),
                     ]);
                 }
 
@@ -75,7 +75,7 @@ class ProductionBahanDasarService
 
                 if ($qtyInBaseUnit > (float) $batch->sisa + 0.000_1) {
                     throw ValidationException::withMessages([
-                        'bahan_dasar' => 'Stok batch '.$bahanDasar->nama.' tidak cukup.',
+                        'bahan_dasar' => __('messages.validation.stock_batch_insufficient', ['name' => $bahanDasar->nama]),
                     ]);
                 }
 
@@ -157,7 +157,7 @@ class ProductionBahanDasarService
 
             if (empty($line['bahan_dasar_id'])) {
                 throw ValidationException::withMessages([
-                    "{$key}.bahan_dasar_id" => 'Pilih bahan dasar.',
+                    "{$key}.bahan_dasar_id" => __('messages.validation.select_bahan_dasar'),
                 ]);
             }
 
@@ -165,7 +165,7 @@ class ProductionBahanDasarService
 
             if (empty($batchId)) {
                 throw ValidationException::withMessages([
-                    "{$key}.batch_bahan_dasar_id" => 'Pilih batch adonan.',
+                    "{$key}.batch_bahan_dasar_id" => __('messages.validation.select_dough_batch'),
                 ]);
             }
 
@@ -173,7 +173,7 @@ class ProductionBahanDasarService
 
             if (isset($seenBatches[$batchId])) {
                 throw ValidationException::withMessages([
-                    'bahan_dasar' => 'Batch adonan yang sama tidak boleh dipakai dua kali.',
+                    'bahan_dasar' => __('messages.validation.duplicate_dough_batch'),
                 ]);
             }
 
@@ -184,13 +184,13 @@ class ProductionBahanDasarService
 
             if ($batch && $bahanDasar && $batch->bahan_dasar_id !== $bahanDasar->id) {
                 throw ValidationException::withMessages([
-                    "{$key}.batch_bahan_dasar_id" => 'Batch adonan tidak sesuai bahan dasar.',
+                    "{$key}.batch_bahan_dasar_id" => __('messages.validation.dough_batch_mismatch_short'),
                 ]);
             }
 
             if ((float) ($line['jumlah'] ?? 0) <= 0) {
                 throw ValidationException::withMessages([
-                    "{$key}.jumlah" => 'Takaran harus lebih dari 0.',
+                    "{$key}.jumlah" => __('messages.validation.dosage_must_be_positive'),
                 ]);
             }
         }
@@ -216,7 +216,11 @@ class ProductionBahanDasarService
 
             if ($needed > $available + 0.000_1) {
                 $displayAvailable = UnitConverter::convert($available, $bahanDasar->satuan, $usageUnit) ?? $available;
-                $errors["bahan_dasar.{$index}.jumlah"] = 'Stok batch '.$bahanDasar->nama.' tidak cukup (tersedia '.FormatHelper::formatQtyOne($displayAvailable).' '.$usageUnit.').';
+                $errors["bahan_dasar.{$index}.jumlah"] = __('messages.validation.stock_insufficient_detail', [
+                    'label' => __('messages.validation.stock_batch_label', ['name' => $bahanDasar->nama]),
+                    'available' => FormatHelper::formatQtyOne($displayAvailable),
+                    'unit' => $usageUnit,
+                ]);
             }
         }
 

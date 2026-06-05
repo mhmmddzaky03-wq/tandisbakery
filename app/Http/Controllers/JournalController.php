@@ -45,6 +45,6 @@ class JournalController extends Controller
 
         JournalTransaction::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', 'Jurnal berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.journal_deleted'));
     }
 }

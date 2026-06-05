@@ -2,27 +2,27 @@
 
 @php
     use App\Support\FormatHelper;
-    $positionLabel = $account->posisi === 'Credit' ? 'Cr' : 'Dr';
+    $positionLabel = $account->posisi === 'Credit' ? __('reports.position_cr') : __('reports.position_dr');
 @endphp
 
 @section('pdf-body')
 <p class="report-subtitle" style="margin-bottom:12px;">
     <strong>{{ $account->kode }}</strong> — {{ $account->nama }}
-    · {{ $account->grup }} · Posisi {{ $positionLabel }}
+    · {{ $account->grup }} · {{ __('reports.general_ledger.position_label') }} {{ $positionLabel }}
 </p>
 
 <table class="summary-grid">
     <tr>
         <td>
-            <div class="summary-label">Saldo awal</div>
+            <div class="summary-label">{{ __('reports.general_ledger.summary_opening') }}</div>
             <div class="summary-value">{{ FormatHelper::glBalance($opening_balance) }}</div>
         </td>
         <td>
-            <div class="summary-label">Mutasi</div>
-            <div class="summary-value">{{ $rows->where(fn ($r) => ! ($r['is_opening'] ?? false))->count() }} baris</div>
+            <div class="summary-label">{{ __('reports.general_ledger.movement') }}</div>
+            <div class="summary-value">{{ __('reports.general_ledger.rows_count', ['count' => $rows->where(fn ($r) => ! ($r['is_opening'] ?? false))->count()]) }}</div>
         </td>
         <td class="highlight">
-            <div class="summary-label">Saldo akhir</div>
+            <div class="summary-label">{{ __('reports.general_ledger.summary_closing') }}</div>
             <div class="summary-value">{{ FormatHelper::glBalance($closing_balance) }}</div>
         </td>
     </tr>
@@ -31,12 +31,12 @@
 <table class="data-table">
     <thead>
         <tr>
-            <th class="center" style="width:32px">No</th>
-            <th style="width:72px">Tanggal</th>
-            <th>Ref</th>
-            <th class="num" style="width:96px">Debit</th>
-            <th class="num" style="width:96px">Kredit</th>
-            <th class="num" style="width:104px">Saldo</th>
+            <th class="center" style="width:32px">{{ __('reports.general_ledger.col_no') }}</th>
+            <th style="width:72px">{{ __('app.common.date') }}</th>
+            <th>{{ __('reports.general_ledger.col_ref') }}</th>
+            <th class="num" style="width:96px">{{ __('reports.debit') }}</th>
+            <th class="num" style="width:96px">{{ __('reports.credit') }}</th>
+            <th class="num" style="width:104px">{{ __('reports.balance') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -51,7 +51,7 @@
             </tr>
         @endforeach
         <tr class="total">
-            <td colspan="3">Saldo akhir periode</td>
+            <td colspan="3">{{ __('reports.general_ledger.closing_balance') }}</td>
             <td colspan="2"></td>
             <td class="num">{{ FormatHelper::glBalance($closing_balance) }}</td>
         </tr>

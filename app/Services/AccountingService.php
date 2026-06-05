@@ -48,13 +48,13 @@ class AccountingService
     public function journalSourceOptions(): array
     {
         return [
-            '' => 'Semua sumber',
-            'penjualan' => 'Penjualan',
-            'operasional' => 'Operasional',
-            'produksi' => 'Produksi',
-            'restock' => 'Restock',
-            'saldo_awal' => 'Saldo awal',
-            'manual' => 'Lainnya',
+            '' => __('reports.journal.all_sources'),
+            'penjualan' => __('reports.journal.source_sales'),
+            'operasional' => __('reports.journal.source_operational'),
+            'produksi' => __('reports.journal.source_production'),
+            'restock' => __('reports.journal.source_restock'),
+            'saldo_awal' => __('reports.journal.source_opening'),
+            'manual' => __('reports.journal.source_manual'),
         ];
     }
 
@@ -107,24 +107,24 @@ class AccountingService
     public function journalDeleteBlockedReason(int $journalId): ?string
     {
         if (SalesTransaction::where('journal_transaction_id', $journalId)->exists()) {
-            return 'Jurnal ini berasal dari transaksi penjualan. Hapus dari menu Transaksi Penjualan.';
+            return __('messages.journal.from_sales');
         }
 
         if (OperationalCost::where('journal_transaction_id', $journalId)->exists()) {
-            return 'Jurnal ini berasal dari biaya operasional. Hapus dari menu Biaya Operasional.';
+            return __('messages.journal.from_operational');
         }
 
         if (ProductionRecord::where('journal_transaction_id', $journalId)->exists()) {
-            return 'Jurnal ini berasal dari data produksi. Hapus dari menu Data Produksi.';
+            return __('messages.journal.from_production');
         }
 
         if (RawMaterialRestock::where('journal_transaction_id', $journalId)->exists()) {
-            return 'Jurnal ini berasal dari restock bahan baku. Hapus dari menu Stok Bahan Baku.';
+            return __('messages.journal.from_restock');
         }
 
         $tx = JournalTransaction::find($journalId);
         if ($tx && $tx->ref === 'Opening Balance') {
-            return 'Jurnal saldo awal tidak dapat dihapus dari sini.';
+            return __('messages.journal.opening_balance_locked');
         }
 
         return null;
@@ -138,22 +138,22 @@ class AccountingService
         $ref = $ref ?? '';
 
         if (str_starts_with($ref, 'SALES-')) {
-            return ['label' => 'Penjualan', 'tone' => 'emerald'];
+            return ['label' => __('reports.journal.source_sales'), 'tone' => 'emerald'];
         }
         if (str_starts_with($ref, 'OPEX-')) {
-            return ['label' => 'Operasional', 'tone' => 'sky'];
+            return ['label' => __('reports.journal.source_operational'), 'tone' => 'sky'];
         }
         if (str_starts_with($ref, 'PROD-')) {
-            return ['label' => 'Produksi', 'tone' => 'violet'];
+            return ['label' => __('reports.journal.source_production'), 'tone' => 'violet'];
         }
         if (str_starts_with($ref, 'RESTOCK-')) {
-            return ['label' => 'Restock', 'tone' => 'amber'];
+            return ['label' => __('reports.journal.source_restock'), 'tone' => 'amber'];
         }
         if ($ref === 'Opening Balance') {
-            return ['label' => 'Saldo Awal', 'tone' => 'slate'];
+            return ['label' => __('reports.journal.source_opening'), 'tone' => 'slate'];
         }
 
-        return ['label' => 'Manual', 'tone' => 'slate'];
+        return ['label' => __('reports.journal.source_manual'), 'tone' => 'slate'];
     }
 
     public function canDeleteJournal(int $journalId, ?string $ref = null): bool
@@ -513,11 +513,11 @@ class AccountingService
     private function balanceSheetSectionLabel(string $subGrup): string
     {
         return match ($subGrup) {
-            'Current Asset' => 'Aset Lancar',
-            'Non-Current Asset' => 'Aset Tidak Lancar',
-            'Current Liability' => 'Liabilitas Jangka Pendek',
-            'Paid-In-Capital' => 'Modal Disetor',
-            'Retained Earnings' => 'Laba Ditahan',
+            'Current Asset' => __('reports.balance_sheet.section_current_asset'),
+            'Non-Current Asset' => __('reports.balance_sheet.section_non_current_asset'),
+            'Current Liability' => __('reports.balance_sheet.section_current_liability'),
+            'Paid-In-Capital' => __('reports.balance_sheet.section_paid_in_capital'),
+            'Retained Earnings' => __('reports.balance_sheet.section_retained_earnings'),
             default => $subGrup,
         };
     }

@@ -4,8 +4,8 @@
     $title = 'Stok Bahan Baku'.' - Admin';
     $role = 'admin';
     $active = 'admin.stok';
-    $pageTitle = 'Stok Bahan Baku';
-    $pageSubtitle = 'Kelola stok bahan baku untuk produksi';
+    $pageTitle = __('app.pages.raw_materials');
+    $pageSubtitle = __('app.pages.raw_materials_subtitle');
     $storeRoute = 'admin.stok.store';
     $indexRoute = 'admin.stok';
     $updateRoute = 'admin.stok.update';
@@ -18,7 +18,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="stok-baru">
-        + Tambah Stok Baru
+        {{ __('stock.action_add') }}
     </button>
 @endpush
 

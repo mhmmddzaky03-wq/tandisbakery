@@ -13,26 +13,26 @@
 @endphp
 
 @if ($showCode)
-    <x-form-field label="Kode" name="kode" :value="old('kode', $codeValue)" required autofocus placeholder="1-110" />
+    <x-form-field :label="__('coa.field_code')" name="kode" :value="old('kode', $codeValue)" required autofocus placeholder="1-110" />
 @endif
 
-<x-form-field label="Nama Akun" name="nama" :value="old('nama', $nama ?? '')" required :autofocus="! $showCode" />
+<x-form-field :label="__('coa.field_name')" name="nama" :value="old('nama', $nama ?? '')" required :autofocus="! $showCode" />
 
-<x-form-field label="Posisi" name="posisi" type="select" required helper="Saldo normal akun bertambah di sisi mana">
-    <option value="" disabled @selected($selectedPosisi === '')>Pilih posisi</option>
-    <option value="Debit" @selected($selectedPosisi === 'Debit')>Debit (Dr)</option>
-    <option value="Credit" @selected($selectedPosisi === 'Credit')>Kredit (Cr)</option>
+<x-form-field :label="__('coa.field_position')" name="posisi" type="select" required :helper="__('coa.position_hint')">
+    <option value="" disabled @selected($selectedPosisi === '')>{{ __('coa.select_position') }}</option>
+    <option value="Debit" @selected($selectedPosisi === 'Debit')>{{ __('coa.debit') }}</option>
+    <option value="Credit" @selected($selectedPosisi === 'Credit')>{{ __('coa.credit') }}</option>
 </x-form-field>
 
-<x-form-field label="Grup" name="grup" type="select" required>
-    <option value="" disabled @selected($selectedGrup === '' || $selectedGrup === null)>Pilih grup</option>
+<x-form-field :label="__('coa.field_group')" name="grup" type="select" required>
+    <option value="" disabled @selected($selectedGrup === '' || $selectedGrup === null)>{{ __('coa.select_group') }}</option>
     @foreach (array_keys($coaGroupMap) as $grup)
         <option value="{{ $grup }}" @selected($selectedGrup === $grup)>{{ $grup }}</option>
     @endforeach
 </x-form-field>
 
-<x-form-field label="Sub-Grup" name="sub_grup" type="select" required :disabled="! $selectedGrup">
-    <option value="" disabled @selected($selectedSubGrup === '' || $selectedSubGrup === null)>Pilih sub-grup</option>
+<x-form-field :label="__('coa.field_subgroup')" name="sub_grup" type="select" required :disabled="! $selectedGrup">
+    <option value="" disabled @selected($selectedSubGrup === '' || $selectedSubGrup === null)>{{ __('coa.select_subgroup') }}</option>
     @if ($selectedGrup && isset($coaGroupMap[$selectedGrup]))
         @foreach ($coaGroupMap[$selectedGrup] as $sub)
             <option value="{{ $sub }}" @selected($selectedSubGrup === $sub)>{{ $sub }}</option>

@@ -4,8 +4,8 @@
     use App\Support\FormatHelper;
     $role = 'admin';
     $active = 'admin.laporan_penjualan';
-    $pageTitle = 'Laporan Penjualan';
-    $pageSubtitle = $filterLabel ?? 'Semua data';
+    $pageTitle = __('app.pages.sales_report');
+    $pageSubtitle = $filterLabel ?? __('app.pages.sales_report_subtitle');
 @endphp
 
 @push('page-actions')
@@ -19,31 +19,31 @@
 <div class="space-y-4">
     <form method="GET" class="flex flex-wrap items-end gap-3">
         <div>
-            <label for="from" class="mb-1 block text-xs font-bold text-slate-600">Dari</label>
+            <label for="from" class="mb-1 block text-xs font-bold text-slate-600">{{ __('app.common.from') }}</label>
             <input type="date" id="from" name="from" value="{{ $from ?? '' }}" class="bakery-input" />
         </div>
         <div>
-            <label for="to" class="mb-1 block text-xs font-bold text-slate-600">Sampai</label>
+            <label for="to" class="mb-1 block text-xs font-bold text-slate-600">{{ __('app.common.to') }}</label>
             <input type="date" id="to" name="to" value="{{ $to ?? '' }}" class="bakery-input" />
         </div>
-        <button type="submit" class="bakery-btn-primary shrink-0">Tampilkan</button>
+        <button type="submit" class="bakery-btn-primary shrink-0">{{ __('reports.show') }}</button>
     </form>
 
     <div class="bakery-card overflow-hidden">
         <div class="border-b border-slate-100 bg-slate-50 px-4 py-3 sm:px-6">
-            <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Ringkasan</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-500">{{ __('reports.sales_report.title') }}</p>
             <p class="mt-0.5 text-lg font-extrabold text-emerald-700">{{ FormatHelper::rupiah($total) }}</p>
-            <p class="text-xs text-slate-500">{{ $sales->count() }} transaksi · {{ $filterLabel }}</p>
+            <p class="text-xs text-slate-500">{{ __('reports.transactions_count', ['count' => $sales->count()]) }} · {{ $filterLabel }}</p>
         </div>
         <div class="bakery-card-body bakery-table-wrap">
             <table class="bakery-table text-sm">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Tanggal</th>
-                        <th class="text-right">Total</th>
-                        <th>Metode</th>
-                        <th class="text-center">Jumlah</th>
+                        <th>{{ __('app.common.id') }}</th>
+                        <th>{{ __('app.common.date') }}</th>
+                        <th class="text-right">{{ __('app.common.total') }}</th>
+                        <th>{{ __('reports.method') }}</th>
+                        <th class="text-center">{{ __('app.common.quantity') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +57,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-slate-500">Data tidak ditemukan</td>
+                            <td colspan="5" class="py-12 text-center text-slate-500">{{ __('reports.not_found') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

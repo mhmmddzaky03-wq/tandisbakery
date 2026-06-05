@@ -22,7 +22,7 @@ class PdfReportController extends Controller
         $totalKredit = $rows->sum('kredit');
 
         return PdfExporter::stream('pdf.trial-balance', [
-            'title' => 'Trial Balance',
+            'title' => __('app.pages.trial_balance'),
             'filterLabel' => PdfExporter::filterLabel(null, null, $asOf),
             'asOf' => $asOf,
             'rows' => $rows,
@@ -48,7 +48,7 @@ class PdfReportController extends Controller
         $ledger = $this->accounting->generalLedger($accountKode, $from, $to);
 
         return PdfExporter::stream('pdf.general-ledger', array_merge($ledger, [
-            'title' => 'General Ledger',
+            'title' => __('app.pages.general_ledger'),
             'filterLabel' => PdfExporter::filterLabel($ledger['from'], $ledger['to']),
             'accountKode' => $accountKode,
         ]), 'general-ledger-'.$accountKode);
@@ -71,13 +71,14 @@ class PdfReportController extends Controller
         $filterLabel = PdfExporter::filterLabel($from, $to);
         $sourceLabel = $this->accounting->journalSourceFilterLabel($source ?: null);
         if ($sourceLabel) {
-            $filterLabel = $filterLabel === 'Semua data'
-                ? 'Sumber: '.$sourceLabel
-                : $filterLabel.' · Sumber: '.$sourceLabel;
+            $allData = __('app.pages.sales_report_subtitle');
+            $filterLabel = $filterLabel === $allData
+                ? __('reports.pdf.source_filter', ['source' => $sourceLabel])
+                : $filterLabel.' · '.__('reports.pdf.source_filter', ['source' => $sourceLabel]);
         }
 
         return PdfExporter::stream('pdf.journal', [
-            'title' => 'Jurnal Umum',
+            'title' => __('app.pages.journal'),
             'filterLabel' => $filterLabel,
             'journals' => $journals,
             'totals' => $totals,
@@ -94,11 +95,11 @@ class PdfReportController extends Controller
         }
 
         $filterLabel = $groupFilter
-            ? 'Grup: '.$groupFilter
+            ? __('reports.coa.group_filter', ['group' => $groupFilter])
             : PdfExporter::filterLabel(null, null);
 
         return PdfExporter::stream('pdf.coa', [
-            'title' => 'Chart of Accounts',
+            'title' => __('app.pages.coa'),
             'filterLabel' => $filterLabel,
             'accounts' => $accounts,
             'groupFilter' => $groupFilter,
@@ -111,7 +112,7 @@ class PdfReportController extends Controller
         $data = $this->accounting->balanceSheet($asOf);
 
         return PdfExporter::stream('pdf.balance-sheet', [
-            'title' => 'Neraca Keuangan',
+            'title' => __('app.pages.balance_sheet'),
             'filterLabel' => $asOf
                 ? PdfExporter::filterLabel(null, null, $asOf)
                 : PdfExporter::filterLabel(null, null),
@@ -125,7 +126,7 @@ class PdfReportController extends Controller
         $data = $this->accounting->incomeStatement($from, $to);
 
         return PdfExporter::stream('pdf.income-statement', [
-            'title' => 'Laba Rugi',
+            'title' => __('app.pages.income_statement'),
             'filterLabel' => PdfExporter::filterLabel($from, $to),
             'data' => $data,
         ], 'laba-rugi');
@@ -143,7 +144,7 @@ class PdfReportController extends Controller
             ->get();
 
         return PdfExporter::stream('pdf.sales-report', [
-            'title' => 'Laporan Penjualan',
+            'title' => __('app.pages.sales_report'),
             'filterLabel' => PdfExporter::filterLabel($from, $to),
             'sales' => $sales,
             'total' => (int) $sales->sum('total'),

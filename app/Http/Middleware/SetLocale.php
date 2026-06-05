@@ -8,14 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
 {
-    /**
-     * Bahasa Indonesia saja (multibahasa dinonaktifkan untuk development).
-     */
+    /** @var array<int, string> */
+    private const SUPPORTED = ['id', 'en'];
+
     public function handle(Request $request, Closure $next): Response
     {
-        app()->setLocale('id');
+        $locale = session('locale', config('app.locale', 'id'));
+
+        if (! in_array($locale, self::SUPPORTED, true)) {
+            $locale = 'id';
+        }
+
+        app()->setLocale($locale);
 
         return $next($request);
     }
 }
-

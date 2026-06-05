@@ -29,19 +29,19 @@ class SalesTransactionController extends Controller
 
         $stats = [
             [
-                'label' => 'Total Penjualan Hari Ini',
+                'label' => __('sales.stats.today_total'),
                 'value' => FormatHelper::rupiah($todaySales),
                 'tone' => 'green',
                 'icon' => $ic('<path d="M4 7h16M4 11h16M8 15h4M6 19h12"/>'),
             ],
             [
-                'label' => 'Transaksi Hari Ini',
+                'label' => __('sales.stats.today_count'),
                 'value' => (string) $todayCount,
                 'tone' => 'blue',
                 'icon' => $ic('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
             ],
             [
-                'label' => 'Total Data',
+                'label' => __('sales.stats.total_records'),
                 'value' => (string) $transactions->count(),
                 'tone' => 'amber',
                 'icon' => $ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>'),
@@ -70,7 +70,7 @@ class SalesTransactionController extends Controller
             $this->salesJournal->sync($sale);
         });
 
-        return redirect()->back()->with('success', 'Transaksi penjualan berhasil disimpan dan dicatat ke jurnal.');
+        return redirect()->back()->with('success', __('messages.flash.sales_saved'));
     }
 
     public function update(Request $request, string $id)
@@ -89,7 +89,7 @@ class SalesTransactionController extends Controller
             $this->salesJournal->sync($transaction->fresh());
         });
 
-        return redirect()->back()->with('success', 'Transaksi penjualan berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.sales_updated'));
     }
 
     public function destroy(string $id)
@@ -101,7 +101,7 @@ class SalesTransactionController extends Controller
             $transaction->delete();
         });
 
-        return redirect()->back()->with('success', 'Transaksi penjualan berhasil dihapus.');
+        return redirect()->back()->with('success', __('messages.flash.sales_deleted'));
     }
 
     private function nextId(string $model, string $prefix): string

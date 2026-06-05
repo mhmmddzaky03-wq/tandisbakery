@@ -7,14 +7,18 @@
 @php
     use App\Support\FormatHelper;
 
+    $locale = app()->getLocale();
+
     $roleLabel = match ($role) {
-        'admin' => 'Administrator',
-        'karyawan' => 'Karyawan',
+        'admin' => __('app.role.admin'),
+        'karyawan' => __('app.role.employee'),
         default => ucfirst($role),
     };
 
     $hasLowStock = $role === 'admin' && $lowStockMaterials->isNotEmpty();
     $lowStockCount = $lowStockMaterials->count();
+    $langActiveClass = 'flex w-full items-center justify-center rounded-xl px-3 py-2 bg-amber-50 ring-1 ring-amber-200';
+    $langIdleClass = 'flex w-full items-center justify-center rounded-xl px-3 py-2 hover:bg-slate-50 transition';
 @endphp
 
 <div class="flex w-full min-w-0 items-center gap-3 sm:gap-4">
@@ -25,8 +29,8 @@
         </svg>
         <input
             class="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
-            placeholder="Cari..."
-            aria-label="Cari..."
+            placeholder="{{ __('app.topbar.search') }}"
+            aria-label="{{ __('app.topbar.search') }}"
             data-global-search
         />
     </div>
@@ -54,7 +58,7 @@
                 </button>
                 <div class="absolute right-0 z-50 mt-2 hidden w-[min(100vw-2rem,320px)] rounded-2xl bg-white p-3 shadow-lg ring-1 ring-black/10" data-dropdown-menu>
                     <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                        <div class="text-xs font-bold text-slate-400">Notifikasi Stok</div>
+                        <div class="text-xs font-bold text-slate-400">{{ __('app.topbar.stock_notifications') }}</div>
                         @if ($hasLowStock)
                             <span class="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">{{ $lowStockCount }}</span>
                         @endif
@@ -84,47 +88,49 @@
                             href="{{ route('admin.stok') }}"
                             class="mt-2 block rounded-xl bg-slate-50 px-3 py-2 text-center text-xs font-bold text-slate-600 transition hover:bg-slate-100"
                         >
-                            Buka Stok Bahan Baku
+                            {{ __('app.topbar.open_raw_materials') }}
                         </a>
                     @else
-                        <p class="mt-3 text-sm font-semibold text-slate-600">Semua stok bahan baku aman.</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-600">{{ __('app.topbar.all_stock_safe') }}</p>
                     @endif
                 </div>
             </div>
         @endif
 
-        {{-- Pemilih bahasa (tampilan saja; aplikasi tetap Bahasa Indonesia) --}}
+        {{-- Pemilih bahasa --}}
         <div class="relative" data-dropdown>
             <button
                 type="button"
                 class="bakery-icon-btn h-10 w-10"
                 data-dropdown-button
-                aria-label="Bahasa Indonesia"
+                aria-label="{{ $locale === 'en' ? __('app.common.language_en') : __('app.common.language_id') }}"
             >
-                <x-icons.flag-id class="h-4 w-6 rounded-sm ring-1 ring-black/10" />
+                @if ($locale === 'en')
+                    <x-icons.flag-us class="h-4 w-6 rounded-sm ring-1 ring-black/10" />
+                @else
+                    <x-icons.flag-id class="h-4 w-6 rounded-sm ring-1 ring-black/10" />
+                @endif
             </button>
             <div
-                class="absolute right-0 z-50 mt-2 hidden w-[72px] rounded-2xl bg-white p-2 shadow-lg ring-1 ring-black/10"
+                class="absolute right-0 z-50 mt-2 hidden w-[88px] rounded-2xl bg-white p-2 shadow-lg ring-1 ring-black/10"
                 data-dropdown-menu
             >
-                <button
-                    type="button"
-                    class="flex w-full items-center justify-center rounded-xl px-3 py-2 bg-amber-50 ring-1 ring-amber-200"
-                    data-lang-picker-active
-                    aria-label="Bahasa Indonesia"
-                    title="Bahasa Indonesia"
+                <a
+                    href="{{ route('locale.switch', 'id') }}"
+                    class="{{ $locale === 'id' ? $langActiveClass : $langIdleClass }}"
+                    aria-label="{{ __('app.common.language_id') }}"
+                    title="{{ __('app.common.language_id') }}"
                 >
                     <x-icons.flag-id class="h-4 w-6 rounded-sm ring-1 ring-black/10" />
-                </button>
-                <button
-                    type="button"
-                    class="mt-1 flex w-full items-center justify-center rounded-xl px-3 py-2 hover:bg-slate-50"
-                    data-lang-picker-inactive
-                    aria-label="English"
-                    title="English (belum tersedia)"
+                </a>
+                <a
+                    href="{{ route('locale.switch', 'en') }}"
+                    class="{{ $locale === 'en' ? $langActiveClass : $langIdleClass }} mt-1"
+                    aria-label="{{ __('app.common.language_en') }}"
+                    title="{{ __('app.common.language_en') }}"
                 >
                     <x-icons.flag-us class="h-4 w-6 rounded-sm ring-1 ring-black/10" />
-                </button>
+                </a>
             </div>
         </div>
 
@@ -152,19 +158,19 @@
             <div class="absolute right-0 z-50 mt-2 hidden w-[220px] rounded-2xl bg-white p-2 shadow-lg ring-1 ring-black/10" data-dropdown-menu>
                 @if (! config('app.auth_enabled'))
                     <div class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-amber-600">
-                        Ganti role
+                        {{ __('app.common.switch_role') }}
                     </div>
                     <a href="{{ route('admin.dashboard') }}" class="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($role ?? '') === 'admin' ? 'bg-amber-50 text-amber-800' : '' }}">
-                        Admin
+                        {{ __('app.common.admin') }}
                     </a>
                     <a href="{{ route('karyawan.dashboard') }}" class="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 {{ ($role ?? '') === 'karyawan' ? 'bg-amber-50 text-amber-800' : '' }}">
-                        Karyawan
+                        {{ __('app.common.employee') }}
                     </a>
                 @else
                     <form method="POST" action="{{ route('auth.logout') }}">
                         @csrf
                         <button type="submit" class="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-rose-600 hover:bg-rose-50">
-                            Keluar
+                            {{ __('app.common.logout') }}
                         </button>
                     </form>
                 @endif

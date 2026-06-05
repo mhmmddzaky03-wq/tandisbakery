@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @php
-    $title = 'Data Produksi'.' - Admin';
+    $title = __('app.pages.production').' - '.__('app.common.admin');
     $role = 'admin';
     $active = 'admin.produksi';
-    $pageTitle = 'Data Produksi';
-    $pageSubtitle = 'Kelola data produksi, bahan dasar, dan bahan baku';
+    $pageTitle = __('app.pages.production');
+    $pageSubtitle = __('app.pages.production_subtitle');
     $storeRoute = 'admin.produksi.store';
     $updateRoute = 'admin.produksi.update';
     $destroyRoute = 'admin.produksi.destroy';
@@ -16,7 +16,7 @@
 
 @push('page-actions')
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="prod-baru">
-        + Tambah Produksi
+        {{ __('production.action_add') }}
     </button>
 @endpush
 

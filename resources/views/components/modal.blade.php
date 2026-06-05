@@ -43,7 +43,7 @@
                 type="button"
                 class="bakery-icon-btn bakery-modal-close shrink-0"
                 data-modal-close
-                aria-label="Tutup"
+                aria-label="{{ __('app.common.close') }}"
             >
                 <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" />

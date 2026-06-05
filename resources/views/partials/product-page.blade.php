@@ -6,10 +6,10 @@
 <div>
     <div class="bakery-card" data-table-search>
         <div class="bakery-card-header bakery-card-header--bordered">
-            <div class="bakery-card-header__title">Data Produk</div>
+            <div class="bakery-card-header__title">{{ __('app.tables.products_list') }}</div>
             <div class="bakery-card-header__actions">
             <x-table-search
-                placeholder="Cari produk..."
+                :placeholder="__('product.search')"
                 :value="$search ?? ''"
             />
             </div>
@@ -26,11 +26,11 @@
                 </colgroup>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nama Produk</th>
-                        <th class="text-right">Stok</th>
-                        <th class="text-right">Harga</th>
-                        <th class="text-center">Aksi</th>
+                        <th>{{ __('app.common.id') }}</th>
+                        <th>{{ __('product.table_product_name') }}</th>
+                        <th class="text-right">{{ __('app.common.stock') }}</th>
+                        <th class="text-right">{{ __('app.common.price') }}</th>
+                        <th class="text-center">{{ __('app.common.action') }}</th>
                     </tr>
                 </thead>
                 <tbody data-table-search-body>
@@ -45,7 +45,7 @@
                             <td class="min-w-[10rem]">
                                 <a href="{{ route($showRoute, $product->id) }}" class="font-semibold text-slate-800 hover:text-sky-600">{{ $product->nama }}</a>
                                 @if ($product->productionRecord)
-                                    <div class="mt-0.5 text-[11px] font-semibold text-slate-400">Produksi awal · {{ $product->productionRecord->id }}</div>
+                                    <div class="mt-0.5 text-[11px] font-semibold text-slate-400">{{ __('product.row_initial_production', ['id' => $product->productionRecord->id]) }}</div>
                                 @endif
                             </td>
                             <td class="whitespace-nowrap text-right font-bold tabular-nums text-emerald-700">{{ number_format($product->jumlah, 0, ',', '.') }} {{ $product->satuan }}</td>
@@ -55,8 +55,8 @@
                                     <a
                                         href="{{ route($showRoute, $product->id) }}"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-600"
-                                        title="Detail"
-                                        aria-label="Detail"
+                                        title="{{ __('app.common.detail') }}"
+                                        aria-label="{{ __('app.common.detail') }}"
                                     >
                                         <x-icons.info-circle class="h-4 w-4" />
                                     </a>
@@ -65,18 +65,18 @@
                                             type="button"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
                                             data-modal-open="edit-produk-{{ $product->id }}"
-                                            title="Edit"
-                                            aria-label="Edit"
+                                            title="{{ __('app.common.edit') }}"
+                                            aria-label="{{ __('app.common.edit') }}"
                                         >
                                             <x-icons.pencil />
                                         </button>
-                                        <form method="POST" action="{{ route($destroyRoute, $product->id) }}" class="inline" onsubmit="return confirm('Hapus produk ini? Riwayat produksi tidak akan ikut terhapus.')">
+                                        <form method="POST" action="{{ route($destroyRoute, $product->id) }}" class="inline" onsubmit="return confirm(@js(__('product.confirm_delete')))">
                                             @csrf @method('DELETE')
                                             <button
                                                 type="submit"
                                                 class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
-                                                title="Hapus"
-                                                aria-label="Hapus"
+                                                title="{{ __('app.common.delete') }}"
+                                                aria-label="{{ __('app.common.delete') }}"
                                             >
                                                 <x-icons.trash />
                                             </button>
@@ -88,13 +88,13 @@
                     @empty
                         <tr data-table-empty>
                             <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
-                                Belum ada produk terdaftar. Catat produksi berhasil lalu daftarkan produk di sini.
+                                {{ __('product.empty') }}
                             </td>
                         </tr>
                     @endforelse
                     <tr data-table-no-results class="hidden">
                         <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">
-                            Data tidak ditemukan
+                            {{ __('app.common.not_found') }}
                         </td>
                     </tr>
                 </tbody>
@@ -120,7 +120,7 @@
         @endphp
         <x-modal
             id="produk-baru"
-            title="Tambah Produk"
+            :title="__('product.modal_add')"
             size="lg"
             :scrollable="true"
             :auto-open="$isCreateTarget"
@@ -130,16 +130,16 @@
 
                 @if ($availableProductions->isEmpty())
                     <div class="rounded-xl bg-amber-50 px-4 py-3 ring-1 ring-amber-100">
-                        <p class="text-xs font-semibold text-amber-800">Tidak ada data produksi berhasil yang tersedia.</p>
-                        <p class="mt-1 text-[11px] font-semibold text-amber-700/80">Catat produksi terlebih dahulu di menu Data Produksi.</p>
+                        <p class="text-xs font-semibold text-amber-800">{{ __('product.no_success_production') }}</p>
+                        <p class="mt-1 text-[11px] font-semibold text-amber-700/80">{{ __('product.record_production_first') }}</p>
                     </div>
                 @endif
 
                 <div class="rounded-xl bg-slate-50/80 p-3 ring-1 ring-slate-100">
-                    <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">Sumber Produksi</p>
+                    <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ __('product.section_source') }}</p>
                     <div class="min-w-0">
                         <label for="field-production-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                            Data Produksi
+                            {{ __('product.field_production_data') }}
                             <span class="text-rose-500" aria-hidden="true">*</span>
                         </label>
                         <select
@@ -150,7 +150,7 @@
                             @disabled($availableProductions->isEmpty())
                             class="bakery-input h-11 w-full disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 {{ $errors->has('production_record_id') && $isCreateTarget ? '!ring-2 !ring-rose-400' : '' }}"
                         >
-                            <option value="" disabled @selected($selectedCreateProductionId === null || $selectedCreateProductionId === '')>Pilih data produksi</option>
+                            <option value="" disabled @selected($selectedCreateProductionId === null || $selectedCreateProductionId === '')>{{ __('product.select_production') }}</option>
                             @foreach ($availableProductions as $production)
                                 <option
                                     value="{{ $production->id }}"
@@ -169,7 +169,7 @@
 
                     <div class="mt-3 grid gap-3 sm:grid-cols-2">
                         <div class="min-w-0">
-                            <label for="field-nama-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">Nama Produk</label>
+                            <label for="field-nama-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">{{ __('product.field_product_name') }}</label>
                             <input
                                 id="field-nama-preview-create"
                                 name="nama_preview"
@@ -181,7 +181,7 @@
                             />
                         </div>
                         <div class="min-w-0">
-                            <label for="field-satuan-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">Satuan</label>
+                            <label for="field-satuan-preview-create" class="mb-1.5 block text-xs font-bold text-slate-600">{{ __('product.field_unit') }}</label>
                             <input
                                 id="field-satuan-preview-create"
                                 name="satuan_preview"
@@ -193,12 +193,12 @@
                             />
                         </div>
                     </div>
-                    <p class="mt-2 text-[11px] font-semibold text-slate-400">Stok awal dihitung dari semua produksi berhasil dengan nama produk yang sama.</p>
+                    <p class="mt-2 text-[11px] font-semibold text-slate-400">{{ __('product.stock_hint_named') }}</p>
                 </div>
 
                 <div class="min-w-0">
                     <label for="field-harga-create" class="mb-1.5 block text-xs font-bold text-slate-600">
-                        Harga Jual
+                        {{ __('product.field_selling_price') }}
                         <span class="text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <div class="flex items-center gap-2">
@@ -220,7 +220,7 @@
                     @endif
                 </div>
 
-                <x-form-actions compact submit="Daftarkan Produk" />
+                <x-form-actions compact :submit="__('product.submit_register')" />
             </form>
         </x-modal>
     @endif

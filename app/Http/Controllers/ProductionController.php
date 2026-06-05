@@ -52,25 +52,25 @@ class ProductionController extends Controller
 
         $stats = [
             [
-                'label' => 'Total Produksi',
+                'label' => __('production.stats.total'),
                 'value' => $total,
                 'tone'  => 'blue',
                 'icon'  => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
             ],
             [
-                'label' => 'Produksi Berhasil',
+                'label' => __('production.stats.success'),
                 'value' => $sukses,
                 'tone'  => 'green',
                 'icon'  => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>',
             ],
             [
-                'label' => 'Produksi Gagal',
+                'label' => __('production.stats.failed'),
                 'value' => $gagal,
                 'tone'  => 'rose',
                 'icon'  => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>',
             ],
             [
-                'label' => 'Tingkat Keberhasilan',
+                'label' => __('production.stats.success_rate'),
                 'value' => $rate,
                 'tone'  => 'amber',
                 'icon'  => '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
@@ -157,7 +157,7 @@ class ProductionController extends Controller
 
         if ($data['status'] === 'Berhasil' && (int) $data['jumlah'] < 1) {
             return redirect()->back()->withInput()->withErrors([
-                'jumlah' => 'Jumlah hasil wajib diisi jika status Berhasil.',
+                'jumlah' => __('messages.validation.production_qty_required_when_success'),
             ]);
         }
 
@@ -181,7 +181,7 @@ class ProductionController extends Controller
 
         return redirect()->back()->with(
             'success',
-            sprintf('Produksi %s berhasil disimpan.', $data['product_name'])
+            __('messages.flash.production_saved', ['name' => $data['product_name']])
         );
     }
 
@@ -222,7 +222,7 @@ class ProductionController extends Controller
 
         if ($data['status'] === 'Berhasil' && (int) $data['jumlah'] < 1) {
             return redirect()->back()->withInput()->withErrors([
-                'jumlah' => 'Jumlah hasil wajib diisi jika status Berhasil.',
+                'jumlah' => __('messages.validation.production_qty_required_when_success'),
             ]);
         }
 
@@ -247,7 +247,7 @@ class ProductionController extends Controller
 
         return redirect()->back()->with(
             'success',
-            sprintf('Produksi %s berhasil diperbarui.', $record->product_name)
+            __('messages.flash.production_updated', ['name' => $record->product_name])
         );
     }
 
@@ -266,7 +266,7 @@ class ProductionController extends Controller
 
         return redirect()->back()->with(
             'success',
-            sprintf('Produksi %s berhasil dihapus.', $nama)
+            __('messages.flash.production_deleted', ['name' => $nama])
         );
     }
 
@@ -454,7 +454,7 @@ class ProductionController extends Controller
         if ($useBahanDasar) {
             if ($bahanDasarLines === []) {
                 throw ValidationException::withMessages([
-                    'bahan_dasar' => 'Minimal satu bahan dasar wajib diisi.',
+                    'bahan_dasar' => __('messages.validation.bahan_dasar_required'),
                 ]);
             }
 
@@ -463,7 +463,7 @@ class ProductionController extends Controller
 
         if ($materialLines === []) {
             throw ValidationException::withMessages([
-                'materials' => 'Minimal satu bahan baku wajib diisi.',
+                'materials' => __('messages.validation.materials_required'),
             ]);
         }
     }

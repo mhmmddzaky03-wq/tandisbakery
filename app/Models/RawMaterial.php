@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsActivity;
+use App\Support\LocaleLabels;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,15 +36,15 @@ class RawMaterial extends Model
     public static function kategoriOptions(): array
     {
         return [
-            self::KATEGORI_KERING => 'Kering',
-            self::KATEGORI_BASAH => 'Basah',
-            self::KATEGORI_PADAT => 'Padat',
+            self::KATEGORI_KERING => __('stock.category.dry'),
+            self::KATEGORI_BASAH => __('stock.category.wet'),
+            self::KATEGORI_PADAT => __('stock.category.solid'),
         ];
     }
 
     public function kategoriLabel(): string
     {
-        return self::kategoriOptions()[$this->kategori] ?? 'Padat';
+        return self::kategoriOptions()[$this->kategori] ?? __('stock.category.solid');
     }
 
     public function restocks(): HasMany
@@ -97,15 +98,7 @@ class RawMaterial extends Model
 
     public function stockStatusLabel(): string
     {
-        if ((float) $this->jumlah <= 0) {
-            return 'Stok Habis';
-        }
-
-        if ($this->needsRestock()) {
-            return 'Perlu Diisi';
-        }
-
-        return 'Stok Aman';
+        return LocaleLabels::stockStatus((float) $this->jumlah, (float) $this->min);
     }
 
     public function scopeNeedsRestock(Builder $query): Builder

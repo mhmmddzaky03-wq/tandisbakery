@@ -6,15 +6,15 @@
 <table class="summary-grid">
     <tr>
         <td>
-            <div class="summary-label">Total Aset</div>
+            <div class="summary-label">{{ __('reports.balance_sheet.total_assets') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($data['total_assets']) }}</div>
         </td>
         <td>
-            <div class="summary-label">Liabilitas</div>
+            <div class="summary-label">{{ __('reports.balance_sheet.liabilities') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($data['total_liabilities']) }}</div>
         </td>
         <td class="highlight">
-            <div class="summary-label">Ekuitas</div>
+            <div class="summary-label">{{ __('reports.balance_sheet.equity') }}</div>
             <div class="summary-value">{{ FormatHelper::rupiah($data['total_equity']) }}</div>
         </td>
     </tr>
@@ -22,8 +22,8 @@
 
 @php
     $columns = [
-        ['title' => 'ASET', 'sections' => $data['assets'], 'total_label' => 'TOTAL ASET', 'total' => $data['total_assets']],
-        ['title' => 'LIABILITAS & EKUITAS', 'sections' => $data['liabilities']->concat($data['equity']), 'total_label' => 'TOTAL LIABILITAS + EKUITAS', 'total' => $data['total_liabilities_equity']],
+        ['title' => __('reports.balance_sheet.pdf_section_assets'), 'sections' => $data['assets'], 'total_label' => __('reports.balance_sheet.pdf_total_assets'), 'total' => $data['total_assets']],
+        ['title' => __('reports.balance_sheet.pdf_section_liabilities_equity'), 'sections' => $data['liabilities']->concat($data['equity']), 'total_label' => __('reports.balance_sheet.pdf_total_liabilities_equity'), 'total' => $data['total_liabilities_equity']],
     ];
 @endphp
 
@@ -35,9 +35,9 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width:52px">Kode</th>
-                    <th>Akun</th>
-                    <th class="num" style="width:120px">Saldo</th>
+                    <th style="width:52px">{{ __('reports.trial_balance.col_code') }}</th>
+                    <th>{{ __('reports.account') }}</th>
+                    <th class="num" style="width:120px">{{ __('reports.balance') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,13 +49,13 @@
                     </tr>
                 @endforeach
                 <tr class="total">
-                    <td colspan="2">Subtotal {{ $section['label'] }}</td>
+                    <td colspan="2">{{ __('reports.subtotal_label', ['label' => $section['label']]) }}</td>
                     <td class="num">{{ FormatHelper::rupiah($section['subtotal']) }}</td>
                 </tr>
             </tbody>
         </table>
     @empty
-        <p style="font-size:9pt;color:#94a3b8;margin:8px 0">Tidak ada saldo</p>
+        <p style="font-size:9pt;color:#94a3b8;margin:8px 0">{{ __('reports.no_balance') }}</p>
     @endforelse
 
     <table class="data-table" style="margin-top:8px">
@@ -70,7 +70,7 @@
 
 @if (! $data['is_balanced'])
     <p style="margin-top:12px;font-size:9pt;color:#b91c1c">
-        Selisih neraca: {{ FormatHelper::rupiah($data['difference']) }}
+        {{ __('reports.balance_sheet.pdf_difference', ['amount' => FormatHelper::rupiah($data['difference'])]) }}
     </p>
 @endif
 @endsection

@@ -48,6 +48,9 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware(config('app.auth_enabled') ? 'auth' : [])
     ->name('auth.logout');
 
+Route::get('/locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'switch'])
+    ->name('locale.switch');
+
 Route::middleware($access('admin'))->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
 

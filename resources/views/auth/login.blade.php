@@ -3,8 +3,8 @@
 @php
     $title = 'Login - Tandi\'s Homemade Bakery';
     $tabs = [
-        ['key' => 'admin', 'label' => 'Admin', 'href' => route('auth.login.admin')],
-        ['key' => 'karyawan', 'label' => 'Karyawan', 'href' => route('auth.login.karyawan')],
+        ['key' => 'admin', 'label' => __('app.common.admin'), 'href' => route('auth.login.admin')],
+        ['key' => 'karyawan', 'label' => __('app.common.employee'), 'href' => route('auth.login.karyawan')],
     ];
     $role = $role ?? 'admin';
 @endphp
@@ -19,20 +19,20 @@
                 </div>
 
                 <h1 class="mt-8 max-w-md text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 sm:text-4xl lg:text-[2.35rem]">
-                    Sistem Keuangan Digital
-                    <span class="mt-2 block text-amber-700">Tandi's Bakery Homemade</span>
+                    {{ __('app.auth.hero_title') }}
+                    <span class="mt-2 block text-amber-700">{{ __('app.auth.hero_brand') }}</span>
                 </h1>
 
                 <p class="mt-5 max-w-sm text-sm leading-relaxed text-slate-500 sm:text-[15px]">
-                    Kelola produksi, penjualan, dan laporan keuangan bakery dalam satu sistem terpadu.
+                    {{ __('app.auth.hero_subtitle') }}
                 </p>
             </div>
 
             {{-- Kanan: form dalam card --}}
             <div class="bakery-card mx-auto w-full max-w-[440px] px-7 py-8 sm:px-9 sm:py-10 lg:mx-0 lg:ml-auto lg:max-w-[460px]">
                 <div class="mb-7">
-                    <h2 class="text-xl font-bold text-slate-900">Masuk ke akun</h2>
-                    <p class="mt-1.5 text-sm text-slate-500">Pilih peran dan masukkan kredensial Anda.</p>
+                    <h2 class="text-xl font-bold text-slate-900">{{ __('app.auth.login_title') }}</h2>
+                    <p class="mt-1.5 text-sm text-slate-500">{{ __('app.auth.login_subtitle') }}</p>
                 </div>
 
                 <div class="rounded-2xl bg-slate-100/90 p-1 ring-1 ring-slate-200/60">
@@ -56,14 +56,14 @@
 
                     <div>
                         <label for="username" class="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-                            Username
+                            {{ __('app.auth.username') }}
                         </label>
                         <input
                             id="username"
                             class="bakery-input h-12 @error('username') bakery-input--error @enderror"
                             name="username"
                             value="{{ old('username') }}"
-                            placeholder="Masukkan username"
+                            placeholder="{{ __('app.auth.username_placeholder') }}"
                             required
                             autocomplete="username"
                         />
@@ -74,14 +74,14 @@
 
                     <div>
                         <label for="password" class="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-                            Password
+                            {{ __('app.auth.password') }}
                         </label>
                         <input
                             id="password"
                             class="bakery-input h-12 @error('password') bakery-input--error @enderror"
                             type="password"
                             name="password"
-                            placeholder="Masukkan password"
+                            placeholder="{{ __('app.auth.password_placeholder') }}"
                             required
                             autocomplete="current-password"
                         />
@@ -94,7 +94,7 @@
                         type="submit"
                         class="bakery-btn-dark mt-1"
                     >
-                        Login
+                        {{ __('app.auth.login_button') }}
                     </button>
                 </form>
             </div>

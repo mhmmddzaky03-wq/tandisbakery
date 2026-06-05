@@ -5,9 +5,9 @@
 
     $role = 'admin';
     $active = 'admin.coa';
-    $pageTitle = 'Chart of Accounts';
-    $pageSubtitle = 'Chart of Accounts resmi perusahaan (48 akun)';
-    $title = 'Chart of Accounts'.' - Admin';
+    $pageTitle = __('app.pages.coa');
+    $pageSubtitle = __('app.pages.coa_subtitle');
+    $title = __('app.pages.coa').' - '.__('app.common.admin');
 
     $groupTone = static fn (string $grup): string => match ($grup) {
         'Asset' => 'bg-sky-50 text-sky-700',
@@ -28,20 +28,20 @@
 @push('page-actions')
     <x-pdf-print-button :route="route('admin.pdf.coa')" :query="array_filter(['grup' => $groupFilter ?? null])" />
     <button type="button" class="bakery-btn-primary whitespace-nowrap" data-modal-open="coa-baru">
-        + Tambah Akun
+        {{ __('coa.action_add') }}
     </button>
 @endpush
 
 @section('content')
 <div>
-    <p class="text-xs font-semibold text-slate-400">COA adalah master daftar akun. Saldo transaksi lihat di General Ledger atau Neraca.</p>
+    <p class="text-xs font-semibold text-slate-400">{{ __('coa.intro') }}</p>
 
     <div class="mt-4 flex flex-wrap gap-2">
         <a
             href="{{ $filterUrl(null) }}"
             class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ empty($groupFilter) ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
         >
-            Semua ({{ $totalAccountCount }})
+            {{ __('coa.filter_all', ['count' => $totalAccountCount]) }}
         </a>
         @foreach ($coaGroupMap as $grup => $subs)
             <a
@@ -55,9 +55,9 @@
 
     <div class="bakery-card mt-4" data-table-search>
         <div class="bakery-card-header bakery-card-header--bordered">
-            <div class="bakery-card-header__title">Daftar Akun COA</div>
+            <div class="bakery-card-header__title">{{ __('app.tables.coa_list') }}</div>
             <div class="bakery-card-header__actions">
-            <x-table-search placeholder="Cari akun..." :value="''" />
+            <x-table-search :placeholder="__('coa.search')" :value="''" />
             </div>
         </div>
 
@@ -65,12 +65,12 @@
             <table class="bakery-table">
                 <thead>
                     <tr>
-                        <th class="w-[90px]">Kode</th>
-                        <th>Nama Akun</th>
-                        <th class="w-[80px]">Posisi</th>
-                        <th class="w-[110px]">Grup</th>
-                        <th class="w-[160px]">Sub-Grup</th>
-                        <th class="w-[90px] text-center">Aksi</th>
+                        <th class="w-[90px]">{{ __('coa.col_code') }}</th>
+                        <th>{{ __('coa.col_name') }}</th>
+                        <th class="w-[80px]">{{ __('coa.col_position') }}</th>
+                        <th class="w-[110px]">{{ __('coa.col_group') }}</th>
+                        <th class="w-[160px]">{{ __('coa.col_subgroup') }}</th>
+                        <th class="w-[90px] text-center">{{ __('app.common.action') }}</th>
                     </tr>
                 </thead>
                 <tbody data-table-search-body>
@@ -99,8 +99,8 @@
                                         type="button"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
                                         data-modal-open="detail-coa-{{ $acc->kode }}"
-                                        title="Lihat detail"
-                                        aria-label="Lihat detail"
+                                        title="{{ __('app.common.detail') }}"
+                                        aria-label="{{ __('app.common.detail') }}"
                                     >
                                         <x-icons.info-circle class="h-4 w-4" />
                                     </button>
@@ -108,8 +108,8 @@
                                         type="button"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-sky-600"
                                         data-modal-open="edit-coa-{{ $acc->kode }}"
-                                        title="Edit"
-                                        aria-label="Edit"
+                                        title="{{ __('app.common.edit') }}"
+                                        aria-label="{{ __('app.common.edit') }}"
                                     >
                                         <x-icons.pencil />
                                     </button>
@@ -120,16 +120,16 @@
                         <tr data-table-empty>
                             <td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">
                                 @if (! empty($groupFilter))
-                                    Data tidak ditemukan
+                                    {{ __('app.common.not_found') }}
                                 @else
-                                    Belum ada akun.
+                                    {{ __('coa.empty') }}
                                 @endif
                             </td>
                         </tr>
                     @endforelse
                     <tr data-table-no-results class="hidden">
                         <td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">
-                            Data tidak ditemukan
+                            {{ __('app.common.not_found') }}
                         </td>
                     </tr>
                 </tbody>
@@ -140,43 +140,43 @@
 
 @foreach ($accounts as $row)
     @php $acc = $row['account']; @endphp
-    <x-modal id="detail-coa-{{ $acc->kode }}" size="sm" title="Detail Akun" :subtitle="$acc->kode">
+    <x-modal id="detail-coa-{{ $acc->kode }}" size="sm" :title="__('coa.modal_detail')" :subtitle="$acc->kode">
         <dl class="text-sm">
             <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                <dt class="text-slate-400">Nama Akun</dt>
+                <dt class="text-slate-400">{{ __('coa.col_name') }}</dt>
                 <dd class="max-w-[60%] text-right font-semibold text-slate-800">{{ $acc->nama }}</dd>
             </div>
             <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                <dt class="text-slate-400">Posisi</dt>
+                <dt class="text-slate-400">{{ __('coa.col_position') }}</dt>
                 <dd class="font-semibold text-slate-800">{{ $acc->posisi === 'Debit' ? 'Dr' : 'Cr' }}</dd>
             </div>
             <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                <dt class="text-slate-400">Grup</dt>
+                <dt class="text-slate-400">{{ __('coa.col_group') }}</dt>
                 <dd class="font-semibold text-slate-800">{{ $acc->grup }}</dd>
             </div>
             <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5">
-                <dt class="text-slate-400">Sub-Grup</dt>
+                <dt class="text-slate-400">{{ __('coa.col_subgroup') }}</dt>
                 <dd class="font-semibold text-slate-800">{{ $acc->sub_grup ?? '—' }}</dd>
             </div>
             <div class="flex items-center justify-between gap-4 py-2.5">
-                <dt class="text-slate-400">Saldo Saat Ini</dt>
+                <dt class="text-slate-400">{{ __('coa.field_balance') }}</dt>
                 <dd class="font-semibold text-slate-800">{{ FormatHelper::rupiah($row['saldo']) }}</dd>
             </div>
         </dl>
-        <p class="mt-2 text-xs font-semibold text-slate-400">Saldo dihitung otomatis dari jurnal. Bukan saldo awal (Beg. Bal) manual.</p>
+        <p class="mt-2 text-xs font-semibold text-slate-400">{{ __('coa.balance_note') }}</p>
         <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
-            <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>Tutup</button>
+            <button type="button" class="bakery-btn-ghost text-sm" data-modal-close>{{ __('app.common.close') }}</button>
         </div>
     </x-modal>
 
-    <x-modal id="edit-coa-{{ $acc->kode }}" title="Edit Akun COA" :subtitle="$acc->kode">
+    <x-modal id="edit-coa-{{ $acc->kode }}" :title="__('coa.modal_edit')" :subtitle="$acc->kode">
         <form
             method="POST"
             action="{{ route('admin.coa.update', $acc->kode) }}"
             class="space-y-4"
             data-modal-form
             data-coa-form
-            data-coa-placeholder-sub="Pilih sub-grup"
+            data-coa-placeholder-sub="{{ __('coa.select_subgroup_data') }}"
         >
             @csrf @method('PUT')
             @include('partials.coa-form-fields', [
@@ -191,8 +191,8 @@
     </x-modal>
 @endforeach
 
-<x-modal id="coa-baru" title="+ Tambah Akun" subtitle="Kode harus unik sesuai COA perusahaan" :auto-open="$errors->has('kode') || $errors->has('grup')">
-    <form method="POST" action="{{ route('admin.coa.store') }}" class="space-y-4" data-modal-form data-coa-form data-coa-placeholder-sub="Pilih sub-grup">
+<x-modal id="coa-baru" :title="__('coa.modal_add')" :subtitle="__('coa.modal_add_sub')" :auto-open="$errors->has('kode') || $errors->has('grup')">
+    <form method="POST" action="{{ route('admin.coa.store') }}" class="space-y-4" data-modal-form data-coa-form data-coa-placeholder-sub="{{ __('coa.select_subgroup_data') }}">
         @csrf
         @include('partials.coa-form-fields', [
             'coaGroupMap' => $coaGroupMap,

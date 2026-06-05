@@ -63,7 +63,7 @@ class ProductController extends Controller
 
         if (Product::existsForName($production->product_name)) {
             throw ValidationException::withMessages([
-                'production_record_id' => 'Produk dengan nama ini sudah terdaftar.',
+                'production_record_id' => __('messages.validation.product_name_exists'),
             ]);
         }
 
@@ -76,7 +76,7 @@ class ProductController extends Controller
             'harga'                => $data['harga'],
         ]);
 
-        return redirect()->back()->with('success', 'Produk berhasil didaftarkan dari data produksi.');
+        return redirect()->back()->with('success', __('messages.flash.product_registered'));
     }
 
     public function update(Request $request, $id)
@@ -91,14 +91,14 @@ class ProductController extends Controller
             'harga' => $data['harga'],
         ]);
 
-        return redirect()->back()->with('success', 'Produk berhasil diperbarui.');
+        return redirect()->back()->with('success', __('messages.flash.product_updated'));
     }
 
     public function destroy($id)
     {
         Product::findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', 'Produk berhasil dihapus. Riwayat produksi tetap tersimpan.');
+        return redirect()->back()->with('success', __('messages.flash.product_deleted'));
     }
 
     private function availableProductionsQuery()

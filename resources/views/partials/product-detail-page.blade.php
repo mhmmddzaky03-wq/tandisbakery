@@ -2,42 +2,42 @@
     use App\Support\FormatHelper;
 
     $stockValue = number_format($product->jumlah, 0, ',', '.').' '.$product->satuan;
-    $stockSub = $productionBatchCount.' batch produksi berhasil';
+    $stockSub = __('product.kpi_stock_sub', ['count' => $productionBatchCount]);
     $hargaValue = FormatHelper::rupiah($product->harga);
-    $hargaSub = 'Harga jual katalog';
+    $hargaSub = __('product.kpi_selling_price_sub');
     $nilaiStok = (int) $product->jumlah * (int) $product->harga;
     $nilaiStokValue = FormatHelper::rupiah($nilaiStok);
-    $nilaiStokSub = 'Stok × harga jual';
+    $nilaiStokSub = __('product.kpi_stock_value_sub');
     $batchValue = (string) $productionBatchCount;
-    $batchSub = 'Entri produksi berhasil';
+    $batchSub = __('product.kpi_batches_sub');
     $productionShowRoute = $productionShowRoute ?? 'admin.produksi.show';
 @endphp
 
 <div class="space-y-6">
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-kpi-card
-            title="Stok Saat Ini"
+            :title="__('product.kpi_current_stock')"
             :value="$stockValue"
             :sub="$stockSub"
             tone="green"
             icon='<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>'
         />
         <x-kpi-card
-            title="Harga Jual"
+            :title="__('product.kpi_selling_price')"
             :value="$hargaValue"
             :sub="$hargaSub"
             tone="amber"
             icon='<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
         />
         <x-kpi-card
-            title="Nilai Stok"
+            :title="__('product.kpi_stock_value')"
             :value="$nilaiStokValue"
             :sub="$nilaiStokSub"
             tone="violet"
             icon='<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>'
         />
         <x-kpi-card
-            title="Batch Produksi"
+            :title="__('product.kpi_batches')"
             :value="$batchValue"
             :sub="$batchSub"
             tone="blue"
@@ -47,28 +47,28 @@
 
     <div class="bakery-card">
         <div class="bakery-card-header border-b border-slate-100 pb-4">
-            <h2 class="text-base font-extrabold text-slate-900">Informasi Produk</h2>
+            <h2 class="text-base font-extrabold text-slate-900">{{ __('product.section_info') }}</h2>
         </div>
         <div class="bakery-card-body">
             <dl class="grid gap-x-8 gap-y-0 sm:grid-cols-2">
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm">
-                    <dt class="text-slate-400">ID Produk</dt>
+                    <dt class="text-slate-400">{{ __('product.label_product_id') }}</dt>
                     <dd class="font-bold text-slate-800">{{ $product->id }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm">
-                    <dt class="text-slate-400">Nama Produk</dt>
+                    <dt class="text-slate-400">{{ __('product.field_product_name') }}</dt>
                     <dd class="text-right font-semibold text-slate-800">{{ $product->nama }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm">
-                    <dt class="text-slate-400">Satuan</dt>
+                    <dt class="text-slate-400">{{ __('product.field_unit') }}</dt>
                     <dd class="font-semibold uppercase text-slate-800">{{ $product->satuan }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm">
-                    <dt class="text-slate-400">Harga Jual</dt>
+                    <dt class="text-slate-400">{{ __('product.field_selling_price') }}</dt>
                     <dd class="font-extrabold text-amber-600">{{ FormatHelper::rupiah($product->harga) }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-sm sm:border-b-0">
-                    <dt class="text-slate-400">Produksi Awal</dt>
+                    <dt class="text-slate-400">{{ __('product.label_initial_production') }}</dt>
                     <dd class="font-semibold text-slate-800">
                         @if ($product->productionRecord)
                             <a href="{{ route($productionShowRoute, $product->productionRecord->id) }}" class="hover:text-sky-600">
@@ -80,8 +80,8 @@
                     </dd>
                 </div>
                 <div class="flex items-start gap-3 py-3 text-sm sm:col-span-2">
-                    <dt class="shrink-0 text-slate-400">Catatan</dt>
-                    <dd class="text-slate-600">Stok dihitung otomatis dari semua produksi berhasil dengan nama produk yang sama.</dd>
+                    <dt class="shrink-0 text-slate-400">{{ __('product.label_note') }}</dt>
+                    <dd class="text-slate-600">{{ __('product.note_auto_stock') }}</dd>
                 </div>
             </dl>
         </div>
@@ -90,10 +90,10 @@
     <div class="bakery-card">
         <div class="bakery-card-header bakery-card-header--bordered">
             <div>
-                <h2 class="text-base font-extrabold text-slate-900">Riwayat Produksi Berhasil</h2>
+                <h2 class="text-base font-extrabold text-slate-900">{{ __('product.section_success_history') }}</h2>
             </div>
             <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
-                Total {{ number_format($product->jumlah, 0, ',', '.') }} {{ $product->satuan }}
+                {{ __('product.catalog_total_qty', ['qty' => number_format($product->jumlah, 0, ',', '.').' '.$product->satuan]) }}
             </span>
         </div>
         <div class="bakery-card-body overflow-x-auto pt-2">
@@ -101,10 +101,10 @@
                 <table class="bakery-table w-full min-w-[36rem]">
                     <thead>
                         <tr>
-                            <th class="w-[7rem]">Tanggal</th>
-                            <th class="w-[6rem]">ID Prod.</th>
-                            <th class="w-[8rem]">Kontribusi</th>
-                            <th class="w-[5rem] text-center">Aksi</th>
+                            <th class="w-[7rem]">{{ __('app.common.date') }}</th>
+                            <th class="w-[6rem]">{{ __('production.label_prod_id') }}</th>
+                            <th class="w-[8rem]">{{ __('product.label_contribution') }}</th>
+                            <th class="w-[5rem] text-center">{{ __('app.common.action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -123,8 +123,8 @@
                                     <a
                                         href="{{ route($productionShowRoute, $production->id) }}"
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-sky-50 hover:text-sky-600"
-                                        title="Detail produksi"
-                                        aria-label="Detail produksi"
+                                        title="{{ __('product.detail_production') }}"
+                                        aria-label="{{ __('product.detail_production') }}"
                                     >
                                         <x-icons.info-circle class="h-4 w-4" />
                                     </a>
@@ -134,7 +134,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-emerald-50/60">
-                            <td colspan="2" class="px-4 py-3 text-right text-sm font-bold text-emerald-900">Total stok katalog</td>
+                            <td colspan="2" class="px-4 py-3 text-right text-sm font-bold text-emerald-900">{{ __('product.footer_catalog_total') }}</td>
                             <td colspan="2" class="px-4 py-3 text-sm font-extrabold text-emerald-800">
                                 {{ number_format($product->jumlah, 0, ',', '.') }} {{ $product->satuan }}
                             </td>
@@ -143,7 +143,7 @@
                 </table>
             @else
                 <div class="py-10 text-center">
-                    <p class="text-sm font-semibold text-slate-500">Belum ada produksi berhasil untuk produk ini.</p>
+                    <p class="text-sm font-semibold text-slate-500">{{ __('product.empty_success_production') }}</p>
                 </div>
             @endif
         </div>

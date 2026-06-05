@@ -57,13 +57,17 @@ class DashboardController extends Controller
         $totalCostComposition = $fixedCosts + $variableCosts + $restockCosts;
 
         $costChart = [
-            'labels' => ['Biaya tetap', 'Biaya variabel', 'Restock bahan'],
+            'labels' => [
+                __('dashboard.cost.fixed'),
+                __('dashboard.cost.variable'),
+                __('dashboard.cost.restock'),
+            ],
             'values' => [$fixedCosts, $variableCosts, $restockCosts],
         ];
 
         $activityLogs = ActivityLog::query()->latest()->take(10)->get();
 
-        $monthName = Carbon::now()->locale('id')->translatedFormat('F Y');
+        $monthName = Carbon::now()->locale(app()->getLocale())->translatedFormat('F Y');
 
         return view('admin.dashboard', [
             'stockCount' => $materials->count(),
